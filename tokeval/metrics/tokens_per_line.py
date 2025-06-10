@@ -20,10 +20,9 @@ class TokensPerLineMetric(TokEvalMetric):
         data: Dict[str, List[str]],
         system_label: str,
     ) -> float:
-
-        logger.debug("Processing %s.%s.out dataset", system_label, self.metric)
         corpus = data[system_label]
         n_tokens = []
         for line in corpus:
+            line = line.strip()
             n_tokens.append(len(line.split(" ")))
         return np.array(n_tokens).mean()

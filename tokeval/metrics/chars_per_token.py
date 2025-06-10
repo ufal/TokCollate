@@ -20,11 +20,10 @@ class CharsPerTokenMetric(TokEvalMetric):
         data: Dict[str, List[str]],
         system_label: str,
     ) -> float:
-
-        logger.debug("Processing %s.%s.out dataset", system_label, self.metric)
         corpus = data[system_label]
         n_chars = []
         for line in corpus:
+            line = line.strip()
             for token in line.split(" "):
                 n_chars.append(len(token))
         return np.array(n_chars).mean()

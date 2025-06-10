@@ -91,10 +91,14 @@ class Evaluator:
 
     def _report(self, metrics, corrcoefs) -> None:
         """TODO"""
-        print(f"Metric Results:")
+        logger.info("Printing metric results...")
         for i, metric in enumerate(self.metrics):
-            print(f"{metric}:\n{metrics[i]}\n")
+            logger.debug("Printing %s output...", self.metrics[metric].metric_label)
+            with open(Path(self.output_dir, self.metrics[metric].metric_label), "w") as fh:
+                print(metrics[i], file=fh)
 
-        print(f"Metric Correlation:")
-        for i, metric in enumerate(self.metrics):
-            print(f"{metric}:\t{corrcoefs[i]}")
+        logger.info("Printing correlation between metrics...")
+        with open(Path(self.output_dir, "corrcoef"), "w") as fh:
+            print(corrcoefs, file=fh)
+
+        logger.info("Results have been stored at %s", self.output_dir)
