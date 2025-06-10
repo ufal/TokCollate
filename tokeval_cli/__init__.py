@@ -1,9 +1,11 @@
 import importlib
 import logging
 import sys
-from argparse import Namespace
+from omegaconf import DictConfig
 from pathlib import Path
 from typing import Sequence
+
+import tokeval.options as options
 
 CMD_MODULES = {}
 
@@ -15,7 +17,7 @@ def _print_usage() -> None:
     )
 
 
-def parse_args(argv: Sequence[str]) -> Namespace:
+def parse_args(argv: Sequence[str]) -> DictConfig:
     """Shortcut for the argument parsing, given the subcommand."""
     if not argv:
         _print_usage()
@@ -26,21 +28,20 @@ def parse_args(argv: Sequence[str]) -> Namespace:
         _print_usage()
         sys.exit(1)
 
-    args = CMD_MODULES[cmd].parse_args(argv[1:])
-    assert not hasattr(args, "command")
+    config = options.parse_args(argv[1:])
+    setattr(config, "command", cmd)
 
-    args.command = cmd
-    return args
+    return config
 
 
 def main(argv: Sequence[str]) -> int:
     """Process the CLI arguments and call the specified subcommand main method."""
-    args = parse_args(argv)
-    if args.log_level == "info":
+    config = parse_args(argv)
+    if config.log_level == "info":
         logging.basicConfig(level=logging.INFO)
-    elif args.log_level == "debug":
+    elif config.log_level == "debug":
         logging.basicConfig(level=logging.DEBUG)
-    return CMD_MODULES[args.command].main(args)
+    return CMD_MODULES[config.command].main(config)
 
 
 cli_dir = Path(__file__).parents[0]

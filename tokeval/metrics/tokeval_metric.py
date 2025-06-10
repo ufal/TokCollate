@@ -1,6 +1,6 @@
 import logging
 from attrs import define, field
-from typing import List
+from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +40,9 @@ class TokEvalMetric:
         """Return a default dataset filename for the specified metric's dataset."""
         return self._datasets[dataset]
 
-    def compute_metric(self, data: List[str]) -> float:
-        """Implements the metric computation."""
+    def compute(self, data: Dict[str, List[str]], system_label: str) -> float:
+        """Implements the metric computation.
+
+        TODO
+        """
         raise NotImplementedError()

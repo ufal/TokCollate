@@ -2,6 +2,8 @@ import logging
 import numpy as np
 
 from attrs import define
+from typing import Dict, List
+
 from tokeval.data import TokEvalData
 from tokeval.metrics import TokEvalMetric, register_metric
 
@@ -13,14 +15,14 @@ logger = logging.getLogger(__name__)
 class CharsPerTokenMetric(TokEvalMetric):
     """TODO."""
 
-    def compute_metric(
+    def compute(
         self,
-        data: TokEvalData,
+        data: Dict[str, List[str]],
         system_label: str,
     ) -> float:
 
         logger.debug("Processing %s.%s.out dataset", system_label, self.metric)
-        corpus = data["{system_label}.{self.metric}"]
+        corpus = data[system_label]
         n_chars = []
         for line in corpus:
             for token in line.split(" "):
