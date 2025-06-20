@@ -1,11 +1,12 @@
 import importlib
 import logging
 import sys
-from omegaconf import DictConfig
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
-import tokeval.options as options
+from omegaconf import DictConfig
+
+from tokeval import options
 
 CMD_MODULES = {}
 
@@ -29,7 +30,7 @@ def parse_args(argv: Sequence[str]) -> DictConfig:
         sys.exit(1)
 
     config = options.parse_args(argv[1:])
-    setattr(config, "command", cmd)
+    config.command = cmd
 
     return config
 
