@@ -1,7 +1,6 @@
 import importlib
 from collections.abc import Callable
 from pathlib import Path
-from typing import Optional
 
 from .tokeval_metric import TokEvalMetric
 

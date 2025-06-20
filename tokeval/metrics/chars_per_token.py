@@ -1,10 +1,8 @@
 import logging
+
 import numpy as np
-
 from attrs import define
-from typing import Dict, List
 
-from tokeval.data import TokEvalData
 from tokeval.metrics import TokEvalMetric, register_metric
 
 logger = logging.getLogger(__name__)
@@ -17,13 +15,9 @@ class CharsPerTokenMetric(TokEvalMetric):
 
     def compute(
         self,
-        data: Dict[str, List[str]],
+        data: dict[str, list[str]],
         system_label: str,
     ) -> float:
         corpus = data[system_label]
-        n_chars = []
-        for line in corpus:
-            line = line.strip()
-            for token in line.split(" "):
-                n_chars.append(len(token))
+        n_chars = [len(token) for line in corpus for token in line]
         return np.array(n_chars).mean()

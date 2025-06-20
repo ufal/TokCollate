@@ -1,12 +1,10 @@
 import logging
+
 import numpy as np
-
 from attrs import define, field
-from typing import Dict, List
 
-from tokeval.data import TokEvalData
 from tokeval.metrics import TokEvalMetric, register_metric
-from tokeval.utils import get_unigram_distribution, get_unigram_frequencies
+from tokeval.utils import get_unigram_frequencies
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +22,7 @@ class PercentileFrequencyMetric(TokEvalMetric):
 
     def compute(
         self,
-        data: Dict[str, List[str]],
+        data: dict[str, list[str]],
         system_label: str,
     ) -> float:
         corpus = data[system_label]

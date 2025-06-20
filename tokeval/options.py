@@ -1,9 +1,9 @@
 import argparse
 import logging
 from collections.abc import Sequence
-from omegaconf import DictConfig, OmegaConf
 from pathlib import Path
-from typing import Optional, Tuple
+
+from omegaconf import DictConfig, OmegaConf
 
 from tokeval.utils import file_path
 
@@ -24,7 +24,7 @@ def parse_args(argv: Sequence[str]) -> DictConfig:
     return config
 
 
-def create_config(config_file: Path, argv: Optional[Sequence[str]] = None) -> DictConfig:
+def create_config(config_file: Path, argv: Sequence[str] | None = None) -> DictConfig:
     """TODO"""
     config = OmegaConf.load(config_file)
     if argv is not None:

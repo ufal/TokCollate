@@ -1,6 +1,7 @@
 import logging
+from typing import ClassVar
+
 from attrs import define, field
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -12,12 +13,24 @@ class TokEvalMetric:
     metric: str = field(converter=str)
     metric_label: str = field(converter=str)
 
-    _datasets: dict = {}
+    _datasets: ClassVar[dict[str, str]] = {}
+    _has_reference_file: bool = False
+    _has_input_file: bool = False
+
+    def __attrs_post_init__(self) -> None:
+        """TODO"""
+        if self._has_reference_file:
+            self.metric_datasets["reference"] = "reference.txt"
+        if self._has_input_file:
+            self.metric_datasts["input"] = "input.txt"
 
     @classmethod
     def build_metric(
-        cls: "TokEvalMetric", metric: str, metric_label: str, **kwargs
-    ) -> "TokEvalMetric":  # noqa: ANN003
+        cls: "TokEvalMetric",
+        metric: str,
+        metric_label: str,
+        **kwargs,  # noqa: ANN003
+    ) -> "TokEvalMetric":
         """Build a specified metric instance.
 
         TODO: ...
@@ -31,16 +44,12 @@ class TokEvalMetric:
         """
         return cls(metric=metric, metric_label=metric_label, **kwargs)
 
-    @classmethod
-    def list_datasets(cls: "TokEvalMetric") -> List[str]:
+    @property
+    def metric_datasets(self) -> list[tuple[str, str]]:
         """List auxilliary datasets required for the metric computation."""
-        return [self._datasets.keys()]
+        return [(d, self._datasets[d]) for d in self._datasets]
 
-    def get_dataset_filename(self, system: str, dataset: str) -> str:
-        """Return a default dataset filename for the specified metric's dataset."""
-        return self._datasets[dataset]
-
-    def compute(self, data: Dict[str, List[str]], system_label: str) -> float:
+    def compute(self, data: dict[str, list[list[str]]], system_label: str) -> float:
         """Implements the metric computation.
 
         TODO
