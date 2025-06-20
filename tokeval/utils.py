@@ -1,7 +1,9 @@
 import gzip
-import numpy as np
+from collections import Counter
 from pathlib import Path
-from typing import Dict, List, TextIO
+from typing import TextIO
+
+import numpy as np
 
 
 def open_file(file: Path, mode: str) -> TextIO:
@@ -12,10 +14,18 @@ def open_file(file: Path, mode: str) -> TextIO:
     return file.open(f"{mode}t")
 
 
-def load_dataset_file(file: Path) -> List[str]:
+def load_dataset_file(file: Path) -> list[str]:
     """Load dataset file as a list of line strings."""
     with open_file(file, "r") as fh:
         return fh.readlines()
+
+
+def load_tokenized_dataset_file(file: Path, token_separator: str = " ") -> list[list[str]]:
+    """Load dataset file as a list of lists of sentence tokens.
+
+    TODO
+    """
+    return [line.split(token_separator) for line in load_dataset_file(file)]
 
 
 def file_path(path_str: str) -> Path:
@@ -26,26 +36,17 @@ def file_path(path_str: str) -> Path:
     return path.absolute()
 
 
-def get_vocabulary(corpus: List[str], token_separator: str = " ") -> Dict[str, int]:
+def get_vocabulary(corpus: list[list[str]]) -> Counter:
     """TODO"""
-    vocab = {}
-    for line in corpus:
-        line = line.strip()
-        for tok in line.split(token_separator):
-            if tok in vocab:
-                vocab[tok] += 1
-            else:
-                vocab[tok] = 1
-    return vocab
+    return Counter(tok for line in corpus for tok in line)
 
 
-def get_unigram_frequencies(corpus: List[str], token_separator: str = " ") -> np.ndarray:
+def get_unigram_frequencies(corpus: list[str]) -> np.ndarray:
     """TODO"""
-    vocab = get_vocabulary(corpus, token_separator)
-    return np.array(sorted(vocab.values(), reverse=True))
+    return np.array([tok[1] for tok in get_vocabulary(corpus).most_common()])
 
 
-def get_unigram_distribution(corpus: List[str], token_separator: str = " ") -> np.ndarray:
+def get_unigram_distribution(corpus: list[str]) -> np.ndarray:
     """TODO"""
-    unigram_counts = get_unigram_frequencies(corpus, token_separator)
+    unigram_counts = get_unigram_frequencies(corpus)
     return unigram_counts / unigram_counts.sum()
