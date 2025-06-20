@@ -41,12 +41,18 @@ def get_vocabulary(corpus: list[list[str]]) -> Counter:
     return Counter(tok for line in corpus for tok in line)
 
 
-def get_unigram_frequencies(corpus: list[str]) -> np.ndarray:
+def get_unigram_frequencies(corpus: list[list[str]]) -> np.ndarray:
     """TODO"""
     return np.array([tok[1] for tok in get_vocabulary(corpus).most_common()])
 
 
-def get_unigram_distribution(corpus: list[str]) -> np.ndarray:
+def get_unigram_distribution(corpus: list[list[str]]) -> np.ndarray:
     """TODO"""
     unigram_counts = get_unigram_frequencies(corpus)
     return unigram_counts / unigram_counts.sum()
+
+
+def shannon_entropy(corpus: list[list[str]]) -> float:
+    """TODO"""
+    unigram_probs = get_unigram_distribution(corpus)
+    return -np.sum(unigram_probs * np.log2(unigram_probs))
