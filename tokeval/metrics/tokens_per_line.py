@@ -1,7 +1,7 @@
 import logging
 
 import numpy as np
-from attrs import define
+from attrs import define, field
 
 from tokeval.metrics import TokEvalMetric, register_metric
 
@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 class TokensPerLineMetric(TokEvalMetric):
     """TODO."""
 
+    negate_output: bool = field(default=True)  # negate output so higher is better
+
     def compute(
         self,
         data: dict[str, list[list[str]]],
@@ -20,4 +22,7 @@ class TokensPerLineMetric(TokEvalMetric):
     ) -> float:
         corpus = data[system_label]
         n_tokens = [len(line) for line in corpus]
-        return np.array(n_tokens).mean()
+        res = np.array(n_tokens).mean()
+        if self.negate_output:
+            return -res
+        return res
