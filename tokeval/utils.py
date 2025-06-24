@@ -1,7 +1,7 @@
 import gzip
 from collections import Counter
 from pathlib import Path
-from typing import TextIO
+from typing import Optional, TextIO
 
 import numpy as np
 
@@ -20,14 +20,14 @@ def load_dataset_file(file: Path) -> list[str]:
         return fh.readlines()
 
 
-def load_tokenized_dataset_file(file: Path, token_separator: str = " ") -> list[list[str]]:
+def load_tokenized_dataset_file(file: Path, token_separator: Optional[str] = None) -> list[list[str]]:
     """Load dataset file as a list of lists of sentence tokens.
 
     Args:
         file (Path): location of the dataset file.
         token_separator (str): character used to indicate token boundaries
     """
-    return [line.split(token_separator) for line in load_dataset_file(file)]
+    return [line.rstrip("\n").split(token_separator) for line in load_dataset_file(file)]
 
 
 def file_path(path_str: str) -> Path:
