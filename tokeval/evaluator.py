@@ -57,9 +57,9 @@ class Evaluator:
             2. Computing correlation between the metrics based on the dataset scores.
             3. Reporting the results
         """
-        res_metrics = self._compute_metrics()
-        res_corrcoefs = self._correlate(res_metrics)
-        self._report(res_metrics, res_corrcoefs)
+        metric_results = self._score_systems()
+        corrcoefs = self._correlate(metric_results)
+        self._report(metric_results, corrcoefs)
 
     @classmethod
     def list_parameters(cls: "Evaluator") -> list[str]:
@@ -94,13 +94,13 @@ class Evaluator:
                 data[dataset] = load_tokenized_dataset_file(Path(self.input_dir, dataset_filename))
         return data
 
-    def _compute_metrics(self) -> np.ndarray:
+    def _score_systems(self) -> np.ndarray:
         """Score the datasets with the requested metrics."""
         res = np.zeros([len(self.metrics), len(self.systems)])
         data = self._load_datasets()
         for i, metric in enumerate(self.metrics.values()):
             for j, system in enumerate(self.systems):
-                res[i, j] = metric.compute(data, system)
+                res[i, j] = metric.score(data, system)
         return res
 
     def _correlate(self, metric_results: np.ndarray) -> np.ndarray:

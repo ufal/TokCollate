@@ -20,7 +20,7 @@ class PercentileFrequencyMetric(TokEvalMetric):
     gamma_1: float = field(default=0.03)
     gamma_2: float = field(default=0.83)
 
-    def compute(
+    def score(
         self,
         data: dict[str, list[str]],
         system_label: str,

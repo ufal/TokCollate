@@ -49,7 +49,7 @@ class TokEvalMetric:
         """List auxilliary datasets required for the metric computation."""
         return [(d, self._datasets[d]) for d in self._datasets]
 
-    def compute(self, data: dict[str, list[list[str]]], system_label: str) -> float:
+    def score(self, data: dict[str, list[list[str]]], system_label: str) -> float:
         """Implements the metric computation.
 
         TODO

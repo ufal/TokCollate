@@ -15,7 +15,7 @@ class TokensPerLineMetric(TokEvalMetric):
 
     negate_output: bool = field(default=True)  # negate output so higher is better
 
-    def compute(
+    def score(
         self,
         data: dict[str, list[list[str]]],
         system_label: str,

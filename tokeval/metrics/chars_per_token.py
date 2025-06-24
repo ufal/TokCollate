@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class CharsPerTokenMetric(TokEvalMetric):
     """TODO."""
 
-    def compute(
+    def score(
         self,
         data: dict[str, list[str]],
         system_label: str,
