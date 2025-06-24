@@ -50,9 +50,3 @@ def get_unigram_distribution(corpus: list[list[str]]) -> np.ndarray:
     """TODO"""
     unigram_counts = get_unigram_frequencies(corpus)
     return unigram_counts / unigram_counts.sum()
-
-
-def shannon_entropy(corpus: list[list[str]]) -> float:
-    """TODO"""
-    unigram_probs = get_unigram_distribution(corpus)
-    return -np.sum(unigram_probs * np.log2(unigram_probs))
