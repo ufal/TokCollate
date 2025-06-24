@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def main(config: DictConfig) -> int:
-    """TODO"""
+    """Main TokEval entry point. Executes the evaluation based on the provided config file."""
     evaluator = Evaluator(config=config)
     evaluator.run()
     return 0

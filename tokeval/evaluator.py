@@ -13,10 +13,20 @@ logger = logging.getLogger(__name__)
 
 @define(kw_only=True)
 class Evaluator:
-    """Base Evaluator class.i
+    """Base Evaluator class.
+
+    The evaluator loads the provided datasets (system outputs) and scores them using the requested metrics.
+    The metric results are then correlated based on their results across the system outputs
 
     Args:
-        TODO
+        config (DictConfig): evaluation configuration
+
+    OmegaConf Args:
+        evaluator.input_dir: location of the dataset files
+        evaluator.output_dir: target location for saving the evaluation results
+        evaluator.systems: list of the evaluated systems (datasets)
+        evaluator.system_dataset_suffix: suffix of the dataset files
+        evaluator.metrics: list of metrics and their configurations (dict)
     """
 
     config: DictConfig = field(validator=validators.instance_of(DictConfig))
@@ -28,7 +38,7 @@ class Evaluator:
     metrics: dict[str, TokEvalMetric] = field(init=False, default=None)
 
     def __attrs_post_init__(self) -> None:
-        """TODO"""
+        """Set the class values based on the config contents and build the requested metric objects."""
         for param_name in self.list_parameters():
             if param_name in ["config", "metrics"]:
                 continue
@@ -40,14 +50,20 @@ class Evaluator:
         self.metrics = self._build_metrics(self.config.evaluator)
 
     def run(self) -> None:
-        """TODO"""
+        """Execute the evaluation.
+
+        Execution has three steps:
+            1. Dataset scoring with provided metrics
+            2. Computing correlation between the metrics based on the dataset scores.
+            3. Reporting the results
+        """
         res_metrics = self._compute_metrics()
         res_corrcoefs = self._correlate(res_metrics)
         self._report(res_metrics, res_corrcoefs)
 
     @classmethod
     def list_parameters(cls: "Evaluator") -> list[str]:
-        """TODO"""
+        """List the class parameter names."""
         param_list = []
         for p in fields(cls):
             if p.name.startswith("_"):
@@ -56,7 +72,7 @@ class Evaluator:
         return param_list
 
     def _build_metrics(self, config: DictConfig) -> dict[str, TokEvalMetric]:
-        """TODO"""
+        """Build the requested metric objects based on their definition in the config."""
         metrics = {}
         for metric_params in config.metrics:
             metric = metric_params.metric
@@ -67,7 +83,7 @@ class Evaluator:
         return metrics
 
     def _load_datasets(self) -> dict[str, dict[str, list[str]]]:
-        """TODO"""
+        """Load the provided dataset files."""
         data = {}
         for system in self.systems:
             data[system] = load_tokenized_dataset_file(Path(self.input_dir, f"{system}.{self.system_dataset_suffix}"))
@@ -79,7 +95,7 @@ class Evaluator:
         return data
 
     def _compute_metrics(self) -> np.ndarray:
-        """TODO"""
+        """Score the datasets with the requested metrics."""
         res = np.zeros([len(self.metrics), len(self.systems)])
         data = self._load_datasets()
         for i, metric in enumerate(self.metrics.values()):
@@ -88,11 +104,11 @@ class Evaluator:
         return res
 
     def _correlate(self, metric_results: np.ndarray) -> np.ndarray:
-        """TODO"""
+        """Return the correlation coefficients between the metrics."""
         return np.corrcoef(metric_results, rowvar=True)
 
     def _report(self, metric_results: np.ndarray, corrcoefs: np.ndarray) -> None:
-        """TODO"""
+        """Print the results into the target outpout_dir."""
         logger.info("Printing metric results...")
         for i, metric in enumerate(self.metrics):
             logger.debug("Printing %s output...", self.metrics[metric].metric_label)

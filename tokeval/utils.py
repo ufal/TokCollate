@@ -23,7 +23,9 @@ def load_dataset_file(file: Path) -> list[str]:
 def load_tokenized_dataset_file(file: Path, token_separator: str = " ") -> list[list[str]]:
     """Load dataset file as a list of lists of sentence tokens.
 
-    TODO
+    Args:
+        file (Path): location of the dataset file.
+        token_separator (str): character used to indicate token boundaries
     """
     return [line.split(token_separator) for line in load_dataset_file(file)]
 
@@ -37,16 +39,16 @@ def file_path(path_str: str) -> Path:
 
 
 def get_vocabulary(corpus: list[list[str]]) -> Counter:
-    """TODO"""
+    """Return a token vocabulary given the input corpus."""
     return Counter(tok for line in corpus for tok in line)
 
 
 def get_unigram_frequencies(corpus: list[list[str]]) -> np.ndarray:
-    """TODO"""
+    """Return a sorted array of vocabulary token frequencies."""
     return np.array([tok[1] for tok in get_vocabulary(corpus).most_common()])
 
 
 def get_unigram_distribution(corpus: list[list[str]]) -> np.ndarray:
-    """TODO"""
+    """Return the token probability distribution of a given corpus."""
     unigram_counts = get_unigram_frequencies(corpus)
     return unigram_counts / unigram_counts.sum()
