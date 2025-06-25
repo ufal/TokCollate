@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 @register_metric("chars_per_token")
 @define(kw_only=True)
 class CharsPerTokenMetric(TokEvalMetric):
-    """TODO."""
+    """Compute the average number of utf-8 characters per token."""
 
     def score(
         self,

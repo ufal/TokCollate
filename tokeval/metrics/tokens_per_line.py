@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 @register_metric("tokens_per_line")
 @define(kw_only=True)
 class TokensPerLineMetric(TokEvalMetric):
-    """TODO."""
+    """Computes the average sequence length in the terms of tokens per line."""
 
     negate_output: bool = field(default=True)  # negate output so higher is better
 

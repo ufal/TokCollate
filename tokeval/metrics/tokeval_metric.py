@@ -8,7 +8,16 @@ logger = logging.getLogger(__name__)
 
 @define(kw_only=True)
 class TokEvalMetric:
-    """Base class for TokEval metrics."""
+    """Base class for TokEval metrics.
+
+    Each TokEvalMetric derived class must implement the following interface, mainly the .score() method.
+    Derived classes must be registered using tokeval.metrics.register_metric() decorator.
+    Instances should be created using the tokeval.metrics.build_metric() method.
+
+    Some metrics might require a reference or an input file in addition to the tokenizer output. In such cases,
+    the metric should set the relevat private class attributes _has_* to True.
+    TODO(varisd): is there a better way to implement this?
+    """
 
     metric: str = field(converter=str)
     metric_label: str = field(converter=str)
@@ -18,11 +27,11 @@ class TokEvalMetric:
     _has_input_file: bool = False
 
     def __attrs_post_init__(self) -> None:
-        """TODO"""
+        """"""
         if self._has_reference_file:
-            self.metric_datasets["reference"] = "reference.txt"
+            self._datasets["reference"] = "reference.txt"
         if self._has_input_file:
-            self.metric_datasts["input"] = "input.txt"
+            self._datasets["input"] = "input.txt"
 
     @classmethod
     def build_metric(
@@ -33,10 +42,11 @@ class TokEvalMetric:
     ) -> "TokEvalMetric":
         """Build a specified metric instance.
 
-        TODO: ...
+        This method can be called directly or (preferably) using the tokeval.metrics.build_metric() method.
 
         Args:
-            TODO
+            metric (str): metric class identifier (registered using register_metric)
+            metric_label (str): unique metric class instance identifier
             **kwargs: additional parameters for the specific metric class implementation
 
         Returns:
@@ -52,6 +62,11 @@ class TokEvalMetric:
     def score(self, data: dict[str, list[list[str]]], system_label: str) -> float:
         """Implements the metric computation.
 
-        TODO
+        The method receives a data representation (currently as a dict) and a label of the evaluated system.
+        The metric scoring method then retrieves the system's output dataset using the system_label and (optionally)
+        the auxiliary datasets (indicated by self.metric_datasets)
+
+        Returns:
+            Metric's score over the given system's output.
         """
         raise NotImplementedError()

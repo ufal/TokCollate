@@ -12,9 +12,11 @@ logger = logging.getLogger(__name__)
 @register_metric("percentile_frequency")
 @define(kw_only=True)
 class PercentileFrequencyMetric(TokEvalMetric):
-    """TODO.
+    """Computes the percentile frequency from `Zouhar et al., 2023, Tokenization and the Noiseless Channel`.
 
-    From `Zouhar et al., 2023, Tokenization and the Noiseless Channel`
+    Args:
+        gamma_1 (float): top `gamma_1` percentile cutoff
+        gamma_2 (float): bottom `gamma_2` percentile cutoff
     """
 
     gamma_1: float = field(default=0.03)
