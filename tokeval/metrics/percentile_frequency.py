@@ -1,12 +1,9 @@
-import logging
-
 import numpy as np
 from attrs import define, field
+from typing import Optional, Tuple
 
 from tokeval.metrics import TokEvalMetric, register_metric
 from tokeval.utils import get_unigram_distribution
-
-logger = logging.getLogger(__name__)
 
 
 @register_metric("percentile_frequency")
@@ -26,11 +23,11 @@ class PercentileFrequencyMetric(TokEvalMetric):
         self,
         data: dict[str, list[str]],
         system_label: str,
-    ) -> float:
-        corpus = data[system_label]
-        unigram_probs = get_unigram_distribution(corpus)
+    ) -> Tuple[float, Optional[float]]:
+        text = data[system_label]
+        unigram_probs = get_unigram_distribution(text)
 
         gamma_1_val = np.percentile(unigram_probs, self.gamma_1)
         gamma_2_val = np.percentile(unigram_probs, self.gamma_2)
 
-        return (unigram_probs * (unigram_probs >= gamma_1_val) * (unigram_probs * gamma_2_val)).sum()
+        return ((unigram_probs * (unigram_probs >= gamma_1_val) * (unigram_probs * gamma_2_val)).sum(), None)

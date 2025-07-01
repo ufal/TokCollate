@@ -1,12 +1,9 @@
-import logging
-
 import numpy as np
 from attrs import define, field
+from typing import Optional, Tuple
 
 from tokeval.metrics import TokEvalMetric, register_metric
 from tokeval.utils import get_unigram_frequencies
-
-logger = logging.getLogger(__name__)
 
 
 @register_metric("bits")
@@ -23,12 +20,11 @@ class BitsMetric(TokEvalMetric):
         self,
         data: dict[str, list[str]],
         system_label: str,
-    ) -> float:
-        corpus = data[system_label]
-        unigram_freqs = get_unigram_frequencies(corpus)
+    ) -> Tuple[float, Optional[float]]:
+        text = data[system_label]
+        unigram_freqs = get_unigram_frequencies(text)
         vocab_size = unigram_freqs.size
-
         res = unigram_freqs.sum() * np.log2(vocab_size)
         if self.negate_output:
-            return -res
-        return res
+            return (-res, None)
+        return (res, None)
