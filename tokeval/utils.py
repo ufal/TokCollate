@@ -1,9 +1,12 @@
 import gzip
+import logging
 from collections import Counter
 from pathlib import Path
 from typing import TextIO
 
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 def open_file(file: Path, mode: str) -> TextIO:
@@ -14,20 +17,32 @@ def open_file(file: Path, mode: str) -> TextIO:
     return file.open(f"{mode}t")
 
 
-def load_dataset_file(file: Path) -> tuple[str]:
+def load_text_file(file: Path) -> tuple[str]:
     """Load dataset file as a list of line strings."""
     with open_file(file, "r") as fh:
         return fh.readlines()
 
 
-def load_tokenized_dataset_file(file: Path, token_separator: str | None = None) -> list[list[str]]:
+def remove_dir(directory: Path) -> None:
+    """Remove the directory and its contents recursively."""
+    for file_path in directory.iterdir():
+        try:
+            if file_path.is_file() or file_path.is_symlink():
+                file_path.unlink()
+            elif file_path.is_dir():
+                remove_dir(file_path)
+        except Exception as err:  # noqa: BLE001
+            logger.error("Failed to delete %s. Reason: %s", file_path, err)  # noqa: TRY400
+
+
+def load_tokenized_text_file(file: Path, token_separator: str | None = None) -> list[list[str]]:
     """Load dataset file as a list of lists of sentence tokens.
 
     Args:
         file (Path): location of the dataset file.
         token_separator (str): character used to indicate token boundaries
     """
-    text = [line.rstrip("\n").split(token_separator) for line in load_dataset_file(file)]
+    text = [line.rstrip("\n").split(token_separator) for line in load_text_file(file)]
     text = [[w.strip() for w in line if w.strip] for line in text]
     return [line for line in text if line]
 
