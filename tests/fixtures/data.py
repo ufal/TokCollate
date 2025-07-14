@@ -6,6 +6,12 @@ from tokeval.utils import open_file
 
 
 @pytest.fixture(scope="session")
+def languages():
+    """TODO"""
+    return ["en", "fr"]
+
+
+@pytest.fixture(scope="session")
 def foo_text_tiny():
     """TODO"""
     return "\n".join(  # noqa: FLY002
@@ -28,7 +34,18 @@ def foo_text_tiny_tokenized(foo_text_tiny):
 @pytest.fixture(scope="session")
 def system_output_tiny(input_dir, foo_text_tiny):
     """TODO"""
-    file_path = Path(input_dir, "system_1.out")
+    file_path = Path(input_dir, "system_1.txt")
     with open_file(file_path, "w") as fh:
         print(foo_text_tiny, file=fh)
     return file_path
+
+
+@pytest.fixture(scope="session")
+def system_outputs_tiny_multilingual(input_dir, foo_text_tiny, languages):
+    """TODO"""
+    paths = []
+    for lang in languages:
+        paths.append(Path(input_dir, f"system.{lang}.txt"))
+        with open_file(paths[-1], "w") as fh:
+            print(foo_text_tiny, file=fh)
+    return paths

@@ -3,7 +3,6 @@ from pathlib import Path
 
 from attrs import define, field, validators
 
-from tokeval.metrics import TokEvalMetric
 from tokeval.utils import load_tokenized_text_file
 
 logger = logging.getLogger(__name__)
@@ -18,7 +17,7 @@ class TokEvalData:
     data_dir: Path = field(converter=Path)
     systems: list[str] = field(validator=validators.instance_of(list), factory=list)
     languages: list[str] = field(factory=list)
-    metrics: list[TokEvalMetric] = field(factory=list)
+    metrics: list["TokEvalMetric"] = field(factory=list)  # noqa: F821
     file_suffix: str = field(validator=validators.instance_of(str), default="txt")
     input_file_stem: str = field(validator=validators.instance_of(str), default="input")
     reference_file_stem: str = field(validator=validators.instance_of(str), default="reference")
@@ -30,7 +29,7 @@ class TokEvalData:
     def __attrs_post_init__(self) -> None:
         """TODO"""
         self._data = {}
-        logger.info("Loading evaluation texts...")
+        logger.info("Loading texts for scoring...")
         for system in self.systems:
             if not self.languages:
                 filename = f"{system}.{self.file_suffix}"
@@ -66,15 +65,15 @@ class TokEvalData:
         """TODO"""
         if self._input_key in self._data:
             return self._data[self._input_key]
-        err_msg = f"[self.__class__.__name__] Trying to access unavailable ._input_key"
-        raise ValueError(err_msg)
+        err_msg = "[self.__class__.__name__] Trying to access unavailable ._input_key"
+        raise AttributeError(err_msg)
 
     def get_reference_text(self) -> TextType:
         """TODO"""
         if self._reference_key in self._data:
             return self._data[self._reference_key]
-        err_msg = f"[self.__class__.__name__] Trying to access unavailable ._reference_key."
-        raise ValueError(err_msg)
+        err_msg = "[self.__class__.__name__] Trying to access unavailable ._reference_key."
+        raise AttributeError(err_msg)
 
     def get_system_text(self, system: str, language: str | None = None) -> TextType:
         """TODO"""

@@ -14,10 +14,12 @@ def parse_args(argv: Sequence[str]) -> DictConfig:
     """Basic argument parsing method.
 
     Loads the configuration file given the --config-file option and overwrites the file parameters given
-    the OmegaConf-style notation. The resulting config object is later used to configure the evaluation pipeline.
+    the OmegaConf-style notation. The resulting config object is later used to configure the scoring pipeline.
     """
     parser = argparse.ArgumentParser(description="TokEval: Tokenization Evaluation.")
-    parser.add_argument("--config-file", type=file_path, required=True, help="Evaluator configuration YAML file.")
+    parser.add_argument(
+        "--config-file", type=file_path, required=True, help="TokEval execution configuration YAML file."
+    )
     parser.add_argument(
         "--log-level", type=str, choices=["info", "debug"], default="info", help="Current logging level."
     )
@@ -33,12 +35,12 @@ def create_config(config_file: Path, argv: Sequence[str] | None = None) -> DictC
     """Merge the provided configuration file with the configuration parameters provided via CLI.
 
     Args:
-        config_file (Path): file containing the evaluation configuration
+        config_file (Path): file containing the execution configuration
         argv: additional arguments not parsed by the parse_args method. Used for overwriting the values inside the
             config_file
 
     Returns:
-        OmegaConf-style nested dictionary with evaluation configuration.
+        OmegaConf-style nested dictionary with execution configuration.
     """
     config = OmegaConf.load(config_file)
     if argv is not None:

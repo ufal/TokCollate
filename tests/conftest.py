@@ -2,12 +2,7 @@ import pytest
 
 from tokeval import metrics
 
-pytest_plugins = [
-    "fixtures.configs",
-    "fixtures.data",
-    "fixtures.directories",
-    "fixtures.metrics"
-]
+pytest_plugins = ["fixtures.configs", "fixtures.data", "fixtures.directories"]
 
 
 @pytest.fixture()

@@ -4,16 +4,16 @@ import sys
 
 from omegaconf import DictConfig
 
-from tokeval.evaluator import Evaluator
+from tokeval.scorer import TokEvalScorer
 from tokeval.options import parse_args
 
 logger = logging.getLogger(__name__)
 
 
 def main(config: DictConfig) -> int:
-    """Main TokEval entry point. Executes the evaluation based on the provided config file."""
-    evaluator = Evaluator(config=config)
-    evaluator.run()
+    """Main TokEval entry point. Executes the scoring based on the provided config file."""
+    scorer = TokEvalScorer(config=config)
+    scorer.run()
     return 0
 
 

@@ -3,20 +3,29 @@ from pathlib import Path
 import pytest
 from omegaconf import OmegaConf
 
-PIPELINE_TRAIN_CONFIGS = [
-    Path("config", "config.basic.yml"),
-]
 
-
-@pytest.fixture(scope="session", params=PIPELINE_TRAIN_CONFIGS)
-def config_file(config_dir, input_dir, output_dir, system_output_tiny, request):
+@pytest.fixture(scope="session")
+def foo_config_file(config_dir, input_dir, output_dir, system_outputs_tiny_multilingual):
     """TODO"""
-    config = OmegaConf.load(request.param)
+    languages = [file.stem.split(".")[-1] for file in system_outputs_tiny_multilingual]
+    config = OmegaConf.create(
+        {
+            "evaluator": {
+                "input_dir": str(input_dir),
+                "output_dir": str(output_dir),
+                "systems": [system_outputs_tiny_multilingual.stem],
+                "languages": languages,
+                "file_suffix": "txt",
+                "metrics": [
+                    {"metric": "sequence_length", "metric_label": "metric_foo_mono_1"},
+                    {"metric": "token_length", "metric_label": "metric_foo_mono_2"},
+                    {"metric": "XXX", "metric_label": "metric_foo_multi_1"},
+                    {"metric": "XXX", "metric_label": "metric_foo_multi_2"},
+                ],
+            }
+        }
+    )
 
-    config.evaluator["input_dir"] = str(input_dir)
-    config.evaluator["output_dir"] = str(output_dir)
-    config.evaluator["systems"] = [system_output_tiny.stem]
-
-    config_file = Path(config_dir, "config.basic.yml")
+    config_file = Path(config_dir, "config.foo.base.yml")
     OmegaConf.save(config=config, f=config_file)
     return config_file

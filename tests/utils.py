@@ -1,12 +1,12 @@
-import numpy as np
-from attrs import define, field
+from attrs import define
 
-from tokeval.metrics import TokEvalMetric, register_metric
+from tokeval.metrics import TokEvalMetric
 
 
 @define(kw_only=True)
 class FooMetric(TokEvalMetric):
     """Mock metric used for testing."""
+
     metric: str = "foo_metric"
     metric_label: str = "foo_metric_label"
     has_input: bool = False
