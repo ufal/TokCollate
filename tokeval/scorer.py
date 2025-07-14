@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import ClassVar
 
 import numpy as np
 from attrs import define, field, fields, validators
@@ -9,9 +10,6 @@ from tokeval.data import TokEvalData
 from tokeval.metrics import TokEvalMetric, build_metric
 
 logger = logging.getLogger(__name__)
-
-MONO_SCORES_DIM = 1
-MULTI_SCORES_DIM = 2
 
 
 @define(kw_only=True)
@@ -43,16 +41,20 @@ class TokEvalScorer:
 
     metrics: dict[str, TokEvalMetric] = field(init=False, default=None)
     data: TokEvalData = field(init=False, default=None)
+    _filenames: ClassVar[dict] = {"metrics": "metrics.scores.npz", "correlation": "correlation.scores.npz"}
+    _metric_dims: ClassVar[dict] = {"mono": 1, "multi": 3}
 
     def __attrs_post_init__(self) -> None:
         """Set the class values based on the config contents and build the requested metric objects."""
         for param_name in self.list_parameters():
-            if param_name in ["config", "metrics"]:
+            if param_name in ["config", "data", "metrics"]:
                 continue
             if hasattr(self.config.scorer, param_name):
                 setattr(self, param_name, getattr(self.config.scorer, param_name))
             if getattr(self, param_name, None) is None:
-                err_msg = f"Required {self.__class__.__name__} attribute scorer.{param_name} not found in the config file."
+                err_msg = (
+                    f"Required {self.__class__.__name__} attribute scorer.{param_name} not found in the config file."
+                )
                 raise ValueError(err_msg)
         self.metrics = self._build_metrics(self.config.scorer)
         self.data = TokEvalData(
@@ -63,7 +65,7 @@ class TokEvalScorer:
             file_suffix=self.file_suffix,
         )
 
-    def run(self) -> None:
+    def run(self) -> dict[str, dict[str, np.ndarray]]:
         """Execute the evaluation.
 
         Execution has three steps:
@@ -71,20 +73,28 @@ class TokEvalScorer:
             2. Computing correlation between the metrics based on the dataset scores.
             3. Reporting the results
         """
+        results = {}
+
         logger.info("Scoring datasets...")
-        metric_scores = self._score_systems()
+        results["metrics"] = self._score_systems()
 
         logger.info("Computing correlation...")
-        corr_scores = self._correlate(metric_scores)
+        results["correlation"] = self._correlate(results["metrics"])
 
         if self.output_dir is not None:
-            metric_scores_path = Path(self.output_dir, "metric.scores.npz")
-            logger.info("Saving metric scores to %s...", metric_scores_path)
-            np.savez(metric_scores_path, **metric_scores)
+            results_path = Path(self.output_dir, self._filenames["metrics"])
+            logger.info("Saving metric scores to %s...", results_path)
+            np.savez(results_path, **results["metrics"])
 
-            corr_scores_path = Path(self.output_dir, "correlation.scores.npz")
-            logger.info("Saving correlation scores to %s...", corr_scores_path)
-            np.savez(corr_scores_path, **corr_scores)
+            results_path = Path(self.output_dir, self._filenames["correlation"])
+            logger.info("Saving correlation scores to %s...", results_path)
+            np.savez(results_path, **results["correlation"])
+        else:
+            logger.info("No scorer.output_dir was provided. Printing results to STDOUT:\n")
+            for key in self._filenames:
+                print(results[key])  # noqa: T201
+
+        return results
 
     @classmethod
     def list_parameters(cls: "TokEvalScorer") -> list[str]:
@@ -117,12 +127,8 @@ class TokEvalScorer:
     def _correlate(self, metric_scores: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
         """Return the correlation coefficients between the metrics."""
         corr_scores = {}
-        scores_mono = np.stack([scores for scores in metric_scores.values() if scores.ndim == MONO_SCORES_DIM], axis=0)
-        corr_scores["mono"] = np.corrcoef(scores_mono, rowvar=True)
-
-        scores_multi = np.stack(
-            [scores for scores in metric_scores.values() if scores.ndim == MULTI_SCORES_DIM], axis=1
-        )
-        corr_scores["multi"] = np.corrcoef(scores_multi, rowvar=True)
+        for key in self._metric_dims:
+            scores = np.stack([out for out in metric_scores.values() if out.ndim == self._metric_dims[key]], axis=0)
+            corr_scores[key] = np.corrcoef(scores, rowvar=True)
 
         return corr_scores

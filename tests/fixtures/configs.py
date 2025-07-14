@@ -7,13 +7,13 @@ from omegaconf import OmegaConf
 @pytest.fixture(scope="session")
 def foo_config_file(config_dir, input_dir, output_dir, system_outputs_tiny_multilingual):
     """TODO"""
-    languages = [file.stem.split(".")[-1] for file in system_outputs_tiny_multilingual]
+    languages = [path.stem.split(".")[-1] for path in system_outputs_tiny_multilingual]
     config = OmegaConf.create(
         {
-            "evaluator": {
+            "scorer": {
                 "input_dir": str(input_dir),
                 "output_dir": str(output_dir),
-                "systems": [system_outputs_tiny_multilingual.stem],
+                "systems": [path.stem for path in system_outputs_tiny_multilingual],
                 "languages": languages,
                 "file_suffix": "txt",
                 "metrics": [

@@ -4,8 +4,8 @@ import sys
 
 from omegaconf import DictConfig
 
-from tokeval.scorer import TokEvalScorer
 from tokeval.options import parse_args
+from tokeval.scorer import TokEvalScorer
 
 logger = logging.getLogger(__name__)
 
