@@ -1,9 +1,13 @@
+import logging
+
 import numpy as np
 from attrs import Attribute, define, field, validators
-from typing import Optional, Tuple
 
+from tokeval.data import TokEvalData
 from tokeval.metrics import TokEvalMetric, register_metric
 from tokeval.utils import get_unigram_distribution
+
+logger = logging.getLogger(__name__)
 
 
 @register_metric("entropy")
@@ -34,10 +38,10 @@ class EntropyMetric(TokEvalMetric):
 
     def score(
         self,
-        data: dict[str, list[str]],
+        data: TokEvalData,
         system_label: str,
-    ) -> Tuple[float, Optional[float]]:
-        text = data[system_label]
+    ) -> tuple[float, float | None]:
+        text = data.get_system_text(system_label=system_label)
         unigram_probs = get_unigram_distribution(text)
         vocab_size = unigram_probs.size
 
@@ -46,9 +50,9 @@ class EntropyMetric(TokEvalMetric):
         if "shannon" in self.function_type:
             ent = self._shannon_entropy(unigram_probs)
             if self.function_type == "shannon_entropy":
-                return (ent, None)
+                return ent
             if self.function_type == "shannon_efficiency":
-                return (ent / np.log2(vocab_size), None)
+                return ent / np.log2(vocab_size)
             raise ValueError(value_err_msg)
 
         if self.power == 1.0:
@@ -58,15 +62,15 @@ class EntropyMetric(TokEvalMetric):
                 )
             ent = self._shannon_entropy(unigram_probs)
             if "entropy" in self.function_type:
-                return (ent, None)
+                return ent
             if "efficiency" in self.function_type:
-                return (ent / np.log2(vocab_size), None)
+                return ent / np.log2(vocab_size)
             raise ValueError(value_err_msg)
 
         scale = 1 / (1 - self.power)
         ent = scale * np.log2(np.sum(unigram_probs**self.power))
         if self.function_type == "renyi_entropy":
-            return (ent, None)
+            return ent
         if self.function_type == "renyi_efficiency":
-            return (ent / np.log2(vocab_size), None)
+            return ent / np.log2(vocab_size)
         raise ValueError(value_err_msg)

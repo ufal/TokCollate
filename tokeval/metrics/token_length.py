@@ -1,7 +1,7 @@
 import numpy as np
 from attrs import define
-from typing import Tuple
 
+from tokeval.data import TokEvalData
 from tokeval.metrics import TokEvalMetric, register_metric
 
 
@@ -12,9 +12,9 @@ class TokenLengthMetric(TokEvalMetric):
 
     def score(
         self,
-        data: dict[str, list[str]],
+        data: TokEvalData,
         system_label: str,
-    ) -> Tuple[float, float]:
-        text = data[system_label]
+    ) -> tuple[float, float]:
+        text = data.get_system_text(system_label=system_label)
         token_lengths = np.array([len(tok) for line in text for tok in line])
-        return (token_lengths.mean(), token_lengths.var())
+        return self._aggregate_scores(token_lengths)

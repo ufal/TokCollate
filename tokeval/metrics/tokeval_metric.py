@@ -48,7 +48,7 @@ class TokEvalMetric:
 
     metric: str = field(converter=str)
     metric_label: str = field(converter=str)
-    mode: EvalMode = field(validator=validators.in_(EvalMode), default=None)
+    mode: EvalMode = field(validator=validators.in_(EvalMode), default=EvalMode.MEAN)
 
     _requires_reference_text: bool = False
     _requires_input_text: bool = False
@@ -98,8 +98,6 @@ class TokEvalMetric:
         self,
         data: TokEvalData,
         system_label: str,
-        src_lang: str | None = None,
-        tgt_lang: str | None = None,
         **kwargs,  # noqa: ANN003
     ) -> tuple[float]:
         """Implements the metric computation.
@@ -122,7 +120,7 @@ class TokEvalMetric:
         """
         raise NotImplementedError()
 
-    def score_all(self, data: TokEvalData, systems: list[str], languages: list[str] | None = None) -> np.ndarray:
+    def score_all(self, data: TokEvalData, systems: list[str], **kwargs) -> np.ndarray:  # noqa: ANN003, ARG002
         """Wrapper for evaluating a set of tokenizers (and languages).
 
         Calls the .score() method for each provided system (and languages) and collects the results in a single
@@ -131,20 +129,38 @@ class TokEvalMetric:
         Args:
             data (TokEvalData): data structure containing all texts available for evaluation
             systems (list[str]): list of the evaluated tokenizer labels
+            **kwargs: catch-all parameter for parameters required by specific metric groupings
+                (e.g. multilingual metrics)
             languages (list[str]): (optional) list of available languages for multi-lingual evaluation
 
         Returns:
             Numpy ndarray with shape(len(systems)) or shape(len(systems), len(languages, len(languages)).
         """
-        if languages is not None:
-            res = np.zeros(shape=[len(systems)])
-            for i, system in enumerate(systems):
-                res[i] = self.score(data=data, system_label=system)
-            return res
+        res = np.zeros(shape=[len(systems)])
+        for i, system_label in enumerate(systems):
+            res[i] = self.score(data=data, system_label=system_label)
+        return res
 
-        res = np.zeros(shape=[len(system), len(languages), len(languages)])
-        for i, system in enumerate(systems):
+
+class TokEvalMultilingualMetric(TokEvalMetric):
+    """TODO"""
+
+    def score(
+        self,
+        data: TokEvalData,
+        system_label: str,
+        src_lang: str,
+        tgt_lang: str,
+    ) -> tuple[float]:
+        raise NotImplementedError()
+
+    def score_all(self, data: TokEvalData, systems: list[str], languages: list[str]) -> np.ndarray:
+        """TODO"""
+        res = np.zeros(shape=[len(systems), len(languages), len(languages)])
+        for i, system_label in enumerate(systems):
             for j, src_lang in enumerate(languages):
                 for k, tgt_lang in enumerate(languages):
-                    res[i, j, k] = self.score(data=data, system_label=system, src_lang=src_lang, tgt_lang=tgt_lang)
+                    res[i, j, k] = self.score(
+                        data=data, system_label=system_label, src_lang=src_lang, tgt_lang=tgt_lang
+                    )
         return res

@@ -1,7 +1,7 @@
 import numpy as np
 from attrs import define, field
-from typing import Tuple
 
+from tokeval.data import TokEvalData
 from tokeval.metrics import TokEvalMetric, register_metric
 
 
@@ -14,11 +14,12 @@ class SequenceLengthMetric(TokEvalMetric):
 
     def score(
         self,
-        data: dict[str, list[list[str]]],
+        data: TokEvalData,
         system_label: str,
-    ) -> Tuple[float, float]:
-        text = data[system_label]
+    ) -> tuple[float, float]:
+        text = data.get_system_text(system_label=system_label)
         seq_length = np.array([len(line) for line in text])
+        res = self._aggregate_scores(seq_length)
         if self.negate_output:
-            return (-seq_length.mean(), seq_length.var())
-        return (seq_length.mean(), seq_length.var())
+            return -res
+        return res

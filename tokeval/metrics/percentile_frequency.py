@@ -1,7 +1,7 @@
 import numpy as np
 from attrs import define, field
-from typing import Optional, Tuple
 
+from tokeval.data import TokEvalData
 from tokeval.metrics import TokEvalMetric, register_metric
 from tokeval.utils import get_unigram_distribution
 
@@ -21,13 +21,13 @@ class PercentileFrequencyMetric(TokEvalMetric):
 
     def score(
         self,
-        data: dict[str, list[str]],
+        data: TokEvalData,
         system_label: str,
-    ) -> Tuple[float, Optional[float]]:
-        text = data[system_label]
+    ) -> tuple[float, float | None]:
+        text = data.get_sytsem_text(system_label=system_label)
         unigram_probs = get_unigram_distribution(text)
 
         gamma_1_val = np.percentile(unigram_probs, self.gamma_1)
         gamma_2_val = np.percentile(unigram_probs, self.gamma_2)
 
-        return ((unigram_probs * (unigram_probs >= gamma_1_val) * (unigram_probs * gamma_2_val)).sum(), None)
+        return (unigram_probs * (unigram_probs >= gamma_1_val) * (unigram_probs * gamma_2_val)).sum()

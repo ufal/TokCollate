@@ -2,10 +2,11 @@ import importlib
 from collections.abc import Callable
 from pathlib import Path
 
-from .tokeval_metric import TokEvalMetric
+from .tokeval_metric import TokEvalMetric, TokEvalMultilingualMetric
 
 __all__ = [
     "TokEvalMetric",
+    "TokEvalMultilingualMetric",
 ]
 
 METRIC_REGISTRY = {}

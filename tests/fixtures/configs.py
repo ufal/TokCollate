@@ -20,7 +20,7 @@ def foo_config_file(config_dir, input_dir, output_dir, system_outputs_tiny_multi
                     {"metric": "sequence_length", "metric_label": "metric_foo_mono_1"},
                     {"metric": "token_length", "metric_label": "metric_foo_mono_2"},
                     {"metric": "sequence_ratio", "metric_label": "metric_foo_multi_1"},
-                    # {"metric": "XXX", "metric_label": "metric_foo_multi_2"},
+                    {"metric": "sequence_ratio", "metric_label": "metric_foo_multi_2"},
                 ],
             }
         }

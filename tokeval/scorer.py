@@ -33,27 +33,27 @@ class TokEvalScorer:
 
     config: DictConfig = field(validator=validators.instance_of(DictConfig))
 
-    input_dir: Path = field(init=False, default=None)
+    input_dir: Path = field(init=False)
     output_dir: Path = field(init=False, default=None)
-    systems: list[str] = field(init=False, default=None)
-    languages: list[str] = field(init=False, default=None)
+    systems: list[str] = field(init=False)
+    languages: list[str] = field(init=False, factory=list)
     file_suffix: str = field(init=False, default="txt")
 
     metrics: dict[str, TokEvalMetric] = field(init=False, default=None)
     data: TokEvalData = field(init=False, default=None)
     _filenames: ClassVar[dict] = {"metrics": "metrics.scores.npz", "correlation": "correlation.scores.npz"}
-    _metric_dims: ClassVar[dict] = {"mono": 1, "multi": 3}
+    _metric_n_dim: ClassVar[dict] = {"mono": 1, "multi": 3}
 
     def __attrs_post_init__(self) -> None:
         """Set the class values based on the config contents and build the requested metric objects."""
-        for param_name in self.list_parameters():
-            if param_name in ["config", "data", "metrics"]:
+        for param in self.list_parameters():
+            if param.name == "config":
                 continue
-            if hasattr(self.config.scorer, param_name):
-                setattr(self, param_name, getattr(self.config.scorer, param_name))
-            if getattr(self, param_name, None) is None:
+            if hasattr(self.config.scorer, param.name):
+                setattr(self, param.name, getattr(self.config.scorer, param.name))
+            if param.default is not None and getattr(self, param.name, None) is None:
                 err_msg = (
-                    f"Required {self.__class__.__name__} attribute scorer.{param_name} not found in the config file."
+                    f"Required {self.__class__.__name__} attribute scorer.{param.name} not found in the config file."
                 )
                 raise ValueError(err_msg)
         self.metrics = self._build_metrics(self.config.scorer)
@@ -61,7 +61,7 @@ class TokEvalScorer:
             data_dir=self.input_dir,
             systems=self.systems,
             languages=self.languages,
-            metrics=self.metrics,
+            metrics=self.metrics.values(),
             file_suffix=self.file_suffix,
         )
 
@@ -103,7 +103,7 @@ class TokEvalScorer:
         for p in fields(cls):
             if p.name.startswith("_"):
                 continue
-            param_list.append(p.name)
+            param_list.append(p)
         return param_list
 
     def _build_metrics(self, config: DictConfig) -> dict[str, TokEvalMetric]:
@@ -120,15 +120,21 @@ class TokEvalScorer:
     def _score_systems(self) -> dict[str, np.ndarray]:
         """Score the datasets with the requested metrics."""
         scores = {}
-        for i, metric in enumerate(self.metrics.values()):
-            scores[self.metrics[i]] = metric.score_all(self.data, self.systems, self.languages)
+        for metric_label, metric in self.metrics.items():
+            scores[metric_label] = metric.score_all(self.data, self.systems, languages=self.languages)
         return scores
 
     def _correlate(self, metric_scores: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
         """Return the correlation coefficients between the metrics."""
         corr_scores = {}
-        for key in self._metric_dims:
-            scores = np.stack([out for out in metric_scores.values() if out.ndim == self._metric_dims[key]], axis=0)
-            corr_scores[key] = np.corrcoef(scores, rowvar=True)
-
+        for key in self._metric_n_dim:
+            scores = [out for out in metric_scores.values() if out.ndim == self._metric_n_dim[key]]
+            if not scores:
+                corr_scores[key] = None
+            elif len(scores) == 1:
+                corr_scores[key] = np.float64(1.0)
+            else:
+                scores_stacked = np.stack(scores, axis=0)
+                scores_flat = scores_stacked.reshape((scores_stacked.shape[0], -1))
+                corr_scores[key] = np.corrcoef(scores_flat, rowvar=True)
         return corr_scores

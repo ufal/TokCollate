@@ -30,15 +30,15 @@ class TokEvalData:
         """TODO"""
         self._data = {}
         logger.info("Loading texts for scoring...")
-        for system in self.systems:
+        for system_label in self.systems:
             if not self.languages:
-                filename = f"{system}.{self.file_suffix}"
+                filename = f"{system_label}.{self.file_suffix}"
                 logger.debug("Loading %s ...", filename)
-                self._data[system] = load_tokenized_text_file(Path(self.data_dir, filename))
+                self._data[system_label] = load_tokenized_text_file(Path(self.data_dir, filename))
             else:
-                logger.debug("Loading %s.{%s}.%s ...", system, ",".join(self.languages), self.file_suffix)
-                self._data[system] = {
-                    lang: load_tokenized_text_file(Path(self.data_dir, f"{system}.{lang}.{self.file_suffix}"))
+                logger.debug("Loading %s.{%s}.%s ...", system_label, ",".join(self.languages), self.file_suffix)
+                self._data[system_label] = {
+                    lang: load_tokenized_text_file(Path(self.data_dir, f"{system_label}.{lang}.{self.file_suffix}"))
                     for lang in self.languages
                 }
 
@@ -54,12 +54,12 @@ class TokEvalData:
     @property
     def has_input_text(self) -> bool:
         """TODO"""
-        return any(m.requires_input_text for m in self.metrics.values())
+        return any(m.requires_input_text for m in self.metrics)
 
     @property
     def has_reference_text(self) -> bool:
         """TODO"""
-        return any(m.requires_reference_text for m in self.metrics.values())
+        return any(m.requires_reference_text for m in self.metrics)
 
     def get_input_text(self) -> TextType:
         """TODO"""
@@ -75,20 +75,20 @@ class TokEvalData:
         err_msg = "[self.__class__.__name__] Trying to access unavailable ._reference_key."
         raise AttributeError(err_msg)
 
-    def get_system_text(self, system: str, language: str | None = None) -> TextType:
+    def get_system_text(self, system_label: str, language: str | None = None) -> TextType:
         """TODO"""
         if language is not None:
             if not self.languages:
                 err_msg = "Cannot access a language-specific text of a {self.__name__}(languages=None, **kwargs)"
                 raise ValueError(err_msg)
-            return self._data[system][language]
+            return self._data[system_label][language]
         if self.languages:
-            return [line for lang in self.languages for line in self._data[system][lang]]
-        return self._data[system]
+            return [line for lang in self.languages for line in self._data[system_label][lang]]
+        return self._data[system_label]
 
     def get_full_text(self) -> TextType:
         """TODO"""
-        text = [line for system in self.systems for line in self.get_system_text(system)]
+        text = [line for system_label in self.systems for line in self.get_system_text(system_label)]
         if self.has_input_text:
             text += self.get_input_text()
         if self.has_reference_text:

@@ -1,22 +1,19 @@
 import numpy as np
 from attrs import define
-from typing import Tuple
 
-from tokeval.metrics import TokEvalMetric, register_metric
+from tokeval.data import TokEvalData
+from tokeval.metrics import TokEvalMultilingualMetric, register_metric
 
 
 @register_metric("sequence_ratio")
 @define(kw_only=True)
-class SequenceRatioMetric(TokEvalMetric):
-    """Compute the sequence length ratio between two tokenizer outputs."""
+class SequenceRatioMetric(TokEvalMultilingualMetric):
+    """Compute the sequence length ratio between two outputs of a single tokenizer."""
 
-    def score(
-        self,
-        data: dict[str, list[str]],
-        system_label_1: str,
-        system_label_2: str,
-    ) -> Tuple[float, float]:
-        text_1 = data[system_label_1]
-        text_2 = data[system_label_2]
-        ratios = np.array([len(line_1) / len(line_2) for line_1, line_2 in zip(text_1, text_2)])
-        return (ratios.mean(), ratios.var())
+    def score(self, data: TokEvalData, system_label: str, src_lang: str, tgt_lang: str) -> tuple[float, float]:
+        text_src = data.get_system_text(system_label=system_label, language=src_lang)
+        text_tgt = data.get_system_text(system_label=system_label, language=tgt_lang)
+        ratios = np.array(
+            [len(line_src) / len(line_tgt) for line_src, line_tgt in zip(text_src, text_tgt, strict=False)]
+        )
+        return self._aggregate_scores(ratios)

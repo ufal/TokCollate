@@ -1,7 +1,7 @@
 import numpy as np
 from attrs import define, field
-from typing import Optional, Tuple
 
+from tokeval.data import TokEvalData
 from tokeval.metrics import TokEvalMetric, register_metric
 from tokeval.utils import get_unigram_frequencies
 
@@ -18,13 +18,13 @@ class BitsMetric(TokEvalMetric):
 
     def score(
         self,
-        data: dict[str, list[str]],
+        data: TokEvalData,
         system_label: str,
-    ) -> Tuple[float, Optional[float]]:
-        text = data[system_label]
+    ) -> tuple[float, float | None]:
+        text = data.get_system_text(system_label=system_label)
         unigram_freqs = get_unigram_frequencies(text)
         vocab_size = unigram_freqs.size
         res = unigram_freqs.sum() * np.log2(vocab_size)
         if self.negate_output:
-            return (-res, None)
-        return (res, None)
+            return -res
+        return res
