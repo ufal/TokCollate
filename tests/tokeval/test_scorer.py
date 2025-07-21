@@ -50,7 +50,7 @@ def test_scorer_metric_marix_size(foo_scorer, metric_type):
     results = foo_scorer.run()
     for metric_label in foo_scorer.metrics:
         if metric_type == "mono":
-            ref_shape = tuple(len(foo_scorer.systems) * len(foo_scorer.languages))
+            ref_shape = tuple(len(foo_scorer.systems))
         elif metric_type == "multi":
             ref_shape = tuple(len(foo_scorer.systems), len(foo_scorer.languages), len(foo_scorer.languages))
         assert results["metrics"][metric_label].shape == ref_shape

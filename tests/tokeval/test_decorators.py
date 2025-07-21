@@ -22,6 +22,7 @@ def test_register_metric_name(clear_registries, foo_metric_cls):  # noqa: ARG001
 
 def test_register_metric_incorrect_subclass_fail(clear_registries):  # noqa: ARG001
     """Fail when the registered metric class does not inherit from TokEvalMetric."""
+
     class FooMetric:
         pass
 

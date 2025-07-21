@@ -6,7 +6,6 @@ from tokeval_cli import main
 def test_run_default_values(foo_config_file):
     """Execute 'run' command with default values (required values are provided)."""
     cmd = ["run", "--config-file", str(foo_config_file)]
-
     rc = main(cmd)
     assert rc == 0
 

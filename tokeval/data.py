@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from attrs import define, field, validators
+from attrs import converters, define, field, validators
 
 from tokeval.utils import load_tokenized_text_file
 
@@ -15,8 +15,8 @@ class TokEvalData:
     """TODO"""
 
     data_dir: Path = field(converter=Path)
-    systems: list[str] = field(validator=validators.instance_of(list), factory=list)
-    languages: list[str] = field(factory=list)
+    systems: list[str] = field(converter=converters.optional(list), factory=list)
+    languages: list[str] = field(converter=converters.optional(list), factory=list)
     metrics: list["TokEvalMetric"] = field(factory=list)  # noqa: F821
     file_suffix: str = field(validator=validators.instance_of(str), default="txt")
     input_file_stem: str = field(validator=validators.instance_of(str), default="input")
@@ -54,12 +54,12 @@ class TokEvalData:
     @property
     def has_input_text(self) -> bool:
         """TODO"""
-        return any(m.requires_input_text for m in self.metrics)
+        return any(m.requires_input_text for m in self.metrics.values())
 
     @property
     def has_reference_text(self) -> bool:
         """TODO"""
-        return any(m.requires_reference_text for m in self.metrics)
+        return any(m.requires_reference_text for m in self.metrics.values())
 
     def get_input_text(self) -> TextType:
         """TODO"""

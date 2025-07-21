@@ -13,14 +13,14 @@ def foo_config_file(config_dir, input_dir, output_dir, system_outputs_tiny_multi
             "scorer": {
                 "input_dir": str(input_dir),
                 "output_dir": str(output_dir),
-                "systems": [path.stem for path in system_outputs_tiny_multilingual],
+                "systems": [".".join(path.stem.split(".")[:-1]) for path in system_outputs_tiny_multilingual],
                 "languages": languages,
                 "file_suffix": "txt",
                 "metrics": [
                     {"metric": "sequence_length", "metric_label": "metric_foo_mono_1"},
                     {"metric": "token_length", "metric_label": "metric_foo_mono_2"},
-                    {"metric": "XXX", "metric_label": "metric_foo_multi_1"},
-                    {"metric": "XXX", "metric_label": "metric_foo_multi_2"},
+                    {"metric": "sequence_ratio", "metric_label": "metric_foo_multi_1"},
+                    # {"metric": "XXX", "metric_label": "metric_foo_multi_2"},
                 ],
             }
         }
