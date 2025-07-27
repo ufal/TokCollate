@@ -5,4 +5,5 @@ omegaconf
 pre-commit
 pytest
 ruff
+scipy
 typing-extensions
