@@ -60,12 +60,15 @@ def get_vocabulary(text: list[list[str]]) -> Counter:
     return Counter(tok for line in text for tok in line)
 
 
-def get_unigram_frequencies(text: list[list[str]]) -> np.ndarray:
+def get_unigram_frequencies(text: list[list[str]], vocab: Counter | None = None) -> np.ndarray:
     """Return a sorted array of vocabulary token frequencies."""
-    return np.array([tok[1] for tok in get_vocabulary(text).most_common()])
+    if vocab is None:
+        return np.array([tok[1] for tok in get_vocabulary(text).most_common()])
+    text_vocab = get_vocabulary(text)
+    return np.array([text_vocab[tok[0]] for tok in vocab.most_common()])
 
 
-def get_unigram_distribution(text: list[list[str]]) -> np.ndarray:
+def get_unigram_distribution(text: list[list[str]], vocab: Counter | None = None) -> np.ndarray:
     """Return the token probability distribution of a given text."""
-    unigram_counts = get_unigram_frequencies(text)
+    unigram_counts = get_unigram_frequencies(text, vocab=vocab)
     return unigram_counts / unigram_counts.sum()
