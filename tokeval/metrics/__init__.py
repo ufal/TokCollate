@@ -57,6 +57,16 @@ def register_metric(name: str) -> Callable:
     return register_metric_cls
 
 
+def list_metrics() -> list[str]:
+    """Return a list of available metrics."""
+    return METRIC_REGISTRY.keys()
+
+
+def list_metric_instance_labels() -> list[str]:
+    """Return a list of labels associated with available metric instances."""
+    return METRIC_INSTANCE_REGISTRY.keys()
+
+
 def get_metric(name: str) -> TokEvalMetric:
     return METRIC_REGISTRY[name]
 

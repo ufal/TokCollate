@@ -46,3 +46,34 @@ def test_register_metric_duplicate_name_fail(clear_registries, foo_metric_cls): 
     metrics.register_metric("foo")(foo_metric_cls)
     with pytest.raises(ValueError):  # noqa: PT011
         metrics.register_metric("foo")(BarMetric)
+
+
+def test_list_registered_metrics(clear_registries):  # noqa: ARG001
+    """Test listing registered metrics."""
+
+    class FooMetric(metrics.TokEvalMetric):
+        pass
+
+    metrics.register_metric("foo")(FooMetric)
+
+    class BarMetric(metrics.TokEvalMetric):
+        pass
+
+    metrics.register_metric("bar")(BarMetric)
+
+    assert set(metrics.list_metrics()) == {"foo", "bar"}
+
+
+def test_list_intantiated_metric_labels(clear_registries):  # noqa: ARG001
+    """Test listing of all instantiated metric labels."""
+
+    class FooMetric(metrics.TokEvalMetric):
+        pass
+
+    metrics.register_metric("foo")(FooMetric)
+
+    metric_labels = ["inst_a", "inst_b"]
+    for metric_label in metric_labels:
+        metrics.build_metric(metric="foo", metric_label=metric_label)
+
+    assert set(metrics.list_metric_instance_labels()) == set(metric_labels)
