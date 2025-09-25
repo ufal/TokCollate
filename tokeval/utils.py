@@ -22,6 +22,14 @@ def load_text_file(file: Path) -> tuple[str]:
     with open_file(file, "r") as fh:
         return fh.readlines()
 
+def concat_files(input_files: list[Path], output_file: Path) -> None:
+    """Concatenate files from a given list."""
+    with open_file(output_file, "w") as out_fh:
+        for input_file in input_files:
+            with open_file(input_file, "r") as in_fh:
+                for line in in_fh:
+                    print(line, end="", file=out_fh)
+
 
 def remove_dir(directory: Path) -> None:
     """Remove the directory and its contents recursively."""

@@ -2,8 +2,6 @@ attrs
 dit
 numpy
 omegaconf
-pre-commit
-pytest
-ruff
+sentencepiece
 scipy
 typing-extensions
