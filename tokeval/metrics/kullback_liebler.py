@@ -11,7 +11,7 @@ from tokeval.utils import get_unigram_frequencies, get_vocabulary
 class KullbackLieblerDivergenceMetric(TokEvalMultilingualMetric):
     """TODO"""
 
-    def score(self, data: TokEvalData, system_label: str, src_lang: str, tgt_lang: str) -> tuple[float, float]:
+    def score(self, data: TokEvalData, system_label: str, src_lang: str, tgt_lang: str) -> float:
         text_src = data.get_system_text(system_label=system_label, language=src_lang)
         text_tgt = data.get_system_text(system_label=system_label, language=tgt_lang)
         vocab = get_vocabulary(text=(text_src + text_tgt))
@@ -19,4 +19,4 @@ class KullbackLieblerDivergenceMetric(TokEvalMultilingualMetric):
         unigrams_src = get_unigram_frequencies(text_src, vocab=vocab)
         unigrams_tgt = get_unigram_frequencies(text_tgt, vocab=vocab)
 
-        return kl_div(unigrams_src, unigrams_tgt)
+        return kl_div(unigrams_src, unigrams_tgt).sum()

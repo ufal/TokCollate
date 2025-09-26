@@ -2,7 +2,7 @@ import enum
 import logging
 
 import numpy as np
-from attrs import define, field, validators
+from attrs import define, field
 
 from tokeval.data import TokEvalData
 
@@ -42,13 +42,10 @@ class TokEvalMetric:
     Args:
         metric (str): metric class identifier (registered using register_metric)
         metric_label (str): unique metric class instance identifier
-        mode (str): indicator for some of the metric classes whether to compute the mean or variance over
-            the collected text values
     """
 
     metric: str = field(converter=str)
     metric_label: str = field(converter=str)
-    mode: EvalMode = field(validator=validators.in_(EvalMode), default=EvalMode.MEAN)
 
     _requires_reference_text: bool = False
     _requires_input_text: bool = False
@@ -84,22 +81,12 @@ class TokEvalMetric:
         """Accessor to the ._requires_reference_text private attribute."""
         return self._requires_reference_text
 
-    def _aggregate_scores(self, scores: np.ndarray) -> float:
-        if self.mode == EvalMode.MEAN:
-            return scores.mean()
-        if self.mode == EvalMode.VAR:
-            return scores.var()
-        if self.mode == EvalMode.SUM:
-            return scores.sum()
-        err_msg = f"Unknown metric mode: {self.mode}"
-        raise ValueError(err_msg)
-
     def score(
         self,
         data: TokEvalData,
         system_label: str,
         **kwargs,  # noqa: ANN003
-    ) -> tuple[float]:
+    ) -> float:
         """Implements the metric computation.
 
         The method receives a data representation TokEvalData instance, a label of the evaluated system and additional
@@ -151,7 +138,7 @@ class TokEvalMultilingualMetric(TokEvalMetric):
         system_label: str,
         src_lang: str,
         tgt_lang: str,
-    ) -> tuple[float]:
+    ) -> float:
         raise NotImplementedError()
 
     def score_all(self, data: TokEvalData, systems: list[str], languages: list[str]) -> np.ndarray:

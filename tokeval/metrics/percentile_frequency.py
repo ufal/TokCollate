@@ -23,8 +23,8 @@ class PercentileFrequencyMetric(TokEvalMetric):
         self,
         data: TokEvalData,
         system_label: str,
-    ) -> tuple[float, float | None]:
-        text = data.get_sytsem_text(system_label=system_label)
+    ) -> float:
+        text = data.get_system_text(system_label=system_label)
         unigram_probs = get_unigram_distribution(text)
 
         gamma_1_val = np.percentile(unigram_probs, self.gamma_1)

@@ -40,7 +40,7 @@ class EntropyMetric(TokEvalMetric):
         self,
         data: TokEvalData,
         system_label: str,
-    ) -> tuple[float, float | None]:
+    ) -> float:
         text = data.get_system_text(system_label=system_label)
         unigram_probs = get_unigram_distribution(text)
         vocab_size = unigram_probs.size

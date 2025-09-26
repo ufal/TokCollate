@@ -64,7 +64,7 @@ def test_list_registered_metrics(clear_registries):  # noqa: ARG001
     assert set(metrics.list_metrics()) == {"foo", "bar"}
 
 
-def test_list_intantiated_metric_labels(clear_registries):  # noqa: ARG001
+def test_list_instantiated_metric_labels(clear_registries):  # noqa: ARG001
     """Test listing of all instantiated metric labels."""
 
     class FooMetric(metrics.TokEvalMetric):

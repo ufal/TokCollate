@@ -5,15 +5,15 @@ from omegaconf import OmegaConf
 
 
 @pytest.fixture(scope="session")
-def foo_config_file(config_dir, input_dir, output_dir, system_outputs_tiny_multilingual):
+def foo_config_file(config_dir, input_dir, output_dir, foo_system_output_tiny_multilingual):
     """TODO"""
-    languages = [path.stem.split(".")[-1] for path in system_outputs_tiny_multilingual]
+    languages = [path.stem.split(".")[-1] for path in foo_system_output_tiny_multilingual]
     config = OmegaConf.create(
         {
             "scorer": {
                 "input_dir": str(input_dir),
                 "output_dir": str(output_dir),
-                "systems": [".".join(path.stem.split(".")[:-1]) for path in system_outputs_tiny_multilingual],
+                "systems": [".".join(path.stem.split(".")[:-1]) for path in foo_system_output_tiny_multilingual],
                 "languages": languages,
                 "file_suffix": "txt",
                 "metrics": [

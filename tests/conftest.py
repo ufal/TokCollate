@@ -15,4 +15,5 @@ def clear_instance_registry(monkeypatch):  # noqa: PT004
 def clear_registries(monkeypatch):  # noqa: PT004
     """Clear all the registries."""
     monkeypatch.setattr(metrics, "METRIC_REGISTRY", {})
+    monkeypatch.setattr(metrics, "METRIC_INSTANCE_REGISTRY", {})
     monkeypatch.setattr(metrics, "METRIC_CLASS_NAMES", set())

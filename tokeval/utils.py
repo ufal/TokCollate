@@ -22,6 +22,7 @@ def load_text_file(file: Path) -> tuple[str]:
     with open_file(file, "r") as fh:
         return fh.readlines()
 
+
 def concat_files(input_files: list[Path], output_file: Path) -> None:
     """Concatenate files from a given list."""
     with open_file(output_file, "w") as out_fh:
