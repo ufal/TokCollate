@@ -2,7 +2,7 @@ import enum
 import logging
 
 import numpy as np
-from attrs import define, field
+from attrs import define, field, validators
 
 from tokeval.data import TokEvalData
 
@@ -125,13 +125,15 @@ class TokEvalMetric:
         """
         res = np.zeros(shape=[len(systems)])
         for i, system_label in enumerate(systems):
-            logger.debug("[%s] Scoring system: %s...", self.metric_label, system_label)
+            logger.debug("[%s] Scoring system %s...", self.metric_label, system_label)
             res[i] = self.score(data=data, system_label=system_label)
         return res
 
 
 class TokEvalMultilingualMetric(TokEvalMetric):
     """TODO"""
+
+    batched: bool = field(validator=validators.instance_of(bool), default=True)
 
     def score(
         self,
@@ -142,17 +144,32 @@ class TokEvalMultilingualMetric(TokEvalMetric):
     ) -> float:
         raise NotImplementedError()
 
+    def score_batched(
+        self,
+        data: TokEvalData,
+        system_label: str,
+        languages: list[str],
+    ) -> np.ndarray:
+        raise NotImplementedError()
+
     def score_all(self, data: TokEvalData, systems: list[str], languages: list[str]) -> np.ndarray:
         """TODO"""
         res = np.zeros(shape=[len(systems), len(languages), len(languages)])
         for i, system_label in enumerate(systems):
-            for j, src_lang in enumerate(languages):
-                for k, tgt_lang in enumerate(languages):
-                    logger.debug(
-                        "[%s] Scoring system: %s, src_lang: %s, tgt_lang: %s",
-                        self.metric_label, system_label, src_lang, tgt_lang
-                    )
-                    res[i, j, k] = self.score(
-                        data=data, system_label=system_label, src_lang=src_lang, tgt_lang=tgt_lang
-                    )
+            if self.batched:
+                logger.debug("[%s] Scoring system %s...", self.metric_label, system_label)
+                res[i, :, :] = self.score_batched(data=data, system_label=system_label, languages=languages)
+            else:
+                for j, src_lang in enumerate(languages):
+                    for k, tgt_lang in enumerate(languages):
+                        logger.debug(
+                            "[%s] Scoring system %s (src_lang: %s, tgt_lang: %s)...",
+                            self.metric_label,
+                            system_label,
+                            src_lang,
+                            tgt_lang,
+                        )
+                        res[i, j, k] = self.score(
+                            data=data, system_label=system_label, src_lang=src_lang, tgt_lang=tgt_lang
+                        )
         return res

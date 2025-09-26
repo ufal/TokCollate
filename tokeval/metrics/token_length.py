@@ -1,5 +1,5 @@
 import numpy as np
-from attrs import define, field, validators
+from attrs import define, field
 
 from tokeval.data import TokEvalData
 from tokeval.metrics import TokEvalMetric, register_metric
@@ -12,7 +12,7 @@ from .tokeval_metric import EvalMode
 class TokenLengthMetric(TokEvalMetric):
     """Compute the average number of utf-8 characters per token."""
 
-    mode: EvalMode = field(validator=validators.in_(EvalMode), default=EvalMode.MEAN)
+    mode: EvalMode = field(converter=EvalMode, default=EvalMode.MEAN)
 
     def score(
         self,

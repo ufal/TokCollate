@@ -1,5 +1,5 @@
 import numpy as np
-from attrs import define, field, validators
+from attrs import define, field
 
 from tokeval.data import TokEvalData
 from tokeval.metrics import TokEvalMetric, register_metric
@@ -13,7 +13,7 @@ class SequenceLengthMetric(TokEvalMetric):
     """Computes the average sequence length in the terms of tokens per line."""
 
     negate_output: bool = field(default=True)  # negate output so higher is better
-    mode: EvalMode = field(validator=validators.in_(EvalMode), default=EvalMode.MEAN)
+    mode: EvalMode = field(converter=EvalMode, default=EvalMode.MEAN)
 
     def score(
         self,
