@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import ClassVar
 
 import numpy as np
-from attrs import define, field, fields, validators
+from attrs import converters, define, field, fields, validators
 from omegaconf import DictConfig
 
 from tokeval.data import TokEvalData
@@ -33,8 +33,8 @@ class TokEvalScorer:
 
     config: DictConfig = field(validator=validators.instance_of(DictConfig))
 
-    input_dir: Path = field(init=False)
-    output_dir: Path = field(init=False, default=None)
+    input_dir: Path = field(converter=converters.optional(Path), init=False)
+    output_dir: Path = field(converter=converters.optional(Path), init=False, default=None)
     systems: list[str] = field(init=False)
     languages: list[str] = field(init=False, factory=list)
     file_suffix: str = field(init=False, default="txt")
@@ -82,6 +82,8 @@ class TokEvalScorer:
         results["correlation"] = self._correlate(results["metrics"])
 
         if self.output_dir is not None:
+            if not self.output_dir.exists():
+                self.output_dir.mkdir(parents=True)
             results_path = Path(self.output_dir, self._filenames["metrics"])
             logger.info("Saving metric scores to %s...", results_path)
             np.savez(results_path, **results["metrics"])
