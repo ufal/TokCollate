@@ -27,7 +27,7 @@ class TokEvalScorer:
         scorer.input_dir: location of the dataset files
         scorer.output_dir: target location for saving the scorer results. If None, the results are printed to stdout.
         scorer.systems: list of the scored system outputs
-        scorer.system_dataset_suffix: suffix of the dataset files
+        scorer.file_suffix: suffix of the dataset files
         scorer.metrics: list of metrics and their configurations (dict)
     """
 
@@ -121,6 +121,7 @@ class TokEvalScorer:
         """Score the datasets with the requested metrics."""
         scores = {}
         for metric_label, metric in self.metrics.items():
+            logger.info("Running %s metric...", metric_label)
             scores[metric_label] = metric.score_all(self.data, self.systems, languages=self.languages)
         return scores
 
