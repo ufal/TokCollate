@@ -1,0 +1,8 @@
+attrs
+dit
+numpy
+omegaconf
+pytest==8.3.5
+sentencepiece
+scipy
+typing-extensions
