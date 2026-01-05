@@ -1,0 +1,16 @@
+.graph {
+  width: 100%;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fafafa;
+  border-radius: 4px;
+}
+
+.no-data {
+  color: #95a5a6;
+  font-style: italic;
+  padding: 2rem;
+  text-align: center;
+}
