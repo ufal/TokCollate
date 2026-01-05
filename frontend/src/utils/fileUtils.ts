@@ -83,3 +83,195 @@ export const saveVisualization = (data: VisualizationData, filename: string) => 
   link.click();
   URL.revokeObjectURL(url);
 };
+
+/**
+ * Load metadata from TokEval Scorer output metadata file
+ * Expected format:
+ * {
+ *   "dataset_name": "string",
+ *   "tokenizers": ["list", "of", "tokenizers"],
+ *   "languages": ["list", "of", "languages"],
+ *   "metrics": ["list", "of", "metric_labels"],
+ *   "metrics_file": "path/to/metrics.scores.npz",
+ *   "correlation_file": "path/to/correlation.scores.npz"
+ * }
+ */
+export const loadMetadata = async (file: File): Promise<VisualizationData | null> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const content = e.target?.result as string;
+        const metadata = JSON.parse(content);
+
+        // Validate required fields
+        if (!metadata.dataset_name || !Array.isArray(metadata.tokenizers) || 
+            !Array.isArray(metadata.languages) || !Array.isArray(metadata.metrics)) {
+          reject(new Error('Invalid metadata format. Missing required fields.'));
+          return;
+        }
+
+        // Create visualization data with metadata
+        const visualizationData: VisualizationData = {
+          metrics: {},
+          correlation: {},
+          metadata: {
+            datasetName: metadata.dataset_name,
+            timestamp: metadata.timestamp,
+            version: metadata.version,
+          },
+        };
+
+        // If metrics_file path is provided, attempt to load it
+        if (metadata.metrics_file) {
+          try {
+            // Note: In a real implementation, we'd need to load the actual NPZ file
+            // For now, we'll just store the path and metadata
+            visualizationData.metadata = {
+              ...visualizationData.metadata,
+              metricsPath: metadata.metrics_file,
+              correlationPath: metadata.correlation_file,
+              tokenizers: metadata.tokenizers,
+              languages: metadata.languages,
+              metrics: metadata.metrics,
+            };
+          } catch (error) {
+            console.warn('Could not load metrics file from path:', metadata.metrics_file);
+          }
+        }
+
+        resolve(visualizationData);
+      } catch (error) {
+        reject(new Error('Failed to parse metadata file'));
+      }
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsText(file);
+  });
+};
+
+/**
+ * Load metrics and correlation data from a directory containing TokEval output files
+ * Expects files: metrics.scores.npz (or .json) and correlation.scores.npz (or .json)
+ */
+export const loadFromDirectory = async (files: FileList): Promise<VisualizationData | null> => {
+  let metricsData: any = null;
+  let correlationData: any = null;
+
+  // Convert FileList to Array and process
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const filename = file.name;
+
+    if (filename.includes('metrics.scores')) {
+      try {
+        metricsData = await loadNpzOrJson(file);
+      } catch (error) {
+        console.warn('Failed to load metrics file:', error);
+      }
+    } else if (filename.includes('correlation.scores')) {
+      try {
+        correlationData = await loadNpzOrJson(file);
+      } catch (error) {
+        console.warn('Failed to load correlation file:', error);
+      }
+    }
+  }
+
+  if (metricsData || correlationData) {
+    return {
+      metrics: metricsData || {},
+      correlation: correlationData || {},
+    };
+  }
+
+  throw new Error('No valid metrics or correlation files found in directory');
+};
+
+/**
+ * Load NPZ or JSON file
+ * For now, handles JSON; NPZ support requires additional dependencies
+ */
+const loadNpzOrJson = async (file: File): Promise<any> => {
+  if (file.name.endsWith('.json')) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          resolve(JSON.parse(content));
+        } catch (error) {
+          reject(new Error('Failed to parse JSON file'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    });
+  } else if (file.name.endsWith('.npz')) {
+    // NPZ files require binary parsing (e.g., jszip + numpy array parsing)
+    // For now, return empty object with a warning
+    console.warn('NPZ file support not yet implemented. Please convert to JSON format.');
+    return {};
+  }
+
+  throw new Error(`Unsupported file format: ${file.name}`);
+};
+
+/**
+ * Export charts as PNG images using html2canvas
+ * Note: Requires html2canvas library - install with: npm install html2canvas
+ */
+export const exportGraphAsPNG = async (
+  elementId: string,
+  filename: string
+): Promise<void> => {
+  // Dynamic import to avoid hard dependency
+  try {
+    const html2canvas = (await import('html2canvas')).default;
+    const element = document.getElementById(elementId);
+    
+    if (!element) {
+      throw new Error(`Element with ID ${elementId} not found`);
+    }
+
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#fff',
+      scale: 2,
+      logging: false,
+    });
+
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = filename;
+    link.click();
+  } catch (error) {
+    console.warn('html2canvas not available. Export requires: npm install html2canvas');
+    throw new Error('Graph export requires html2canvas library. Please install it first.');
+  }
+};
+
+/**
+ * Export all graphs as PNG files
+ * Creates a list of exports and triggers download
+ */
+export const exportAllGraphs = async (
+  graphs: Array<{ id: string; title: string }>
+): Promise<void> => {
+  if (graphs.length === 0) {
+    alert('No graphs to export');
+    return;
+  }
+
+  try {
+    for (const graph of graphs) {
+      const filename = `${graph.title.replace(/[^a-z0-9]/gi, '_')}.png`;
+      await exportGraphAsPNG(graph.id, filename);
+      // Add small delay between exports to avoid browser throttling
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    alert(`Successfully exported ${graphs.length} graph(s)`);
+  } catch (error) {
+    alert(`Failed to export graphs: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('Export error:', error);
+  }
+};

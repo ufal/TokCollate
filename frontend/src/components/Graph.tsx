@@ -80,7 +80,7 @@ const Graph: React.FC<GraphProps> = ({ config, data, datasetType }) => {
   };
 
   return (
-    <div className="graph">
+    <div className="graph" id={`graph-${config.id}`}>
       {chartData.length > 0 ? (
         renderChart()
       ) : (

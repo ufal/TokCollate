@@ -1,24 +1,29 @@
 import React, { useRef } from 'react';
-import { loadMetricsFile } from '../utils/fileUtils';
+import { loadMetricsFile, loadMetadata } from '../utils/fileUtils';
 import './MainMenu.css';
 
 interface MainMenuProps {
   onLoadVisualization: (data: any) => void;
   onSaveVisualization: () => void;
-  onDatasetChange: (dataset: 'metrics' | 'correlation') => void;
-  currentDataset: 'metrics' | 'correlation';
+  onExportGraphs?: () => void;
+  datasetName: string;
 }
 
 const MainMenu: React.FC<MainMenuProps> = ({
   onLoadVisualization,
   onSaveVisualization,
-  onDatasetChange,
-  currentDataset,
+  onExportGraphs,
+  datasetName,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const metadataInputRef = useRef<HTMLInputElement>(null);
 
   const handleLoadClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleImportDataClick = () => {
+    metadataInputRef.current?.click();
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,29 +39,39 @@ const MainMenu: React.FC<MainMenuProps> = ({
     }
   };
 
+  const handleMetadataSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const metadata = await loadMetadata(file);
+        if (metadata) {
+          onLoadVisualization(metadata);
+        }
+      } catch (error) {
+        alert('Failed to load metadata file. Make sure it contains valid TokEval scorer metadata.');
+        console.error(error);
+      }
+    }
+  };
+
   return (
     <div className="main-menu">
       <div className="menu-buttons">
         <button className="menu-button" onClick={handleLoadClick}>
           Load
         </button>
+        <button className="menu-button" onClick={handleImportDataClick}>
+          Import Data
+        </button>
         <button className="menu-button" onClick={onSaveVisualization}>
           Save
         </button>
-        <button className="menu-button" disabled>
-          Add Tokenizer
+        <button className="menu-button" onClick={onExportGraphs} disabled={!onExportGraphs}>
+          Export graphs
         </button>
         <div className="dataset-selector">
-          <label>Dataset Type:</label>
-          <select
-            value={currentDataset}
-            onChange={(e) =>
-              onDatasetChange(e.target.value as 'metrics' | 'correlation')
-            }
-          >
-            <option value="metrics">Metrics</option>
-            <option value="correlation">Correlation</option>
-          </select>
+          <label>Dataset Name:</label>
+          <span className="dataset-display">{datasetName}</span>
         </div>
       </div>
       <input
@@ -64,6 +79,13 @@ const MainMenu: React.FC<MainMenuProps> = ({
         type="file"
         accept=".json,.npz"
         onChange={handleFileSelect}
+        style={{ display: 'none' }}
+      />
+      <input
+        ref={metadataInputRef}
+        type="file"
+        accept=".json"
+        onChange={handleMetadataSelect}
         style={{ display: 'none' }}
       />
     </div>

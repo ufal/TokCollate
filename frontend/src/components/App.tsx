@@ -4,11 +4,12 @@ import MainMenu from './MainMenu';
 import GraphList from './GraphList';
 import GraphConfigurator from './GraphConfigurator';
 import './App.css';
+import { exportAllGraphs } from '../utils/fileUtils';
 
 const App: React.FC = () => {
   const [state, setState] = useState<VisualizationState>({
     graphs: [],
-    currentDataset: 'metrics',
+    datasetName: 'Unknown',
     availableTokenizers: [],
     availableMetrics: [],
     availableLanguages: [],
@@ -16,9 +17,11 @@ const App: React.FC = () => {
   });
 
   const handleLoadVisualization = (data: any) => {
+    const datasetName = data?.metadata?.datasetName || 'Unknown';
     setState((prev) => ({
       ...prev,
       data,
+      datasetName,
       availableTokenizers: extractTokenizers(data),
       availableMetrics: extractMetrics(data),
       availableLanguages: extractLanguages(data),
@@ -49,11 +52,19 @@ const App: React.FC = () => {
     }));
   };
 
-  const handleDatasetChange = (dataset: 'metrics' | 'correlation') => {
+  const handleDatasetChange = (dataset: string) => {
     setState((prev) => ({
       ...prev,
-      currentDataset: dataset,
+      datasetName: dataset,
     }));
+  };
+
+  const handleExportGraphs = async () => {
+    const graphsForExport = state.graphs.map((graph) => ({
+      id: graph.id,
+      title: graph.title,
+    }));
+    await exportAllGraphs(graphsForExport);
   };
 
   return (
@@ -61,8 +72,8 @@ const App: React.FC = () => {
       <MainMenu
         onLoadVisualization={handleLoadVisualization}
         onSaveVisualization={handleSaveVisualization}
-        onDatasetChange={handleDatasetChange}
-        currentDataset={state.currentDataset}
+        onExportGraphs={handleExportGraphs}
+        datasetName={state.datasetName}
       />
       <div className="content">
         <div className="graph-list-container">
@@ -70,7 +81,7 @@ const App: React.FC = () => {
             graphs={state.graphs}
             data={state.data}
             onRemoveGraph={handleRemoveGraph}
-            datasetType={state.currentDataset}
+            datasetType={state.datasetName}
           />
         </div>
         <div className="configurator-container">

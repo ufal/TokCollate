@@ -13,6 +13,16 @@ export interface LanguageMetrics {
 export interface VisualizationData {
   metrics: { [key: string]: any };
   correlation: { [key: string]: any };
+  metadata?: {
+    datasetName?: string;
+    timestamp?: string;
+    version?: string;
+    metricsPath?: string;
+    correlationPath?: string;
+    tokenizers?: string[];
+    languages?: string[];
+    metrics?: string[];
+  };
 }
 
 export interface GraphConfig {
@@ -27,7 +37,7 @@ export interface GraphConfig {
 
 export interface VisualizationState {
   graphs: GraphConfig[];
-  currentDataset: 'metrics' | 'correlation';
+  datasetName: string;
   availableTokenizers: string[];
   availableMetrics: string[];
   availableLanguages: string[];

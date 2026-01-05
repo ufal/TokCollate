@@ -51,6 +51,7 @@ frontend/
 - **TypeScript**: Type safety
 - **Vite**: Fast build tool and dev server
 - **Recharts**: Chart library for visualizations
+- **html2canvas**: Graph export to PNG/image format
 - **CSS**: Styling (no CSS framework for minimal dependencies)
 
 ## Installation
@@ -68,7 +69,12 @@ cd frontend
 npm install
 ```
 
-2. Start the development server:
+The project includes the following key dependencies:
+- **React 18**: UI framework
+- **TypeScript**: Type safety
+- **Vite**: Build tool and dev server
+- **Recharts**: Chart rendering library
+- **html2canvas**: Graph export to PNG functionality
 
 ```bash
 npm run dev
@@ -98,7 +104,8 @@ The application will open at `http://localhost:3000` in your default browser.
 ### Managing Graphs
 
 - Remove a graph by clicking the **✕** button in its header
-- Switch between **Metrics** and **Correlation** datasets using the selector
+- Switch between different dataset names using the selector
+- Export all graphs as PNG files by clicking **Export graphs**
 
 ### Saving Configurations
 
@@ -125,10 +132,11 @@ The application expects a JSON file with the following structure:
 - [ ] Support for NPZ file format (binary numpy archives)
 - [ ] Scatter plots and heatmaps
 - [ ] Advanced filtering options
-- [ ] Export graphs as images
+- [ ] Export graphs as PDF
 - [ ] Correlation matrix visualization
 - [ ] Add custom tokenizers at runtime
 - [ ] Dark mode
+- [ ] Graph customization (colors, fonts, axis ranges)
 
 ## Development
 
