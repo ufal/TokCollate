@@ -5,7 +5,7 @@ description = "TODO."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
-keywords = ["TODO"]
+keywords = ["tokenization analysis", "tokenization", "data visualisation"]
 authors = [{ name = "Dušan Variš", email = "varis@ufal.mff.cuni.cz" }]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -20,6 +20,9 @@ tokeval = "go:main_cli"
 Documentation = "https://github.com/ufal/tokeval#readme"
 Issues = "https://github.com/ufal/tokeval/issues"
 Repository = "https://github.com/ufal/TokEval.git"
+
+[tool.setuptools]
+py-modules = ["tokeval", "tokeval_cli"]
 
 [tool.pytest.ini_options]
 log_cli = true
