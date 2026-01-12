@@ -1,3 +1,4 @@
+import json
 import logging
 from pathlib import Path
 from typing import ClassVar
@@ -21,7 +22,7 @@ class TokEvalScorer:
     The metric results are then correlated based on their results across the system outputs
 
     Args:
-        config (DictConfig): scorer configuration
+        config (DictConfig): TokEval configuration containing scorer details
 
     OmegaConf Args:
         scorer.input_dir: location of the dataset files
@@ -41,7 +42,7 @@ class TokEvalScorer:
 
     metrics: dict[str, TokEvalMetric] = field(init=False, default=None)
     data: TokEvalData = field(init=False, default=None)
-    _filenames: ClassVar[dict] = {"metrics": "metrics.scores.npz", "correlation": "correlation.scores.npz"}
+    _filenames: ClassVar[dict] = {"metadata": "metadata.json", "results": "results.npz"}
     _metric_n_dim: ClassVar[dict] = {"mono": 1, "multi": 3}
 
     def __attrs_post_init__(self) -> None:
@@ -84,19 +85,30 @@ class TokEvalScorer:
         if self.output_dir is not None:
             if not self.output_dir.exists():
                 self.output_dir.mkdir(parents=True)
-            results_path = Path(self.output_dir, self._filenames["metrics"])
-            logger.info("Saving metric scores to %s...", results_path)
-            np.savez(results_path, **results["metrics"])
-
-            results_path = Path(self.output_dir, self._filenames["correlation"])
-            logger.info("Saving correlation scores to %s...", results_path)
-            np.savez(results_path, **results["correlation"])
+            logger.info("Saving scorer results to %s", self.output_dir)
+            self._save_metadata()
+            self._save_results(results)
         else:
             logger.info("No scorer.output_dir was provided. Printing results to STDOUT:\n")
-            for key in self._filenames:
+            for key in results:
                 print(results[key])  # noqa: T201
 
         return results
+
+    def _save_metadata(self) -> None:
+        path = Path(self.output_dir, self._filenames["metadata"])
+        data = {
+            "output_dir": str(self.output_dir),
+            "tokenizers": list(self.systems),
+            "metrics": list(self.metrics.keys()),
+            "languages": list(self.languages),
+        }
+        with path.open("w") as fh:
+            json.dump(data, fp=fh)
+
+    def _save_results(self, results: dict) -> None:
+        path = Path(self.output_dir, self._filenames["results"])
+        np.savez(path, **results)
 
     @classmethod
     def list_parameters(cls: "TokEvalScorer") -> list[str]:
