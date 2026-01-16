@@ -1,3 +1,5 @@
+import datetime
+import json
 import logging
 from pathlib import Path
 from typing import ClassVar
@@ -13,6 +15,47 @@ logger = logging.getLogger(__name__)
 
 
 @define(kw_only=True)
+class ScorerResultsSaver(dict):
+    """Class for saving the TokEvalScorer results with the scorer metadata."""
+
+    output_dir: Path = field(converter=Path)
+
+    dataset_name: str = field(default="Unknown Dataset")
+    timestamp: str = field(converter=converters.optional(str), default=None)
+    tokenizers: list[str] = field(validator=validators.instance_of(list))
+    metrics: list[str] = field(validator=validators.instance_of(list))
+    languages: list[str] = field(validator=validators.instance_of(list))
+
+    _metadata_filename: ClassVar[str] = "metadata.json"
+    _results_filename: ClassVar[str] = "results.npz"
+
+    def __attrs_post_init__(self) -> None:
+        """Set default values."""
+        if self.timestamp is None:
+            self.timestamp = f"{datetime.datetime.now():%Y-%m-%d_%H:%M:%S}"
+
+    def _save_metadata(self) -> None:
+        path = Path(self.output_dir, self._metadata_filename)
+        data = {
+            "output_dir": str(self.output_dir),
+            "dataset_name": self.dataset_name,
+            "timestamp": self.timestamp,
+            "tokenizers": self.tokenizers,
+            "metrics": self.metrics,
+            "languages": self.languages,
+        }
+        with path.open("w") as fh:
+            json.dump(data, sort_keys=True, indent=2, fp=fh)
+
+    def save_results(self, results: dict) -> None:
+        logger.info("Saving scorer results to %s", self.output_dir)
+        self._save_metadata()
+
+        path = Path(self.output_dir, self._results_filename)
+        np.savez(path, **results)
+
+
+@define(kw_only=True)
 class TokEvalScorer:
     """Base Scorer class.
 
@@ -21,7 +64,7 @@ class TokEvalScorer:
     The metric results are then correlated based on their results across the system outputs
 
     Args:
-        config (DictConfig): scorer configuration
+        config (DictConfig): TokEval configuration containing scorer details
 
     OmegaConf Args:
         scorer.input_dir: location of the dataset files
@@ -41,7 +84,6 @@ class TokEvalScorer:
 
     metrics: dict[str, TokEvalMetric] = field(init=False, default=None)
     data: TokEvalData = field(init=False, default=None)
-    _filenames: ClassVar[dict] = {"metrics": "metrics.scores.npz", "correlation": "correlation.scores.npz"}
     _metric_n_dim: ClassVar[dict] = {"mono": 1, "multi": 3}
 
     def __attrs_post_init__(self) -> None:
@@ -84,16 +126,15 @@ class TokEvalScorer:
         if self.output_dir is not None:
             if not self.output_dir.exists():
                 self.output_dir.mkdir(parents=True)
-            results_path = Path(self.output_dir, self._filenames["metrics"])
-            logger.info("Saving metric scores to %s...", results_path)
-            np.savez(results_path, **results["metrics"])
-
-            results_path = Path(self.output_dir, self._filenames["correlation"])
-            logger.info("Saving correlation scores to %s...", results_path)
-            np.savez(results_path, **results["correlation"])
+            ScorerResultsSaver(
+                output_dir=self.output_dir,
+                tokenizers=list(self.systems),
+                metrics=list(self.metrics.keys()),
+                languages=list(self.languages),
+            ).save_results(results)
         else:
             logger.info("No scorer.output_dir was provided. Printing results to STDOUT:\n")
-            for key in self._filenames:
+            for key in results:
                 print(results[key])  # noqa: T201
 
         return results
