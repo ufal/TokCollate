@@ -23,45 +23,27 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     metrics: [],
   });
 
-  const handleAddTokenizer = (tokenizer: string) => {
+  const handleTokenizerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
     setConfig((prev) => ({
       ...prev,
-      tokenizers: [...(prev.tokenizers || []), tokenizer],
+      tokenizers: selectedOptions,
     }));
   };
 
-  const handleRemoveTokenizer = (tokenizer: string) => {
+  const handleMetricChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
     setConfig((prev) => ({
       ...prev,
-      tokenizers: (prev.tokenizers || []).filter((t) => t !== tokenizer),
+      metrics: selectedOptions,
     }));
   };
 
-  const handleAddMetric = (metric: string) => {
+  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
     setConfig((prev) => ({
       ...prev,
-      metrics: [...(prev.metrics || []), metric],
-    }));
-  };
-
-  const handleRemoveMetric = (metric: string) => {
-    setConfig((prev) => ({
-      ...prev,
-      metrics: (prev.metrics || []).filter((m) => m !== metric),
-    }));
-  };
-
-  const handleAddLanguage = (language: string) => {
-    setConfig((prev) => ({
-      ...prev,
-      languages: [...(prev.languages || []), language],
-    }));
-  };
-
-  const handleRemoveLanguage = (language: string) => {
-    setConfig((prev) => ({
-      ...prev,
-      languages: (prev.languages || []).filter((l) => l !== language),
+      languages: selectedOptions,
     }));
   };
 
@@ -126,87 +108,57 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       <div className="config-section">
         <label>Tokenizers:</label>
         <select
-          onChange={(e) => {
-            if (e.target.value && !config.tokenizers?.includes(e.target.value)) {
-              handleAddTokenizer(e.target.value);
-            }
-            e.target.value = '';
-          }}
+          multiple
+          value={config.tokenizers || []}
+          onChange={handleTokenizerChange}
+          className="multi-select"
         >
-          <option value="">Select tokenizer...</option>
-          {availableTokenizers
-            .filter((t) => !config.tokenizers?.includes(t))
-            .map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-        </select>
-        <div className="selected-items">
-          {config.tokenizers?.map((t) => (
-            <span key={t} className="tag">
+          {availableTokenizers.map((t) => (
+            <option key={t} value={t}>
               {t}
-              <button onClick={() => handleRemoveTokenizer(t)}>✕</button>
-            </span>
+            </option>
           ))}
+        </select>
+        <div className="selected-count">
+          {config.tokenizers?.length || 0} selected
         </div>
       </div>
 
       <div className="config-section">
         <label>Metrics:</label>
         <select
-          onChange={(e) => {
-            if (e.target.value && !config.metrics?.includes(e.target.value)) {
-              handleAddMetric(e.target.value);
-            }
-            e.target.value = '';
-          }}
+          multiple
+          value={config.metrics || []}
+          onChange={handleMetricChange}
+          className="multi-select"
         >
-          <option value="">Select metric...</option>
-          {availableMetrics
-            .filter((m) => !config.metrics?.includes(m))
-            .map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-        </select>
-        <div className="selected-items">
-          {config.metrics?.map((m) => (
-            <span key={m} className="tag">
+          {availableMetrics.map((m) => (
+            <option key={m} value={m}>
               {m}
-              <button onClick={() => handleRemoveMetric(m)}>✕</button>
-            </span>
+            </option>
           ))}
+        </select>
+        <div className="selected-count">
+          {config.metrics?.length || 0} selected
         </div>
       </div>
 
       <div className="config-section">
         <label>Languages:</label>
         <select
-          onChange={(e) => {
-            if (e.target.value && !config.languages?.includes(e.target.value)) {
-              handleAddLanguage(e.target.value);
-            }
-            e.target.value = '';
-          }}
+          multiple
+          value={config.languages || []}
+          onChange={handleLanguageChange}
+          className="multi-select"
         >
-          <option value="">Select language...</option>
-          {availableLanguages
-            .filter((l) => !config.languages?.includes(l))
-            .map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-        </select>
-        <div className="selected-items">
-          {config.languages?.map((l) => (
-            <span key={l} className="tag">
+          {availableLanguages.map((l) => (
+            <option key={l} value={l}>
               {l}
-              <button onClick={() => handleRemoveLanguage(l)}>✕</button>
-            </span>
+            </option>
           ))}
+        </select>
+        <div className="selected-count">
+          {config.languages?.length || 0} selected
         </div>
       </div>
 
