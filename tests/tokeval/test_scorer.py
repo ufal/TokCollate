@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from omegaconf import OmegaConf
 
-from tokeval.scorer import TokEvalScorer
+from tokeval.scorer import ScorerResultsSaver, TokEvalScorer
 
 
 @pytest.fixture()
@@ -32,7 +32,8 @@ def test_scorer_default_run(foo_config, save_results):
 def test_scorer_saved_results_exist(foo_scorer):
     """TODO"""
     foo_scorer.run()
-    for filename in foo_scorer._filenames.values():  # noqa: SLF001
+
+    for filename in [ScorerResultsSaver._metadata_filename, ScorerResultsSaver._results_filename]:  # noqa: SLF001
         path = Path(foo_scorer.output_dir, filename)
         assert path.exists()
 
