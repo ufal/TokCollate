@@ -107,7 +107,7 @@ class TokEvalMetric:
         """
         raise NotImplementedError()
 
-    def score_all(self, data: TokEvalData, systems: list[str], **kwargs) -> np.ndarray:  # noqa: ANN003, ARG002
+    def score_all(self, data: TokEvalData, systems: list[str], languages: list[str]) -> np.ndarray:
         """Wrapper for evaluating a set of tokenizers (and languages).
 
         Calls the .score() method for each provided system (and languages) and collects the results in a single
@@ -121,12 +121,14 @@ class TokEvalMetric:
             languages (list[str]): (optional) list of available languages for multi-lingual evaluation
 
         Returns:
-            Numpy ndarray with shape(len(systems)) or shape(len(systems), len(languages, len(languages)).
+            Numpy ndarray with shape(len(systems), len(languages))
+            or shape(len(systems), len(languages, len(languages)).
         """
-        res = np.zeros(shape=[len(systems)])
+        res = np.zeros(shape=[len(systems), len(languages)])
         for i, system_label in enumerate(systems):
-            logger.debug("[%s] Scoring system %s...", self.metric_label, system_label)
-            res[i] = self.score(data=data, system_label=system_label)
+            for j, lang in enumerate(languages):
+                logger.debug("[%s] Scoring system %s (%lang)...", self.metric_label, system_label, lang)
+                res[i, j] = self.score(data=data, system_label=system_label, language=lang)
         return res
 
 

@@ -18,8 +18,9 @@ class TokenLengthMetric(TokEvalMetric):
         self,
         data: TokEvalData,
         system_label: str,
+        language: str,
     ) -> float:
-        text = data.get_system_text(system_label=system_label)
+        text = data.get_system_text(system_label=system_label, language=language)
         token_lengths = np.array([len(tok) for line in text for tok in line])
         return self._aggregate_scores(token_lengths)
 

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 @define(kw_only=True)
-class ScorerResultsSaver(dict):
+class ScorerResultSaver(dict):
     """Class for saving the TokEvalScorer results with the scorer metadata."""
 
     output_dir: Path = field(converter=Path)
@@ -84,7 +84,7 @@ class TokEvalScorer:
 
     metrics: dict[str, TokEvalMetric] = field(init=False, default=None)
     data: TokEvalData = field(init=False, default=None)
-    _metric_n_dim: ClassVar[dict] = {"mono": 1, "multi": 3}
+    _metric_n_dim: ClassVar[dict] = {"mono": 2, "multi": 3}
 
     def __attrs_post_init__(self) -> None:
         """Set the class values based on the config contents and build the requested metric objects."""
@@ -126,7 +126,7 @@ class TokEvalScorer:
         if self.output_dir is not None:
             if not self.output_dir.exists():
                 self.output_dir.mkdir(parents=True)
-            ScorerResultsSaver(
+            ScorerResultSaver(
                 output_dir=self.output_dir,
                 tokenizers=list(self.systems),
                 metrics=list(self.metrics.keys()),

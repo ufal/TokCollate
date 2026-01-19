@@ -4,7 +4,7 @@ import pytest
 from tokeval.data import TokEvalData
 from tokeval.metrics import METRIC_REGISTRY, TokEvalMultilingualMetric, build_metric
 
-MONOLINGUAL_DIM = 1
+MONOLINGUAL_DIM = 2
 MULTILINGUAL_DIM = 3
 
 
@@ -16,7 +16,7 @@ def test_score_return_value(foo_dataset, metric):
     if isinstance(te_metric, TokEvalMultilingualMetric):
         res = te_metric.score(te_data, te_data.systems[0], src_lang=te_data.languages[0], tgt_lang=te_data.languages[1])
     else:
-        res = te_metric.score(te_data, te_data.systems[0])
+        res = te_metric.score(te_data, te_data.systems[0], language=te_data.languages[0])
     assert isinstance(res, float)
 
 

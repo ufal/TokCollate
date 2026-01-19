@@ -20,8 +20,9 @@ class BitsMetric(TokEvalMetric):
         self,
         data: TokEvalData,
         system_label: str,
+        language: str,
     ) -> float:
-        text = data.get_system_text(system_label=system_label)
+        text = data.get_system_text(system_label=system_label, language=language)
         unigram_freqs = get_unigram_frequencies(text)
         vocab_size = unigram_freqs.size
         res = unigram_freqs.sum() * np.log2(vocab_size)
