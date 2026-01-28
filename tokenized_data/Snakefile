@@ -1,0 +1,159 @@
+HF_TOKENIZERS = {
+    "Gemma-3": "google/gemma-3-27b-it",
+    "Gemma-2": "google/gemma-2-2b-it",
+    "Command-A": "CohereLabs/c4ai-command-a-03-2025",
+    "Llama-4": "meta-llama/Llama-4-Maverick-17B-128E-Instruct",
+    "MiniMax-M1": "MiniMaxAI/MiniMax-M1-80k",
+    "Ling-flash": "inclusionAI/Ling-flash-2.0",
+    "Qwen2.5-3": "Qwen/Qwen3-235B-A22B",
+    "GLM-4.5": "zai-org/GLM-4.5",
+    "Mistral-3": "mistralai/Mistral-Small-3.1-24B-Instruct-2503",
+    "Grok-2": "alvarobartt/grok-2-tokenizer",
+    "LongCat": "meituan-longcat/LongCat-Flash-Chat",
+    "DeepSeek-V3-R1": "deepseek-ai/DeepSeek-V3",
+    "Llama-3.3": "meta-llama/Llama-3.3-70B-Instruct",
+    "Yi-1.5": "01-ai/Yi-1.5-34B",
+    "OLMo-3": "allenai/OLMo-3-7B-Instruct",
+    "Solar-10.7B": "upstage/SOLAR-10.7B-Instruct-v1.0",
+    "Phi-3": "microsoft/Phi-3-mini-4k-instruct",
+    "mt5": "google/mt5-base",
+    "myt5": "Tomlim/myt5-base",
+    "xlmr": "FacebookAI/xlm-roberta-base",
+}
+
+
+FLORES_LANGUAGES = [
+    "ace_Arab_achi1257", "ace_Latn_achi1257", "acm_Arab_meso1252",
+    "acq_Arab_taiz1242", "aeb_Arab_tuni1259", "afr_Latn_afri1274",
+    "als_Latn_tosk1239", "amh_Ethi_amha1245", "apc_Arab_nort3139",
+    "apc_Arab_sout3123", "arb_Arab_stan1318", "arb_Latn_stan1318",
+    "arg_Latn_arag1245", "ars_Arab_najd1235", "ary_Arab_moro1292",
+    "arz_Arab_egyp1253", "asm_Beng_assa1263", "ast_Latn_astu1245",
+    "awa_Deva_awad1243", "ayr_Latn_cent2142", "azb_Arab_sout2697",
+    "azj_Latn_nort2697", "bak_Cyrl_bash1264", "bam_Latn_bamb1269",
+    "ban_Latn_bali1278", "bel_Cyrl_bela1254", "bem_Latn_bemb1257",
+    "ben_Beng_beng1280", "bho_Deva_bhoj1244", "bjn_Arab_banj1239",
+    "bjn_Latn_banj1239", "bod_Tibt_utsa1239", "bos_Latn_bosn1245",
+    "brx_Deva_bodo1269", "bug_Latn_bugi1244", "bul_Cyrl_bulg1262",
+    "cat_Latn_stan1289", "ceb_Latn_cebu1242", "ces_Latn_czec1258",
+    "chv_Cyrl_chuv1255", "cjk_Latn_chok1245", "ckb_Arab_cent1972",
+    "cmn_Hans_beij1234", "cmn_Hant_taib1240", "crh_Latn_crim1257",
+    "cym_Latn_wels1247", "dan_Latn_dani1285", "dar_Cyrl_darg1241",
+    "deu_Latn_stan1295", "dgo_Deva_dogr1250", "dik_Latn_sout2832",
+    "dyu_Latn_dyul1238", "dzo_Tibt_dzon1239", "ekk_Latn_esto1258",
+    "ell_Grek_mode1248", "eng_Latn_stan1293", "epo_Latn_espe1235",
+    "eus_Latn_basq1248", "ewe_Latn_ewee1241", "fao_Latn_faro1244",
+    "fij_Latn_fiji1243", "fil_Latn_fili1244", "fin_Latn_finn1318",
+    "fon_Latn_fonn1241", "fra_Latn_stan1290", "fur_Latn_east2271",
+    "fuv_Latn_nige1253", "gaz_Latn_west2721", "gla_Latn_scot1245",
+    "gle_Latn_iris1253", "glg_Latn_gali1258", "gom_Deva_goan1235",
+    "gug_Latn_para1311", "guj_Gujr_guja1252", "hat_Latn_hait1244",
+    "hau_Latn_haus1257", "heb_Hebr_hebr1245", "hin_Deva_hind1269",
+    "hne_Deva_chha1249", "hrv_Latn_croa1245", "hun_Latn_hung1274",
+    "hye_Armn_nucl1235", "ibo_Latn_nucl1417", "ilo_Latn_ilok1237",
+    "ind_Latn_indo1316", "isl_Latn_icel1247", "ita_Latn_ital1282",
+    "jav_Latn_java1254", "jpn_Jpan_nucl1643", "kab_Latn_kaby1243",
+    "kac_Latn_kach1280", "kam_Latn_kamb1297", "kan_Knda_nucl1305",
+    "kas_Arab_kash1277", "kas_Deva_kash1277", "kat_Geor_nucl1302",
+    "kaz_Cyrl_kaza1248", "kbp_Latn_kabi1261", "kea_Latn_kabu1256",
+    "khk_Cyrl_halh1238", "khm_Khmr_cent1989", "kik_Latn_kiku1240",
+    "kin_Latn_kiny1244", "kir_Cyrl_kirg1245", "kmb_Latn_kimb1241",
+    "kmr_Latn_nort2641", "knc_Arab_cent2050", "knc_Latn_cent2050",
+    "kor_Hang_kore1280", "ktu_Latn_kitu1246", "lao_Laoo_laoo1244",
+    "lij_Latn_geno1240", "lim_Latn_limb1263", "lin_Latn_ling1263",
+    "lit_Latn_lith1251", "lld_Latn_ladi1250", "lld_Latn_gard1241",
+    "lmo_Latn_lomb1257", "ltg_Latn_east2282", "ltz_Latn_luxe1241",
+    "lua_Latn_luba1249", "lug_Latn_gand1255", "luo_Latn_luok1236",
+    "lus_Latn_lush1249", "lvs_Latn_stan1325", "mag_Deva_maga1260",
+    "mai_Deva_mait1250", "mal_Mlym_mala1464", "mar_Deva_mara1378",
+    "mfe_Latn_mori1278", "mhr_Cyrl_gras1239", "min_Arab_mina1268",
+    "min_Latn_mina1268", "mkd_Cyrl_mace1250", "mlt_Latn_malt1254",
+    "mni_Beng_mani1292", "mni_Mtei_mani1292", "mos_Latn_moss1236",
+    "mri_Latn_maor1246", "mya_Mymr_nucl1310", "myv_Cyrl_erzy1239",
+    "nld_Latn_dutc1256", "nno_Latn_norw1262", "nob_Latn_norw1259",
+    "npi_Deva_nepa1254", "nqo_Nkoo_nkoa1234", "nso_Latn_pedi1238",
+    "nus_Latn_nuer1246", "nya_Latn_nyan1308", "oci_Latn_occi1239",
+    "oci_Latn_aran1260", "ory_Orya_oriy1255", "pag_Latn_pang1290",
+    "pan_Guru_panj1256", "pap_Latn_papi1253", "pbt_Arab_sout2649",
+    "pes_Arab_west2369", "plt_Latn_plat1254", "pol_Latn_poli1260",
+    "por_Latn_braz1246", "prs_Arab_dari1249", "quy_Latn_ayac1239",
+    "ron_Latn_roma1327", "run_Latn_rund1242", "rus_Cyrl_russ1263",
+    "sag_Latn_sang1328", "san_Deva_sans1269", "sat_Olck_sant1410",
+    "scn_Latn_sici1248", "shn_Mymr_shan1277", "sin_Sinh_sinh1246",
+    "slk_Latn_slov1269", "slv_Latn_slov1268", "smo_Latn_samo1305",
+    "sna_Latn_shon1251", "snd_Arab_sind1272", "snd_Deva_sind1272",
+    "som_Latn_soma1255", "sot_Latn_sout2807", "spa_Latn_amer1254",
+    "srd_Latn_sard1257", "srp_Cyrl_serb1264", "ssw_Latn_swat1243",
+    "sun_Latn_sund1252", "swe_Latn_swed1254", "swh_Latn_swah1253",
+    "szl_Latn_sile1253", "tam_Taml_tami1289", "taq_Latn_tama1365",
+    "taq_Tfng_tama1365", "tat_Cyrl_tata1255", "tel_Telu_telu1262",
+    "tgk_Cyrl_taji1245", "tha_Thai_thai1261", "tir_Ethi_tigr1271",
+    "tpi_Latn_tokp1240", "tsn_Latn_tswa1253", "tso_Latn_tson1249",
+    "tuk_Latn_turk1304", "tum_Latn_tumb1250", "tur_Latn_nucl1301",
+    "twi_Latn_akua1239", "twi_Latn_asan1239", "tyv_Cyrl_tuvi1240",
+    "uig_Arab_uigh1240", "ukr_Cyrl_ukra1253", "umb_Latn_umbu1257",
+    "urd_Arab_urdu1245", "uzn_Latn_nort2690", "uzs_Arab_sout2699",
+    "vec_Latn_vene1259", "vie_Latn_viet1252", "vmw_Latn_cent2033",
+    "war_Latn_wara1300", "wol_Latn_nucl1347", "wuu_Hans_suhu1238",
+    "xho_Latn_xhos1239", "ydd_Hebr_east2295", "yor_Latn_yoru1245",
+    "yue_Hant_xian1255", "zgh_Tfng_stan1324", "zsm_Latn_stan1306",
+    "zul_Latn_zulu1248"]
+
+
+rule all:
+    input:
+        expand("flores_{tokenizer}/{lng}.txt", lng=FLORES_LANGUAGES, tokenizer=HF_TOKENIZERS.keys())
+
+
+rule download_flores:
+    output:
+        expand("flores_plaintext/{lng}.txt", lng=FLORES_LANGUAGES)
+    run:
+        from datasets import load_dataset
+        import os
+        
+        # Create output directory if it doesn't exist
+        os.makedirs("flores_plaintext", exist_ok=True)
+        
+        # Load dev and devtest splits for all languages
+        ds_dev = load_dataset("openlanguagedata/flores_plus", split="dev")
+        
+        sentences_per_language = {lang_code: [] for lang_code in FLORES_LANGUAGES}
+
+        for item in ds_dev:
+            lang_code = item["iso_639_3"] + "_" + item["iso_15924"] + "_" + item["glottocode"]
+            if lang_code in FLORES_LANGUAGES and not item["variant"]:
+                sentences_per_language[lang_code].append(item["text"])
+
+        for lang_code, dev_texts in sentences_per_language.items():
+            # Write to file
+            output_file = f"flores_plaintext/{lang_code}.txt"
+            with open(output_file, "w", encoding="utf-8") as f:
+                f.write("\n".join(dev_texts))
+
+
+rule tokenize:
+    input:
+        "flores_plaintext/{lng}.txt"
+    output:
+        "flores_{tokenizer}/{lng}.txt"
+    resources:
+        mem_mb=4000,
+        cpus_per_task=1
+    run:
+        from transformers import AutoTokenizer
+        
+        tokenizer_name = HF_TOKENIZERS[str(wildcards.tokenizer)]
+        tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+        
+        with open(input[0], "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        
+        tokenized_lines = []
+        for line in lines:
+            tokens = tokenizer.tokenize(line.strip())
+            tokenized_line = " ".join(tokens)
+            tokenized_lines.append(tokenized_line)
+        
+        with open(output[0], "w", encoding="utf-8") as f:
+            f.write("\n".join(tokenized_lines))
