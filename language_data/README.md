@@ -34,6 +34,10 @@ The list of Flores+ languages is in `flores_languages.tsv`.
 
 The language categorization is provided in the format `name,tier`. However, some languages are known under several names. Therefore, we try to automatically match the languages using `match_flores_with_joshi_tiers.py`. We resolve non-matching languages manually. The assignment of the languages to the tiers is in `code_tiers.tsv`.
 
+## Morphology
+
+We classify the languages according to the their predominant morphological features in to three categories: isolating, fusional, agglutinative. Note this is highly simplifying view of language morphology and classification of some languages might be ambiguous. The classification that we use is in `morphology.tsv`. It was automatically generated and manually checked using Wikipedia.
+
 ## Using WikiData and Glottolog API to collect more information
 
 Finally, we use WikiData and Glottolog to get the additional information about the languages and combine it with information stored in the files in this repository. Additionally, it downloads the statistics about on how much data is available for the language-script combination in the FineWeb 2 corpus.
