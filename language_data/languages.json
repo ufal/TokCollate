@@ -13,6 +13,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Acehnese_language",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 13810487
     }
@@ -30,6 +31,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Mesopotamian_Arabic",
     "tier": 5,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 29073697
     }
@@ -47,6 +49,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Ta%CA%BDizzi-Adeni_Arabic",
     "tier": 5,
+    "morphology": "fusional",
     "fineweb2": null
   },
   "aeb": {
@@ -62,6 +65,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Tunisian_Arabic",
     "tier": 5,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 87991343
     }
@@ -79,6 +83,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Afrikaans",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 8254403024
     }
@@ -96,6 +101,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Tosk_Albanian",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 19522049281
     }
@@ -113,6 +119,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Amharic",
     "tier": 2,
+    "morphology": "fusional",
     "fineweb2": {
       "Ethi": 2675147230
     }
@@ -131,6 +138,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/North_Levantine_Arabic",
     "tier": 5,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 173710729
     }
@@ -149,6 +157,7 @@
     "continent": null,
     "wikipedia": null,
     "tier": 5,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 315241517028,
       "Latn": 10755618
@@ -167,6 +176,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Aragonese_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 56552785
     }
@@ -184,6 +194,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Najdi_Arabic",
     "tier": 5,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 2376935495
     }
@@ -201,6 +212,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Moroccan_Arabic",
     "tier": 5,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 8311310671
     }
@@ -218,6 +230,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Egyptian_Arabic",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 3136669067
     }
@@ -235,6 +248,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Assamese_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Beng": 1489680674
     }
@@ -252,6 +266,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Asturian_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 274911002
     }
@@ -269,6 +284,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Awadhi_language",
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": {
       "Deva": 11273704
     }
@@ -286,6 +302,7 @@
     "continent": "South America",
     "wikipedia": null,
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 11492144
     }
@@ -303,6 +320,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/South_Azerbaijani_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Arab": 349654458
     }
@@ -320,6 +338,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/North_Azerbaijani_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 28882728457
     }
@@ -337,6 +356,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Bashkir_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Cyrl": 885201808
     }
@@ -354,6 +374,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Bambara_language",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 4614079
     }
@@ -371,6 +392,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Balinese_language",
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 57349495
     }
@@ -388,6 +410,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Belarusian_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Cyrl": 12316859892
     }
@@ -405,6 +428,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Bemba_language",
     "tier": 0,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 8577988
     }
@@ -422,6 +446,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Bengali_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Beng": 93456224217
     }
@@ -439,6 +464,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Bhojpuri_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Deva": 92372931
     }
@@ -457,6 +483,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Banjarese_language",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Arab": 11621757,
       "Latn": 6026084
@@ -475,6 +502,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Lhasa_Tibetan",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Tibt": 2067569611
     }
@@ -492,6 +520,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Bosnian_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 52807573543
     }
@@ -509,6 +538,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Boro_language_(India)",
     "tier": 0,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Deva": 13464487
     }
@@ -526,6 +556,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Buginese_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 233287
     }
@@ -543,6 +574,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Bulgarian_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Cyrl": 156496753428
     }
@@ -560,6 +592,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Catalan_language",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 43330701751
     }
@@ -577,6 +610,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Cebuano_language",
     "tier": 3,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 692041428
     }
@@ -594,6 +628,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Czech_language",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 221544258565
     }
@@ -611,6 +646,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Chuvash_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Cyrl": 419676103
     }
@@ -628,6 +664,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Chokwe_language",
     "tier": null,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 78103
     }
@@ -645,6 +682,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Central_Kurdish",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 2562813224
     }
@@ -664,6 +702,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Mandarin_Chinese",
     "tier": 5,
+    "morphology": "isolating",
     "fineweb2": null
   },
   "crh": {
@@ -679,6 +718,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Crimean_Tatar_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 102624218
     }
@@ -696,6 +736,7 @@
     "continent": "South America",
     "wikipedia": "https://en.wikipedia.org/wiki/Welsh_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 2680853098
     }
@@ -713,6 +754,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Danish_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 161837584891
     }
@@ -730,6 +772,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Dargwa_language",
     "tier": 0,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Cyrl": 6740852
     }
@@ -747,6 +790,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/German_language",
     "tier": 5,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 1654784757688
     }
@@ -764,6 +808,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Dogri_language",
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": null
   },
   "dik": {
@@ -779,6 +824,7 @@
     "continent": "Africa",
     "wikipedia": null,
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 2391536
     }
@@ -796,6 +842,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Dyula_language",
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 5989252
     }
@@ -813,6 +860,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Dzongkha",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Tibt": 144543424
     }
@@ -830,6 +878,7 @@
     "continent": "Europe",
     "wikipedia": null,
     "tier": 3,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 43834195267
     }
@@ -847,6 +896,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Modern_Greek",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Grek": 238423993714
     }
@@ -864,7 +914,10 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/English_language",
     "tier": 5,
-    "fineweb2": null
+    "morphology": "isolating",
+    "fineweb2": {
+      "Latn": 200000000000000
+    }
   },
   "epo": {
     "name": "Esperanto",
@@ -879,6 +932,7 @@
     "continent": "Eurasia",
     "wikipedia": "https://en.wikipedia.org/wiki/Esperanto",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 1303689462
     }
@@ -896,6 +950,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Basque_language",
     "tier": 4,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 4616894404
     }
@@ -913,6 +968,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Ewe_language",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 39559156
     }
@@ -930,6 +986,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Faroese_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 591504161
     }
@@ -947,6 +1004,7 @@
     "continent": "Insular Oceania",
     "wikipedia": "https://en.wikipedia.org/wiki/Fijian_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 50193257
     }
@@ -964,6 +1022,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Filipino_language",
     "tier": 3,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 8728698096
     }
@@ -981,6 +1040,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Finnish_language",
     "tier": 4,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 153578789445
     }
@@ -998,6 +1058,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Fon_language",
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 6865317
     }
@@ -1015,6 +1076,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/French_language",
     "tier": 5,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 1220202265605
     }
@@ -1032,6 +1094,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Friulian_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 66155208
     }
@@ -1049,6 +1112,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Nigerian_Fulfulde",
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 2857811
     }
@@ -1066,6 +1130,7 @@
     "continent": "Africa",
     "wikipedia": null,
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 134350699
     }
@@ -1083,6 +1148,7 @@
     "continent": "Oceania",
     "wikipedia": "https://en.wikipedia.org/wiki/Scottish_Gaelic",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 935026939
     }
@@ -1100,6 +1166,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Irish_language",
     "tier": 2,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 2330152361
     }
@@ -1117,6 +1184,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Galician_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 6947044419
     }
@@ -1134,6 +1202,7 @@
     "continent": "Asia",
     "wikipedia": null,
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": {
       "Deva": 42867054
     }
@@ -1151,6 +1220,7 @@
     "continent": "South America",
     "wikipedia": "https://en.wikipedia.org/wiki/Guarani_language",
     "tier": 0,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 41606719
     }
@@ -1168,6 +1238,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Gujarati_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Gujr": 12573380396
     }
@@ -1185,6 +1256,7 @@
     "continent": "North America",
     "wikipedia": "https://en.wikipedia.org/wiki/Haitian_Creole",
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 657148963
     }
@@ -1202,6 +1274,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Hausa_language",
     "tier": 2,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 1388541923
     }
@@ -1217,8 +1290,9 @@
     "families": "Afro-Asiatic",
     "speakers": 9303950,
     "continent": "Asia",
-    "wikipedia": "https://en.wikipedia.org/wiki/Hebrew_language",
+    "wikipedia": "https://en.wikipedia.org/wiki/Modern_Hebrew",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Hebr": 73780962340
     }
@@ -1236,6 +1310,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Hindi",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": {
       "Deva": 129902413849
     }
@@ -1253,6 +1328,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Chhattisgarhi_language",
     "tier": null,
+    "morphology": "fusional",
     "fineweb2": {
       "Deva": 78785061
     }
@@ -1270,6 +1346,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Croatian_language",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 38555062999
     }
@@ -1287,6 +1364,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Hungarian_language",
     "tier": 4,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 214420647030
     }
@@ -1304,6 +1382,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Armenian_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Armn": 7697017226
     }
@@ -1321,6 +1400,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Igbo_language",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 396446133
     }
@@ -1338,6 +1418,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Ilocano_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 52500508
     }
@@ -1355,6 +1436,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Indonesian_language",
     "tier": 3,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 374364271538
     }
@@ -1372,6 +1454,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Icelandic_language",
     "tier": 2,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 11028092809
     }
@@ -1389,6 +1472,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Italian_language",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 793750885035
     }
@@ -1406,6 +1490,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Javanese_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 821367191
     }
@@ -1423,6 +1508,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Japanese_language",
     "tier": 5,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Jpan": 1650248456871
     }
@@ -1440,6 +1526,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Karakalpak_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 11836090
     }
@@ -1457,6 +1544,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Kabyle_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 28729442
     }
@@ -1474,6 +1562,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Jingpo_language",
     "tier": 0,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 26466558
     }
@@ -1491,6 +1580,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Kamba_language",
     "tier": 0,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 4086814
     }
@@ -1508,6 +1598,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Kannada",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Knda": 13857353006
     }
@@ -1526,6 +1617,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Kashmiri_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 1371498,
       "Deva": 1863447
@@ -1544,6 +1636,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Georgian_language",
     "tier": 3,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Geor": 27094494127
     }
@@ -1561,6 +1654,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Kazakh_language",
     "tier": 3,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Cyrl": 22198217777
     }
@@ -1578,6 +1672,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Kabiye_language",
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 2439980
     }
@@ -1595,6 +1690,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Cape_Verdean_Creole",
     "tier": null,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 11007256
     }
@@ -1612,6 +1708,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Khalkha_Mongolian",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Cyrl": 9147689411
     }
@@ -1629,6 +1726,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Khmer_language",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Khmr": 9341656291
     }
@@ -1646,6 +1744,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Kikuyu_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 4384691
     }
@@ -1663,6 +1762,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Kinyarwanda",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 831837331
     }
@@ -1680,6 +1780,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Kyrgyz_language",
     "tier": null,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Cyrl": 4682371376
     }
@@ -1697,6 +1798,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Kimbundu",
     "tier": null,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 5662732
     }
@@ -1714,6 +1816,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Kurmanji",
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 1250565913
     }
@@ -1732,6 +1835,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Central_Kanuri",
     "tier": 5,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 278428
     }
@@ -1749,6 +1853,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Korean_language",
     "tier": 4,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Hang": 229164863492
     }
@@ -1766,6 +1871,7 @@
     "continent": "Africa",
     "wikipedia": null,
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 128148
     }
@@ -1783,6 +1889,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Lao_language",
     "tier": 2,
+    "morphology": "isolating",
     "fineweb2": {
       "Laoo": 2327641306
     }
@@ -1800,6 +1907,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Ligurian_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 13925218
     }
@@ -1817,6 +1925,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Limburgish",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 90534671
     }
@@ -1834,6 +1943,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Lingala",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 60739787
     }
@@ -1851,6 +1961,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Lithuanian_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 60666590655
     }
@@ -1869,6 +1980,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Ladin_language",
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 3361562
     }
@@ -1886,6 +1998,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Lombard_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 56449402
     }
@@ -1903,6 +2016,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Latgalian_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 32321727
     }
@@ -1920,6 +2034,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Luxembourgish",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 1051196381
     }
@@ -1937,6 +2052,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Luba-Kasai_language",
     "tier": 0,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 14887137
     }
@@ -1954,6 +2070,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Luganda",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 82898772
     }
@@ -1971,6 +2088,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Dholuo",
     "tier": null,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 9703111
     }
@@ -1988,6 +2106,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Mizo_language",
     "tier": 0,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 232200665
     }
@@ -2005,6 +2124,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Standard_Latvian_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 35823658462
     }
@@ -2022,6 +2142,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Magahi_language",
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": {
       "Deva": 4300652
     }
@@ -2039,6 +2160,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Maithili_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Deva": 175515481
     }
@@ -2056,6 +2178,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Malayalam",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Mlym": 23909881915
     }
@@ -2073,6 +2196,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Marathi_language",
     "tier": 2,
+    "morphology": "fusional",
     "fineweb2": {
       "Deva": 24237886861
     }
@@ -2090,6 +2214,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Mauritian_Creole",
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 28539312
     }
@@ -2107,6 +2232,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Meadow_Mari_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Cyrl": 148101836
     }
@@ -2125,6 +2251,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Minangkabau_language",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 2546877
     }
@@ -2142,6 +2269,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Macedonian_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Cyrl": 16096523670
     }
@@ -2159,6 +2287,7 @@
     "continent": "Oceania",
     "wikipedia": "https://en.wikipedia.org/wiki/Maltese_language",
     "tier": 2,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 1642185804
     }
@@ -2177,6 +2306,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Meitei_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Beng": 42344976,
       "Mtei": 970020
@@ -2195,6 +2325,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Moor%C3%A9",
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 11474306
     }
@@ -2212,6 +2343,7 @@
     "continent": "Oceania",
     "wikipedia": "https://en.wikipedia.org/wiki/M%C4%81ori_language",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 539994062
     }
@@ -2229,6 +2361,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Burmese_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Mymr": 13261245557
     }
@@ -2246,6 +2379,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Erzya_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Cyrl": 47468549
     }
@@ -2263,6 +2397,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Dutch_language",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 426818652448
     }
@@ -2280,6 +2415,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Nynorsk",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 2882129938
     }
@@ -2298,6 +2434,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Bokm%C3%A5l",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 184736905731
     }
@@ -2315,6 +2452,7 @@
     "continent": null,
     "wikipedia": null,
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Deva": 26982905157
     }
@@ -2332,6 +2470,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/N%27Ko_language",
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Nkoo": 4411133
     }
@@ -2349,6 +2488,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Northern_Sotho",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 30270070
     }
@@ -2366,6 +2506,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Nuer_language",
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 498427
     }
@@ -2383,6 +2524,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Chewa_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 417963769
     }
@@ -2401,6 +2543,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Occitan_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 197203492
     }
@@ -2418,6 +2561,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Odia_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Orya": 5286806083
     }
@@ -2435,6 +2579,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Pangasinan_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 8788780
     }
@@ -2452,6 +2597,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Punjabi_language",
     "tier": 2,
+    "morphology": "fusional",
     "fineweb2": {
       "Guru": 6050581322
     }
@@ -2469,6 +2615,7 @@
     "continent": "North America",
     "wikipedia": "https://en.wikipedia.org/wiki/Papiamento",
     "tier": null,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 533119171
     }
@@ -2486,6 +2633,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Southern_Pashto",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 2586053704
     }
@@ -2503,6 +2651,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Iranian_Persian",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": null
   },
   "plt": {
@@ -2518,6 +2667,7 @@
     "continent": "Africa",
     "wikipedia": null,
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 963914602
     }
@@ -2535,6 +2685,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Polish_language",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 463862082709
     }
@@ -2552,6 +2703,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Portuguese_language",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 611213407211
     }
@@ -2569,6 +2721,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Dari",
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": null
   },
   "quy": {
@@ -2584,6 +2737,7 @@
     "continent": "South America",
     "wikipedia": "https://en.wikipedia.org/wiki/Ayacucho_Quechua",
     "tier": null,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 8685023
     }
@@ -2601,6 +2755,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Romanian_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 199920561455
     }
@@ -2618,6 +2773,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Kirundi",
     "tier": 0,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 143865820
     }
@@ -2635,6 +2791,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Russian_language",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": {
       "Cyrl": 6400108560340
     }
@@ -2652,6 +2809,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Sango_language",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 19959041
     }
@@ -2669,6 +2827,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Sanskrit",
     "tier": 2,
+    "morphology": "fusional",
     "fineweb2": {
       "Deva": 350803610
     }
@@ -2686,6 +2845,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Santali_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Olck": 11302562
     }
@@ -2703,6 +2863,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Sicilian_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 30611824
     }
@@ -2720,6 +2881,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Shan_language",
     "tier": 0,
+    "morphology": "isolating",
     "fineweb2": {
       "Mymr": 126345158
     }
@@ -2737,6 +2899,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Sinhala_language",
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": {
       "Sinh": 7567102011
     }
@@ -2754,6 +2917,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Slovak_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 91733828860
     }
@@ -2771,6 +2935,7 @@
     "continent": "South America",
     "wikipedia": "https://en.wikipedia.org/wiki/Slovene_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 44878788376
     }
@@ -2788,6 +2953,7 @@
     "continent": "Insular Oceania",
     "wikipedia": "https://en.wikipedia.org/wiki/Samoan_language",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 426106921
     }
@@ -2805,6 +2971,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Shona_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 360372257
     }
@@ -2823,6 +2990,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Sindhi_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 1274860486,
       "Deva": 4055752
@@ -2841,6 +3009,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Somali_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 2204199720
     }
@@ -2858,6 +3027,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Sotho_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 385995324
     }
@@ -2875,6 +3045,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Spanish_language",
     "tier": 5,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 1447166708770
     }
@@ -2892,6 +3063,7 @@
     "continent": "Oceania",
     "wikipedia": "https://en.wikipedia.org/wiki/Sardinian_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 69299310
     }
@@ -2909,6 +3081,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Serbian_language",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": {
       "Cyrl": 28846157665
     }
@@ -2926,6 +3099,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Swazi_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 10574317
     }
@@ -2943,6 +3117,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Sundanese_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 448575600
     }
@@ -2960,6 +3135,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Swedish_language",
     "tier": 4,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 217929329252
     }
@@ -2977,6 +3153,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Kiswahili",
     "tier": 2,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 3311669706
     }
@@ -2994,6 +3171,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Silesian_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 20830301
     }
@@ -3011,6 +3189,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Tamil_language",
     "tier": 3,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Taml": 39693515188
     }
@@ -3029,6 +3208,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Tamasheq_language",
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 2516396,
       "Tfng": 807915
@@ -3047,6 +3227,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Tatar_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Cyrl": 1638926006
     }
@@ -3064,6 +3245,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Telugu_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Telu": 15478493847
     }
@@ -3081,6 +3263,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Tajik_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Cyrl": 4031127806
     }
@@ -3098,6 +3281,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Thai_language",
     "tier": 3,
+    "morphology": "isolating",
     "fineweb2": {
       "Thai": 299226473998
     }
@@ -3115,6 +3299,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Tigrinya_language",
     "tier": 2,
+    "morphology": "fusional",
     "fineweb2": {
       "Ethi": 376757819
     }
@@ -3132,6 +3317,7 @@
     "continent": "Oceania",
     "wikipedia": "https://en.wikipedia.org/wiki/Tok_Pisin",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 15675056
     }
@@ -3149,6 +3335,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Tswana_language",
     "tier": 2,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 28692609
     }
@@ -3166,6 +3353,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Tsonga_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 34932753
     }
@@ -3183,6 +3371,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Turkmen_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 737149133
     }
@@ -3200,6 +3389,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Tumbuka_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 875336
     }
@@ -3217,6 +3407,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Turkish_language",
     "tier": 4,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 305497429770
     }
@@ -3235,6 +3426,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Twi",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 33003790
     }
@@ -3252,6 +3444,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Tuvan_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Cyrl": 109715292
     }
@@ -3269,6 +3462,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Uyghur_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Arab": 1116620907
     }
@@ -3286,6 +3480,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Ukrainian_language",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Cyrl": 273654962631
     }
@@ -3303,6 +3498,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Umbundu",
     "tier": 0,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 5608334
     }
@@ -3320,6 +3516,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Urdu",
     "tier": 3,
+    "morphology": "fusional",
     "fineweb2": {
       "Arab": 21400072163
     }
@@ -3337,6 +3534,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Northern_Uzbek_language",
     "tier": 3,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 4780890804
     }
@@ -3354,6 +3552,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Southern_Uzbek_language",
     "tier": 3,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Arab": 39741578
     }
@@ -3371,6 +3570,7 @@
     "continent": "South America",
     "wikipedia": "https://en.wikipedia.org/wiki/Venetian_language",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Latn": 12153631
     }
@@ -3388,6 +3588,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Vietnamese_language",
     "tier": 4,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 343416915256
     }
@@ -3405,6 +3606,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Makhuwa_language",
     "tier": 0,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 3876154
     }
@@ -3422,6 +3624,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Waray_language",
     "tier": 1,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 4037242
     }
@@ -3439,6 +3642,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Wolof_language",
     "tier": 2,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 19017020
     }
@@ -3456,6 +3660,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Wu_Chinese",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": null
   },
   "xho": {
@@ -3471,6 +3676,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Xhosa_language",
     "tier": 2,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 796963469
     }
@@ -3488,6 +3694,7 @@
     "continent": "Europe",
     "wikipedia": "https://en.wikipedia.org/wiki/Eastern_Yiddish",
     "tier": 1,
+    "morphology": "fusional",
     "fineweb2": {
       "Hebr": 936578790
     }
@@ -3505,6 +3712,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Yoruba_language",
     "tier": 2,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 306731770
     }
@@ -3522,6 +3730,7 @@
     "continent": "Asia",
     "wikipedia": "https://en.wikipedia.org/wiki/Yue_Chinese",
     "tier": 1,
+    "morphology": "isolating",
     "fineweb2": null
   },
   "zgh": {
@@ -3537,6 +3746,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Standard_Moroccan_Amazigh",
     "tier": 0,
+    "morphology": "fusional",
     "fineweb2": {
       "Tfng": 1034464
     }
@@ -3554,6 +3764,7 @@
     "continent": "Asia",
     "wikipedia": null,
     "tier": 3,
+    "morphology": "isolating",
     "fineweb2": {
       "Latn": 34291909291
     }
@@ -3571,6 +3782,7 @@
     "continent": "Africa",
     "wikipedia": "https://en.wikipedia.org/wiki/Zulu_language",
     "tier": 2,
+    "morphology": "agglutinative",
     "fineweb2": {
       "Latn": 511054246
     }

@@ -58,6 +58,29 @@ def load_code_tiers(tsv_path):
     return tiers
 
 
+def load_morphology_types(tsv_path):
+    """Load morphology types from TSV file"""
+    
+    morphology = {}
+    
+    with open(tsv_path, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f, delimiter='\t')
+        
+        for row in reader:
+            if len(row) < 3:
+                continue
+                
+            iso_code = row[0].strip()
+            morph_type = row[2].strip()
+            
+            if not iso_code or not morph_type:
+                continue
+            
+            morphology[iso_code] = morph_type
+    
+    return morphology
+
+
 def load_flores_languages(tsv_path):
     """Load languages from FLORES TSV file and group by language code"""
     
@@ -236,8 +259,8 @@ def get_fineweb2_data():
         return {}
 
 
-def merge_wikidata_info(languages, wikidata_results, glottolog_families, code_tiers, fineweb_data):
-    """Merge Wikidata, Glottolog, and tier information into language records"""
+def merge_wikidata_info(languages, wikidata_results, glottolog_families, code_tiers, fineweb_data, morphology_types):
+    """Merge Wikidata, Glottolog, tier, and morphology information into language records"""
     
     for r in wikidata_results:
         iso = r.get("iso", {}).get("value", "")
@@ -282,6 +305,11 @@ def merge_wikidata_info(languages, wikidata_results, glottolog_families, code_ti
         if iso in code_tiers:
             lang["tier"] = code_tiers[iso]
     
+    # Add morphology type information
+    for iso, lang in languages.items():
+        if iso in morphology_types:
+            lang["morphology"] = morphology_types[iso]
+    
     # Add Fine Web 2 corpus statistics
     for iso, lang in languages.items():
         scripts = lang.get("scripts", set())
@@ -318,6 +346,7 @@ def merge_wikidata_info(languages, wikidata_results, glottolog_families, code_ti
             "continent": lang.get("continent"),
             "wikipedia": lang.get("wikipedia"),
             "tier": lang.get("tier"),
+            "morphology": lang.get("morphology"),
             "fineweb2": fineweb_formatted,
         }
     
@@ -334,6 +363,11 @@ if __name__ == "__main__":
     logging.info("Loading language resource tiers from code_tiers.tsv...")
     code_tiers = load_code_tiers("code_tiers.tsv")
     logging.info(f"Loaded tiers for {len(code_tiers)} languages")
+
+    # Load morphology types
+    logging.info("Loading morphology types from morphology.tsv...")
+    morphology_types = load_morphology_types("morphology.tsv")
+    logging.info(f"Loaded morphology types for {len(morphology_types)} languages")
     
     # Get Wikidata information
     logging.info("Querying Wikidata for additional information...")
@@ -350,12 +384,12 @@ if __name__ == "__main__":
     glottolog_families = get_glottolog_families(glottocodes)
     
     # Get Fine Web 2 corpus data
-    logging.info("Fetching Fine Web 2 corpus statistics...")
+    logging.info("Fetching Fine Web 2 corpus statistics..."), morphology_types
     fineweb_data = get_fineweb2_data()
     
     # Merge the data
     logging.info("Merging data...")
-    final_data = merge_wikidata_info(languages, wikidata_results, glottolog_families, code_tiers, fineweb_data)
+    final_data = merge_wikidata_info(languages, wikidata_results, glottolog_families, code_tiers, fineweb_data, morphology_types)
     
     # Output as JSON
     print(json.dumps(final_data, indent=2, ensure_ascii=False))
