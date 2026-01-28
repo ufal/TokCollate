@@ -1,0 +1,3578 @@
+{
+  "ace": {
+    "name": "Acehnese (Jawi script)",
+    "scripts": [
+      "Arab",
+      "Latn"
+    ],
+    "glottocodes": [
+      "achi1257"
+    ],
+    "families": "Austronesian",
+    "speakers": 3500032,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Acehnese_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 13810487
+    }
+  },
+  "acm": {
+    "name": "Mesopotamian Arabic",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "meso1252"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 15700000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Mesopotamian_Arabic",
+    "tier": 5,
+    "fineweb2": {
+      "Arab": 29073697
+    }
+  },
+  "acq": {
+    "name": "Taʽizzi-Adeni Arabic",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "taiz1242"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 10500000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Ta%CA%BDizzi-Adeni_Arabic",
+    "tier": 5,
+    "fineweb2": null
+  },
+  "aeb": {
+    "name": "Tunisian Arabic",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "tuni1259"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 11600000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tunisian_Arabic",
+    "tier": 5,
+    "fineweb2": {
+      "Arab": 87991343
+    }
+  },
+  "afr": {
+    "name": "Afrikaans",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "afri1274"
+    ],
+    "families": "Indo-European",
+    "speakers": 10300000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Afrikaans",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 8254403024
+    }
+  },
+  "als": {
+    "name": "Albanian (Tosk)",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "tosk1239"
+    ],
+    "families": "Indo-European",
+    "speakers": 3000000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tosk_Albanian",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 19522049281
+    }
+  },
+  "amh": {
+    "name": "Amharic",
+    "scripts": [
+      "Ethi"
+    ],
+    "glottocodes": [
+      "amha1245"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 21900000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Amharic",
+    "tier": 2,
+    "fineweb2": {
+      "Ethi": 2675147230
+    }
+  },
+  "apc": {
+    "name": "Levantine Arabic (North)",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "nort3139",
+      "sout3123"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 44000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/North_Levantine_Arabic",
+    "tier": 5,
+    "fineweb2": {
+      "Arab": 173710729
+    }
+  },
+  "arb": {
+    "name": "Modern Standard Arabic",
+    "scripts": [
+      "Arab",
+      "Latn"
+    ],
+    "glottocodes": [
+      "stan1318"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 335000000,
+    "continent": null,
+    "wikipedia": null,
+    "tier": 5,
+    "fineweb2": {
+      "Arab": 315241517028,
+      "Latn": 10755618
+    }
+  },
+  "arg": {
+    "name": "Aragonese",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "arag1245"
+    ],
+    "families": "Indo-European",
+    "speakers": 8500,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Aragonese_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 56552785
+    }
+  },
+  "ars": {
+    "name": "Najdi Arabic",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "najd1235"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": null,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Najdi_Arabic",
+    "tier": 5,
+    "fineweb2": {
+      "Arab": 2376935495
+    }
+  },
+  "ary": {
+    "name": "Moroccan Arabic",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "moro1292"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 27500000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Moroccan_Arabic",
+    "tier": 5,
+    "fineweb2": {
+      "Arab": 8311310671
+    }
+  },
+  "arz": {
+    "name": "Egyptian Arabic",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "egyp1253"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 64600000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Egyptian_Arabic",
+    "tier": 3,
+    "fineweb2": {
+      "Arab": 3136669067
+    }
+  },
+  "asm": {
+    "name": "Assamese",
+    "scripts": [
+      "Beng"
+    ],
+    "glottocodes": [
+      "assa1263"
+    ],
+    "families": "Indo-European",
+    "speakers": 15300000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Assamese_language",
+    "tier": 1,
+    "fineweb2": {
+      "Beng": 1489680674
+    }
+  },
+  "ast": {
+    "name": "Asturian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "astu1245"
+    ],
+    "families": "Indo-European",
+    "speakers": 450000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Asturian_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 274911002
+    }
+  },
+  "awa": {
+    "name": "Awadhi",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "awad1243"
+    ],
+    "families": "Indo-European",
+    "speakers": 22000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Awadhi_language",
+    "tier": 0,
+    "fineweb2": {
+      "Deva": 11273704
+    }
+  },
+  "ayr": {
+    "name": "Central Aymara",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "cent2142"
+    ],
+    "families": "Aymaran",
+    "speakers": null,
+    "continent": "South America",
+    "wikipedia": null,
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 11492144
+    }
+  },
+  "azb": {
+    "name": "South Azerbaijani",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "sout2697"
+    ],
+    "families": "Turkic",
+    "speakers": 13800000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/South_Azerbaijani_language",
+    "tier": 1,
+    "fineweb2": {
+      "Arab": 349654458
+    }
+  },
+  "azj": {
+    "name": "North Azerbaijani",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "nort2697"
+    ],
+    "families": "Turkic",
+    "speakers": 9220610,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/North_Azerbaijani_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 28882728457
+    }
+  },
+  "bak": {
+    "name": "Bashkir",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "bash1264"
+    ],
+    "families": "Turkic",
+    "speakers": 1200000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Bashkir_language",
+    "tier": 1,
+    "fineweb2": {
+      "Cyrl": 885201808
+    }
+  },
+  "bam": {
+    "name": "Bambara",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "bamb1269"
+    ],
+    "families": "Mande",
+    "speakers": 4200000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Bambara_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 4614079
+    }
+  },
+  "ban": {
+    "name": "Balinese",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "bali1278"
+    ],
+    "families": "Austronesian",
+    "speakers": 4000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Balinese_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 57349495
+    }
+  },
+  "bel": {
+    "name": "Belarusian",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "bela1254"
+    ],
+    "families": "Indo-European",
+    "speakers": 7600000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Belarusian_language",
+    "tier": 3,
+    "fineweb2": {
+      "Cyrl": 12316859892
+    }
+  },
+  "bem": {
+    "name": "Bemba",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "bemb1257"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 3600000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Bemba_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 8577988
+    }
+  },
+  "ben": {
+    "name": "Bengali",
+    "scripts": [
+      "Beng"
+    ],
+    "glottocodes": [
+      "beng1280"
+    ],
+    "families": "Indo-European",
+    "speakers": 300000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Bengali_language",
+    "tier": 3,
+    "fineweb2": {
+      "Beng": 93456224217
+    }
+  },
+  "bho": {
+    "name": "Bhojpuri",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "bhoj1244"
+    ],
+    "families": "Indo-European",
+    "speakers": 52200000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Bhojpuri_language",
+    "tier": 1,
+    "fineweb2": {
+      "Deva": 92372931
+    }
+  },
+  "bjn": {
+    "name": "Banjar (Jawi script)",
+    "scripts": [
+      "Arab",
+      "Latn"
+    ],
+    "glottocodes": [
+      "banj1239"
+    ],
+    "families": "Austronesian",
+    "speakers": 3500000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Banjarese_language",
+    "tier": 1,
+    "fineweb2": {
+      "Arab": 11621757,
+      "Latn": 6026084
+    }
+  },
+  "bod": {
+    "name": "Lhasa Tibetan",
+    "scripts": [
+      "Tibt"
+    ],
+    "glottocodes": [
+      "utsa1239"
+    ],
+    "families": "Sino-Tibetan",
+    "speakers": 1200000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Lhasa_Tibetan",
+    "tier": 1,
+    "fineweb2": {
+      "Tibt": 2067569611
+    }
+  },
+  "bos": {
+    "name": "Bosnian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "bosn1245"
+    ],
+    "families": "Indo-European",
+    "speakers": 3500000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Bosnian_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 52807573543
+    }
+  },
+  "brx": {
+    "name": "Bodo",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "bodo1269"
+    ],
+    "families": "Sino-Tibetan",
+    "speakers": 1482929,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Boro_language_(India)",
+    "tier": 0,
+    "fineweb2": {
+      "Deva": 13464487
+    }
+  },
+  "bug": {
+    "name": "Buginese",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "bugi1244"
+    ],
+    "families": "Austronesian",
+    "speakers": 5017800,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Buginese_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 233287
+    }
+  },
+  "bul": {
+    "name": "Bulgarian",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "bulg1262"
+    ],
+    "families": "Indo-European",
+    "speakers": 9000000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Bulgarian_language",
+    "tier": 3,
+    "fineweb2": {
+      "Cyrl": 156496753428
+    }
+  },
+  "cat": {
+    "name": "Catalan",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "stan1289"
+    ],
+    "families": "Indo-European",
+    "speakers": 4873396,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Catalan_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 43330701751
+    }
+  },
+  "ceb": {
+    "name": "Cebuano",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "cebu1242"
+    ],
+    "families": "Austronesian",
+    "speakers": 15900000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Cebuano_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 692041428
+    }
+  },
+  "ces": {
+    "name": "Czech",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "czec1258"
+    ],
+    "families": "Indo-European",
+    "speakers": 10700000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Czech_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 221544258565
+    }
+  },
+  "chv": {
+    "name": "Chuvash",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "chuv1255"
+    ],
+    "families": "Turkic",
+    "speakers": 738070,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Chuvash_language",
+    "tier": 1,
+    "fineweb2": {
+      "Cyrl": 419676103
+    }
+  },
+  "cjk": {
+    "name": "Chokwe",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "chok1245"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": null,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Chokwe_language",
+    "tier": null,
+    "fineweb2": {
+      "Latn": 78103
+    }
+  },
+  "ckb": {
+    "name": "Central Kurdish",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "cent1972"
+    ],
+    "families": "Indo-European",
+    "speakers": 7250000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Central_Kurdish",
+    "tier": 1,
+    "fineweb2": {
+      "Arab": 2562813224
+    }
+  },
+  "cmn": {
+    "name": "Mandarin Chinese (Standard Beijing)",
+    "scripts": [
+      "Hans",
+      "Hant"
+    ],
+    "glottocodes": [
+      "beij1234",
+      "taib1240"
+    ],
+    "families": "Sino-Tibetan",
+    "speakers": 918000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Mandarin_Chinese",
+    "tier": 5,
+    "fineweb2": null
+  },
+  "crh": {
+    "name": "Crimean Tatar",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "crim1257"
+    ],
+    "families": "Turkic",
+    "speakers": 552740,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Crimean_Tatar_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 102624218
+    }
+  },
+  "cym": {
+    "name": "Welsh",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "wels1247"
+    ],
+    "families": "Indo-European",
+    "speakers": 724000,
+    "continent": "South America",
+    "wikipedia": "https://en.wikipedia.org/wiki/Welsh_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 2680853098
+    }
+  },
+  "dan": {
+    "name": "Danish",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "dani1285"
+    ],
+    "families": "Indo-European",
+    "speakers": 6000000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Danish_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 161837584891
+    }
+  },
+  "dar": {
+    "name": "Dargwa",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "darg1241"
+    ],
+    "families": "Nakh-Daghestanian",
+    "speakers": null,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Dargwa_language",
+    "tier": 0,
+    "fineweb2": {
+      "Cyrl": 6740852
+    }
+  },
+  "deu": {
+    "name": "German",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "stan1295"
+    ],
+    "families": "Indo-European",
+    "speakers": 76540740,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/German_language",
+    "tier": 5,
+    "fineweb2": {
+      "Latn": 1654784757688
+    }
+  },
+  "dgo": {
+    "name": "Dogri",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "dogr1250"
+    ],
+    "families": "Indo-European",
+    "speakers": 2000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Dogri_language",
+    "tier": 0,
+    "fineweb2": null
+  },
+  "dik": {
+    "name": "Southwestern Dinka",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "sout2832"
+    ],
+    "families": "Nilotic",
+    "speakers": null,
+    "continent": "Africa",
+    "wikipedia": null,
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 2391536
+    }
+  },
+  "dyu": {
+    "name": "Dyula",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "dyul1238"
+    ],
+    "families": "Mande",
+    "speakers": 2700000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Dyula_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 5989252
+    }
+  },
+  "dzo": {
+    "name": "Dzongkha",
+    "scripts": [
+      "Tibt"
+    ],
+    "glottocodes": [
+      "dzon1239"
+    ],
+    "families": "Sino-Tibetan",
+    "speakers": 237080,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Dzongkha",
+    "tier": 1,
+    "fineweb2": {
+      "Tibt": 144543424
+    }
+  },
+  "ekk": {
+    "name": "Estonian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "esto1258"
+    ],
+    "families": "Uralic",
+    "speakers": 1164770,
+    "continent": "Europe",
+    "wikipedia": null,
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 43834195267
+    }
+  },
+  "ell": {
+    "name": "Greek",
+    "scripts": [
+      "Grek"
+    ],
+    "glottocodes": [
+      "mode1248"
+    ],
+    "families": "Indo-European",
+    "speakers": 15000000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Modern_Greek",
+    "tier": 3,
+    "fineweb2": {
+      "Grek": 238423993714
+    }
+  },
+  "eng": {
+    "name": "English",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "stan1293"
+    ],
+    "families": "Indo-European",
+    "speakers": 753359540,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/English_language",
+    "tier": 5,
+    "fineweb2": null
+  },
+  "epo": {
+    "name": "Esperanto",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "espe1235"
+    ],
+    "families": "Artificial Language",
+    "speakers": 2000000,
+    "continent": "Eurasia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Esperanto",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 1303689462
+    }
+  },
+  "eus": {
+    "name": "Basque",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "basq1248"
+    ],
+    "families": null,
+    "speakers": 750000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Basque_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 4616894404
+    }
+  },
+  "ewe": {
+    "name": "Ewe",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "ewee1241"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 3000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Ewe_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 39559156
+    }
+  },
+  "fao": {
+    "name": "Faroese",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "faro1244"
+    ],
+    "families": "Indo-European",
+    "speakers": 69150,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Faroese_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 591504161
+    }
+  },
+  "fij": {
+    "name": "Fijian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "fiji1243"
+    ],
+    "families": "Austronesian",
+    "speakers": 341270,
+    "continent": "Insular Oceania",
+    "wikipedia": "https://en.wikipedia.org/wiki/Fijian_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 50193257
+    }
+  },
+  "fil": {
+    "name": "Filipino",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "fili1244"
+    ],
+    "families": "Austronesian",
+    "speakers": 90000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Filipino_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 8728698096
+    }
+  },
+  "fin": {
+    "name": "Finnish",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "finn1318"
+    ],
+    "families": "Uralic",
+    "speakers": 5413380,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Finnish_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 153578789445
+    }
+  },
+  "fon": {
+    "name": "Fon",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "fonn1241"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 1935500,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Fon_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 6865317
+    }
+  },
+  "fra": {
+    "name": "French",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "stan1290"
+    ],
+    "families": "Indo-European",
+    "speakers": 208157220,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/French_language",
+    "tier": 5,
+    "fineweb2": {
+      "Latn": 1220202265605
+    }
+  },
+  "fur": {
+    "name": "Friulian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "east2271"
+    ],
+    "families": "Indo-European",
+    "speakers": 300000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Friulian_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 66155208
+    }
+  },
+  "fuv": {
+    "name": "Nigerian Fulfulde",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "nige1253"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 14500000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Nigerian_Fulfulde",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 2857811
+    }
+  },
+  "gaz": {
+    "name": "West Central Oromo",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "west2721"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": null,
+    "continent": "Africa",
+    "wikipedia": null,
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 134350699
+    }
+  },
+  "gla": {
+    "name": "Scottish Gaelic",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "scot1245"
+    ],
+    "families": "Indo-European",
+    "speakers": 60130,
+    "continent": "Oceania",
+    "wikipedia": "https://en.wikipedia.org/wiki/Scottish_Gaelic",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 935026939
+    }
+  },
+  "gle": {
+    "name": "Irish",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "iris1253"
+    ],
+    "families": "Indo-European",
+    "speakers": 141000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Irish_language",
+    "tier": 2,
+    "fineweb2": {
+      "Latn": 2330152361
+    }
+  },
+  "glg": {
+    "name": "Galician",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "gali1258"
+    ],
+    "families": "Indo-European",
+    "speakers": 2400000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Galician_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 6947044419
+    }
+  },
+  "gom": {
+    "name": "Goan Konkani",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "goan1235"
+    ],
+    "families": "Indo-European",
+    "speakers": 3633900,
+    "continent": "Asia",
+    "wikipedia": null,
+    "tier": 0,
+    "fineweb2": {
+      "Deva": 42867054
+    }
+  },
+  "gug": {
+    "name": "Paraguayan Guaraní",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "para1311"
+    ],
+    "families": "Tupian",
+    "speakers": 4850000,
+    "continent": "South America",
+    "wikipedia": "https://en.wikipedia.org/wiki/Guarani_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 41606719
+    }
+  },
+  "guj": {
+    "name": "Gujarati",
+    "scripts": [
+      "Gujr"
+    ],
+    "glottocodes": [
+      "guja1252"
+    ],
+    "families": "Indo-European",
+    "speakers": 56400000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Gujarati_language",
+    "tier": 1,
+    "fineweb2": {
+      "Gujr": 12573380396
+    }
+  },
+  "hat": {
+    "name": "Haitian Creole",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "hait1244"
+    ],
+    "families": "Indo-European",
+    "speakers": 9600000,
+    "continent": "North America",
+    "wikipedia": "https://en.wikipedia.org/wiki/Haitian_Creole",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 657148963
+    }
+  },
+  "hau": {
+    "name": "Hausa",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "haus1257"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 43900000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Hausa_language",
+    "tier": 2,
+    "fineweb2": {
+      "Latn": 1388541923
+    }
+  },
+  "heb": {
+    "name": "Hebrew",
+    "scripts": [
+      "Hebr"
+    ],
+    "glottocodes": [
+      "hebr1245"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 9303950,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Hebrew_language",
+    "tier": 3,
+    "fineweb2": {
+      "Hebr": 73780962340
+    }
+  },
+  "hin": {
+    "name": "Hindi",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "hind1269"
+    ],
+    "families": "Indo-European",
+    "speakers": 341000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Hindi",
+    "tier": 4,
+    "fineweb2": {
+      "Deva": 129902413849
+    }
+  },
+  "hne": {
+    "name": "Chhattisgarhi",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "chha1249"
+    ],
+    "families": "Indo-European",
+    "speakers": 16300000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Chhattisgarhi_language",
+    "tier": null,
+    "fineweb2": {
+      "Deva": 78785061
+    }
+  },
+  "hrv": {
+    "name": "Croatian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "croa1245"
+    ],
+    "families": "Indo-European",
+    "speakers": 7000000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Croatian_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 38555062999
+    }
+  },
+  "hun": {
+    "name": "Hungarian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "hung1274"
+    ],
+    "families": "Uralic",
+    "speakers": 12600000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Hungarian_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 214420647030
+    }
+  },
+  "hye": {
+    "name": "Armenian",
+    "scripts": [
+      "Armn"
+    ],
+    "glottocodes": [
+      "nucl1235"
+    ],
+    "families": "Indo-European",
+    "speakers": 6700000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Armenian_language",
+    "tier": 1,
+    "fineweb2": {
+      "Armn": 7697017226
+    }
+  },
+  "ibo": {
+    "name": "Igbo",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "nucl1417"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 27000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Igbo_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 396446133
+    }
+  },
+  "ilo": {
+    "name": "Ilocano",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "ilok1237"
+    ],
+    "families": "Austronesian",
+    "speakers": 9100000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Ilocano_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 52500508
+    }
+  },
+  "ind": {
+    "name": "Indonesian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "indo1316"
+    ],
+    "families": "Austronesian",
+    "speakers": 198996550,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Indonesian_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 374364271538
+    }
+  },
+  "isl": {
+    "name": "Icelandic",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "icel1247"
+    ],
+    "families": "Indo-European",
+    "speakers": 321040,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Icelandic_language",
+    "tier": 2,
+    "fineweb2": {
+      "Latn": 11028092809
+    }
+  },
+  "ita": {
+    "name": "Italian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "ital1282"
+    ],
+    "families": "Indo-European",
+    "speakers": 64800000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Italian_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 793750885035
+    }
+  },
+  "jav": {
+    "name": "Javanese",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "java1254"
+    ],
+    "families": "Austronesian",
+    "speakers": 68300000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Javanese_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 821367191
+    }
+  },
+  "jpn": {
+    "name": "Japanese",
+    "scripts": [
+      "Jpan"
+    ],
+    "glottocodes": [
+      "nucl1643"
+    ],
+    "families": "Japonic",
+    "speakers": 128000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Japanese_language",
+    "tier": 5,
+    "fineweb2": {
+      "Jpan": 1650248456871
+    }
+  },
+  "kaa": {
+    "name": "Karakalpak",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "kara1467"
+    ],
+    "families": "Turkic",
+    "speakers": 583410,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Karakalpak_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 11836090
+    }
+  },
+  "kab": {
+    "name": "Kabyle",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "kaby1243"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 5586000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kabyle_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 28729442
+    }
+  },
+  "kac": {
+    "name": "Jingpho",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "kach1280"
+    ],
+    "families": "Sino-Tibetan",
+    "speakers": 940000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Jingpo_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 26466558
+    }
+  },
+  "kam": {
+    "name": "Kamba",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "kamb1297"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 3893000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kamba_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 4086814
+    }
+  },
+  "kan": {
+    "name": "Kannada",
+    "scripts": [
+      "Knda"
+    ],
+    "glottocodes": [
+      "nucl1305"
+    ],
+    "families": "Dravidian",
+    "speakers": 43600000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kannada",
+    "tier": 1,
+    "fineweb2": {
+      "Knda": 13857353006
+    }
+  },
+  "kas": {
+    "name": "Kashmiri (Arabic script)",
+    "scripts": [
+      "Arab",
+      "Deva"
+    ],
+    "glottocodes": [
+      "kash1277"
+    ],
+    "families": "Indo-European",
+    "speakers": 6900000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kashmiri_language",
+    "tier": 1,
+    "fineweb2": {
+      "Arab": 1371498,
+      "Deva": 1863447
+    }
+  },
+  "kat": {
+    "name": "Georgian",
+    "scripts": [
+      "Geor"
+    ],
+    "glottocodes": [
+      "nucl1302"
+    ],
+    "families": "Kartvelian",
+    "speakers": 3700000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Georgian_language",
+    "tier": 3,
+    "fineweb2": {
+      "Geor": 27094494127
+    }
+  },
+  "kaz": {
+    "name": "Kazakh",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "kaza1248"
+    ],
+    "families": "Turkic",
+    "speakers": 12900000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kazakh_language",
+    "tier": 3,
+    "fineweb2": {
+      "Cyrl": 22198217777
+    }
+  },
+  "kbp": {
+    "name": "Kabiyè",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "kabi1261"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 1000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kabiye_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 2439980
+    }
+  },
+  "kea": {
+    "name": "Kabuverdianu",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "kabu1256"
+    ],
+    "families": "Indo-European",
+    "speakers": 871000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Cape_Verdean_Creole",
+    "tier": null,
+    "fineweb2": {
+      "Latn": 11007256
+    }
+  },
+  "khk": {
+    "name": "Halh Mongolian",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "halh1238"
+    ],
+    "families": "Mongolic-Khitan",
+    "speakers": 2704030,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Khalkha_Mongolian",
+    "tier": 1,
+    "fineweb2": {
+      "Cyrl": 9147689411
+    }
+  },
+  "khm": {
+    "name": "Khmer (Central)",
+    "scripts": [
+      "Khmr"
+    ],
+    "glottocodes": [
+      "cent1989"
+    ],
+    "families": "Austroasiatic",
+    "speakers": 16600000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Khmer_language",
+    "tier": 1,
+    "fineweb2": {
+      "Khmr": 9341656291
+    }
+  },
+  "kik": {
+    "name": "Kikuyu",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "kiku1240"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 6623000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kikuyu_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 4384691
+    }
+  },
+  "kin": {
+    "name": "Kinyarwanda",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "kiny1244"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 12100000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kinyarwanda",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 831837331
+    }
+  },
+  "kir": {
+    "name": "Kyrgyz",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "kirg1245"
+    ],
+    "families": "Turkic",
+    "speakers": 4568480,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kyrgyz_language",
+    "tier": null,
+    "fineweb2": {
+      "Cyrl": 4682371376
+    }
+  },
+  "kmb": {
+    "name": "Kimbundu",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "kimb1241"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": null,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kimbundu",
+    "tier": null,
+    "fineweb2": {
+      "Latn": 5662732
+    }
+  },
+  "kmr": {
+    "name": "Northern Kurdish",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "nort2641"
+    ],
+    "families": "Indo-European",
+    "speakers": 14600000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kurmanji",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 1250565913
+    }
+  },
+  "knc": {
+    "name": "Central Kanuri (Arabic script)",
+    "scripts": [
+      "Arab",
+      "Latn"
+    ],
+    "glottocodes": [
+      "cent2050"
+    ],
+    "families": "Saharan",
+    "speakers": null,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Central_Kanuri",
+    "tier": 5,
+    "fineweb2": {
+      "Latn": 278428
+    }
+  },
+  "kor": {
+    "name": "Korean",
+    "scripts": [
+      "Hang"
+    ],
+    "glottocodes": [
+      "kore1280"
+    ],
+    "families": "Koreanic",
+    "speakers": 77300000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Korean_language",
+    "tier": 4,
+    "fineweb2": {
+      "Hang": 229164863492
+    }
+  },
+  "ktu": {
+    "name": "Kituba (DRC)",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "kitu1246"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": null,
+    "continent": "Africa",
+    "wikipedia": null,
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 128148
+    }
+  },
+  "lao": {
+    "name": "Lao",
+    "scripts": [
+      "Laoo"
+    ],
+    "glottocodes": [
+      "laoo1244"
+    ],
+    "families": "Tai-Kadai",
+    "speakers": 5225552,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Lao_language",
+    "tier": 2,
+    "fineweb2": {
+      "Laoo": 2327641306
+    }
+  },
+  "lij": {
+    "name": "Ligurian (Genoese)",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "geno1240"
+    ],
+    "families": "Indo-European",
+    "speakers": 500000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Ligurian_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 13925218
+    }
+  },
+  "lim": {
+    "name": "Limburgish",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "limb1263"
+    ],
+    "families": "Indo-European",
+    "speakers": 1600000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Limburgish",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 90534671
+    }
+  },
+  "lin": {
+    "name": "Lingala",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "ling1263"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 20000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Lingala",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 60739787
+    }
+  },
+  "lit": {
+    "name": "Lithuanian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "lith1251"
+    ],
+    "families": "Indo-European",
+    "speakers": 4000000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Lithuanian_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 60666590655
+    }
+  },
+  "lld": {
+    "name": "Ladin (Val Badia)",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "gard1241",
+      "ladi1250"
+    ],
+    "families": "Indo-European",
+    "speakers": 30000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Ladin_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 3361562
+    }
+  },
+  "lmo": {
+    "name": "Lombard",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "lomb1257"
+    ],
+    "families": "Indo-European",
+    "speakers": 3900000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Lombard_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 56449402
+    }
+  },
+  "ltg": {
+    "name": "Latgalian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "east2282"
+    ],
+    "families": "Indo-European",
+    "speakers": 200000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Latgalian_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 32321727
+    }
+  },
+  "ltz": {
+    "name": "Luxembourgish",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "luxe1241"
+    ],
+    "families": "Indo-European",
+    "speakers": 391200,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Luxembourgish",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 1051196381
+    }
+  },
+  "lua": {
+    "name": "Luba-Kasai",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "luba1249"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 6300000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Luba-Kasai_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 14887137
+    }
+  },
+  "lug": {
+    "name": "Ganda",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "gand1255"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 4100000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Luganda",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 82898772
+    }
+  },
+  "luo": {
+    "name": "Luo",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "luok1236"
+    ],
+    "families": "Nilotic",
+    "speakers": 3000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Dholuo",
+    "tier": null,
+    "fineweb2": {
+      "Latn": 9703111
+    }
+  },
+  "lus": {
+    "name": "Mizo",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "lush1249"
+    ],
+    "families": "Sino-Tibetan",
+    "speakers": 500000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Mizo_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 232200665
+    }
+  },
+  "lvs": {
+    "name": "Standard Latvian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "stan1325"
+    ],
+    "families": "Indo-European",
+    "speakers": null,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Standard_Latvian_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 35823658462
+    }
+  },
+  "mag": {
+    "name": "Magahi",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "maga1260"
+    ],
+    "families": "Indo-European",
+    "speakers": 20700000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Magahi_language",
+    "tier": 0,
+    "fineweb2": {
+      "Deva": 4300652
+    }
+  },
+  "mai": {
+    "name": "Maithili",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "mait1250"
+    ],
+    "families": "Indo-European",
+    "speakers": 33900000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Maithili_language",
+    "tier": 1,
+    "fineweb2": {
+      "Deva": 175515481
+    }
+  },
+  "mal": {
+    "name": "Malayalam",
+    "scripts": [
+      "Mlym"
+    ],
+    "glottocodes": [
+      "mala1464"
+    ],
+    "families": "Dravidian",
+    "speakers": 37100000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Malayalam",
+    "tier": 1,
+    "fineweb2": {
+      "Mlym": 23909881915
+    }
+  },
+  "mar": {
+    "name": "Marathi",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "mara1378"
+    ],
+    "families": "Indo-European",
+    "speakers": 83100000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Marathi_language",
+    "tier": 2,
+    "fineweb2": {
+      "Deva": 24237886861
+    }
+  },
+  "mfe": {
+    "name": "Mauritian Creole",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "mori1278"
+    ],
+    "families": "Indo-European",
+    "speakers": 600000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Mauritian_Creole",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 28539312
+    }
+  },
+  "mhr": {
+    "name": "Meadow Mari",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "gras1239"
+    ],
+    "families": "Uralic",
+    "speakers": 482000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Meadow_Mari_language",
+    "tier": 1,
+    "fineweb2": {
+      "Cyrl": 148101836
+    }
+  },
+  "min": {
+    "name": "Minangkabau (Jawi script)",
+    "scripts": [
+      "Arab",
+      "Latn"
+    ],
+    "glottocodes": [
+      "mina1268"
+    ],
+    "families": "Austronesian",
+    "speakers": 5530000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Minangkabau_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 2546877
+    }
+  },
+  "mkd": {
+    "name": "Macedonian",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "mace1250"
+    ],
+    "families": "Indo-European",
+    "speakers": 2000000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Macedonian_language",
+    "tier": 1,
+    "fineweb2": {
+      "Cyrl": 16096523670
+    }
+  },
+  "mlt": {
+    "name": "Maltese",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "malt1254"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 570000,
+    "continent": "Oceania",
+    "wikipedia": "https://en.wikipedia.org/wiki/Maltese_language",
+    "tier": 2,
+    "fineweb2": {
+      "Latn": 1642185804
+    }
+  },
+  "mni": {
+    "name": "Meitei (Manipuri, Bengali script)",
+    "scripts": [
+      "Beng",
+      "Mtei"
+    ],
+    "glottocodes": [
+      "mani1292"
+    ],
+    "families": "Sino-Tibetan",
+    "speakers": 1470000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Meitei_language",
+    "tier": 1,
+    "fineweb2": {
+      "Beng": 42344976,
+      "Mtei": 970020
+    }
+  },
+  "mos": {
+    "name": "Mossi",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "moss1236"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 7600000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Moor%C3%A9",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 11474306
+    }
+  },
+  "mri": {
+    "name": "Maori",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "maor1246"
+    ],
+    "families": "Austronesian",
+    "speakers": 213849,
+    "continent": "Oceania",
+    "wikipedia": "https://en.wikipedia.org/wiki/M%C4%81ori_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 539994062
+    }
+  },
+  "mya": {
+    "name": "Burmese",
+    "scripts": [
+      "Mymr"
+    ],
+    "glottocodes": [
+      "nucl1310"
+    ],
+    "families": "Sino-Tibetan",
+    "speakers": 32900000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Burmese_language",
+    "tier": 1,
+    "fineweb2": {
+      "Mymr": 13261245557
+    }
+  },
+  "myv": {
+    "name": "Erzya",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "erzy1239"
+    ],
+    "families": "Uralic",
+    "speakers": 96860,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Erzya_language",
+    "tier": 1,
+    "fineweb2": {
+      "Cyrl": 47468549
+    }
+  },
+  "nld": {
+    "name": "Dutch",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "dutc1256"
+    ],
+    "families": "Indo-European",
+    "speakers": 23100000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Dutch_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 426818652448
+    }
+  },
+  "nno": {
+    "name": "Norwegian Nynorsk",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "norw1262"
+    ],
+    "families": "Indo-European",
+    "speakers": null,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Nynorsk",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 2882129938
+    }
+  },
+  "nob": {
+    "name": "Norwegian Bokmål, moderate variety",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "norw1259",
+      "norw1259 (with variant=radical)"
+    ],
+    "families": "Indo-European",
+    "speakers": 4000000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Bokm%C3%A5l",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 184736905731
+    }
+  },
+  "npi": {
+    "name": "Nepali",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "nepa1254"
+    ],
+    "families": "Indo-European",
+    "speakers": null,
+    "continent": null,
+    "wikipedia": null,
+    "tier": 1,
+    "fineweb2": {
+      "Deva": 26982905157
+    }
+  },
+  "nqo": {
+    "name": "Nko",
+    "scripts": [
+      "Nkoo"
+    ],
+    "glottocodes": [
+      "nkoa1234"
+    ],
+    "families": "Artificial Language",
+    "speakers": null,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/N%27Ko_language",
+    "tier": 0,
+    "fineweb2": {
+      "Nkoo": 4411133
+    }
+  },
+  "nso": {
+    "name": "Northern Sotho",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "pedi1238"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 4100000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Northern_Sotho",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 30270070
+    }
+  },
+  "nus": {
+    "name": "Nuer",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "nuer1246"
+    ],
+    "families": "Nilotic",
+    "speakers": 900000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Nuer_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 498427
+    }
+  },
+  "nya": {
+    "name": "Nyanja",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "nyan1308"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 12000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Chewa_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 417963769
+    }
+  },
+  "oci": {
+    "name": "Occitan",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "aran1260",
+      "occi1239"
+    ],
+    "families": "Indo-European",
+    "speakers": 542000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Occitan_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 197203492
+    }
+  },
+  "ory": {
+    "name": "Odia",
+    "scripts": [
+      "Orya"
+    ],
+    "glottocodes": [
+      "oriy1255"
+    ],
+    "families": "Indo-European",
+    "speakers": 34500000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Odia_language",
+    "tier": 1,
+    "fineweb2": {
+      "Orya": 5286806083
+    }
+  },
+  "pag": {
+    "name": "Pangasinan",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "pang1290"
+    ],
+    "families": "Austronesian",
+    "speakers": 1100000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Pangasinan_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 8788780
+    }
+  },
+  "pan": {
+    "name": "Eastern Panjabi",
+    "scripts": [
+      "Guru"
+    ],
+    "glottocodes": [
+      "panj1256"
+    ],
+    "families": "Indo-European",
+    "speakers": 125000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Punjabi_language",
+    "tier": 2,
+    "fineweb2": {
+      "Guru": 6050581322
+    }
+  },
+  "pap": {
+    "name": "Papiamento",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "papi1253"
+    ],
+    "families": "Indo-European",
+    "speakers": 321300,
+    "continent": "North America",
+    "wikipedia": "https://en.wikipedia.org/wiki/Papiamento",
+    "tier": null,
+    "fineweb2": {
+      "Latn": 533119171
+    }
+  },
+  "pbt": {
+    "name": "Southern Pashto",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "sout2649"
+    ],
+    "families": "Indo-European",
+    "speakers": 10900000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Southern_Pashto",
+    "tier": 1,
+    "fineweb2": {
+      "Arab": 2586053704
+    }
+  },
+  "pes": {
+    "name": "Western Persian",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "west2369"
+    ],
+    "families": "Indo-European",
+    "speakers": 52800000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Iranian_Persian",
+    "tier": 4,
+    "fineweb2": null
+  },
+  "plt": {
+    "name": "Plateau Malagasy",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "plat1254"
+    ],
+    "families": "Austronesian",
+    "speakers": null,
+    "continent": "Africa",
+    "wikipedia": null,
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 963914602
+    }
+  },
+  "pol": {
+    "name": "Polish",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "poli1260"
+    ],
+    "families": "Indo-European",
+    "speakers": 39700000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Polish_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 463862082709
+    }
+  },
+  "por": {
+    "name": "Portuguese (Brazilian)",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "braz1246"
+    ],
+    "families": "Indo-European",
+    "speakers": 254300000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Portuguese_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 611213407211
+    }
+  },
+  "prs": {
+    "name": "Dari",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "dari1249"
+    ],
+    "families": "Indo-European",
+    "speakers": 9600000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Dari",
+    "tier": 0,
+    "fineweb2": null
+  },
+  "quy": {
+    "name": "Ayacucho Quechua",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "ayac1239"
+    ],
+    "families": "Quechuan",
+    "speakers": 918200,
+    "continent": "South America",
+    "wikipedia": "https://en.wikipedia.org/wiki/Ayacucho_Quechua",
+    "tier": null,
+    "fineweb2": {
+      "Latn": 8685023
+    }
+  },
+  "ron": {
+    "name": "Romanian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "roma1327"
+    ],
+    "families": "Indo-European",
+    "speakers": 24300000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Romanian_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 199920561455
+    }
+  },
+  "run": {
+    "name": "Rundi",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "rund1242"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 10800000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kirundi",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 143865820
+    }
+  },
+  "rus": {
+    "name": "Russian",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "russ1263"
+    ],
+    "families": "Indo-European",
+    "speakers": 154000000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Russian_language",
+    "tier": 4,
+    "fineweb2": {
+      "Cyrl": 6400108560340
+    }
+  },
+  "sag": {
+    "name": "Sango",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "sang1328"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 4600000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Sango_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 19959041
+    }
+  },
+  "san": {
+    "name": "Sanskrit",
+    "scripts": [
+      "Deva"
+    ],
+    "glottocodes": [
+      "sans1269"
+    ],
+    "families": "Indo-European",
+    "speakers": 49736,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Sanskrit",
+    "tier": 2,
+    "fineweb2": {
+      "Deva": 350803610
+    }
+  },
+  "sat": {
+    "name": "Santali",
+    "scripts": [
+      "Olck"
+    ],
+    "glottocodes": [
+      "sant1410"
+    ],
+    "families": "Austroasiatic",
+    "speakers": 7200000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Santali_language",
+    "tier": 1,
+    "fineweb2": {
+      "Olck": 11302562
+    }
+  },
+  "scn": {
+    "name": "Sicilian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "sici1248"
+    ],
+    "families": "Indo-European",
+    "speakers": 4700000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Sicilian_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 30611824
+    }
+  },
+  "shn": {
+    "name": "Shan",
+    "scripts": [
+      "Mymr"
+    ],
+    "glottocodes": [
+      "shan1277"
+    ],
+    "families": "Tai-Kadai",
+    "speakers": 3000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Shan_language",
+    "tier": 0,
+    "fineweb2": {
+      "Mymr": 126345158
+    }
+  },
+  "sin": {
+    "name": "Sinhala",
+    "scripts": [
+      "Sinh"
+    ],
+    "glottocodes": [
+      "sinh1246"
+    ],
+    "families": "Indo-European",
+    "speakers": 15300000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Sinhala_language",
+    "tier": 0,
+    "fineweb2": {
+      "Sinh": 7567102011
+    }
+  },
+  "slk": {
+    "name": "Slovak",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "slov1269"
+    ],
+    "families": "Indo-European",
+    "speakers": 6000000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Slovak_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 91733828860
+    }
+  },
+  "slv": {
+    "name": "Slovenian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "slov1268"
+    ],
+    "families": "Indo-European",
+    "speakers": 2400000,
+    "continent": "South America",
+    "wikipedia": "https://en.wikipedia.org/wiki/Slovene_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 44878788376
+    }
+  },
+  "smo": {
+    "name": "Samoan",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "samo1305"
+    ],
+    "families": "Austronesian",
+    "speakers": 415720,
+    "continent": "Insular Oceania",
+    "wikipedia": "https://en.wikipedia.org/wiki/Samoan_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 426106921
+    }
+  },
+  "sna": {
+    "name": "Shona",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "shon1251"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 8300000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Shona_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 360372257
+    }
+  },
+  "snd": {
+    "name": "Sindhi (Arabic script)",
+    "scripts": [
+      "Arab",
+      "Deva"
+    ],
+    "glottocodes": [
+      "sind1272"
+    ],
+    "families": "Indo-European",
+    "speakers": 24600000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Sindhi_language",
+    "tier": 1,
+    "fineweb2": {
+      "Arab": 1274860486,
+      "Deva": 4055752
+    }
+  },
+  "som": {
+    "name": "Somali",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "soma1255"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 16200000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Somali_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 2204199720
+    }
+  },
+  "sot": {
+    "name": "Southern Sotho",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "sout2807"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 6000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Sotho_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 385995324
+    }
+  },
+  "spa": {
+    "name": "Spanish (Latin American)",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "amer1254"
+    ],
+    "families": "Indo-European",
+    "speakers": 485000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Spanish_language",
+    "tier": 5,
+    "fineweb2": {
+      "Latn": 1447166708770
+    }
+  },
+  "srd": {
+    "name": "Sardinian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "sard1257"
+    ],
+    "families": "Indo-European",
+    "speakers": 1300000,
+    "continent": "Oceania",
+    "wikipedia": "https://en.wikipedia.org/wiki/Sardinian_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 69299310
+    }
+  },
+  "srp": {
+    "name": "Serbian",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "serb1264"
+    ],
+    "families": "Indo-European",
+    "speakers": 9000000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Serbian_language",
+    "tier": 4,
+    "fineweb2": {
+      "Cyrl": 28846157665
+    }
+  },
+  "ssw": {
+    "name": "Swati",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "swat1243"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 2034200,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Swazi_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 10574317
+    }
+  },
+  "sun": {
+    "name": "Sundanese",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "sund1252"
+    ],
+    "families": "Austronesian",
+    "speakers": 32400000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Sundanese_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 448575600
+    }
+  },
+  "swe": {
+    "name": "Swedish",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "swed1254"
+    ],
+    "families": "Indo-European",
+    "speakers": 9244250,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Swedish_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 217929329252
+    }
+  },
+  "swh": {
+    "name": "Swahili",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "swah1253"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 82300000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Kiswahili",
+    "tier": 2,
+    "fineweb2": {
+      "Latn": 3311669706
+    }
+  },
+  "szl": {
+    "name": "Silesian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "sile1253"
+    ],
+    "families": "Indo-European",
+    "speakers": 522000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Silesian_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 20830301
+    }
+  },
+  "tam": {
+    "name": "Tamil",
+    "scripts": [
+      "Taml"
+    ],
+    "glottocodes": [
+      "tami1289"
+    ],
+    "families": "Dravidian",
+    "speakers": 75000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tamil_language",
+    "tier": 3,
+    "fineweb2": {
+      "Taml": 39693515188
+    }
+  },
+  "taq": {
+    "name": "Tamasheq (Latin script)",
+    "scripts": [
+      "Latn",
+      "Tfng"
+    ],
+    "glottocodes": [
+      "tama1365"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 500000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tamasheq_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 2516396,
+      "Tfng": 807915
+    }
+  },
+  "tat": {
+    "name": "Tatar",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "tata1255"
+    ],
+    "families": "Turkic",
+    "speakers": 5200000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tatar_language",
+    "tier": 1,
+    "fineweb2": {
+      "Cyrl": 1638926006
+    }
+  },
+  "tel": {
+    "name": "Telugu",
+    "scripts": [
+      "Telu"
+    ],
+    "glottocodes": [
+      "telu1262"
+    ],
+    "families": "Dravidian",
+    "speakers": 82000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Telugu_language",
+    "tier": 1,
+    "fineweb2": {
+      "Telu": 15478493847
+    }
+  },
+  "tgk": {
+    "name": "Tajik",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "taji1245"
+    ],
+    "families": "Indo-European",
+    "speakers": 14000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tajik_language",
+    "tier": 1,
+    "fineweb2": {
+      "Cyrl": 4031127806
+    }
+  },
+  "tha": {
+    "name": "Thai",
+    "scripts": [
+      "Thai"
+    ],
+    "glottocodes": [
+      "thai1261"
+    ],
+    "families": "Tai-Kadai",
+    "speakers": 20700000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Thai_language",
+    "tier": 3,
+    "fineweb2": {
+      "Thai": 299226473998
+    }
+  },
+  "tir": {
+    "name": "Tigrinya",
+    "scripts": [
+      "Ethi"
+    ],
+    "glottocodes": [
+      "tigr1271"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": 7507780,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tigrinya_language",
+    "tier": 2,
+    "fineweb2": {
+      "Ethi": 376757819
+    }
+  },
+  "tpi": {
+    "name": "Tok Pisin",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "tokp1240"
+    ],
+    "families": "Indo-European",
+    "speakers": 4000000,
+    "continent": "Oceania",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tok_Pisin",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 15675056
+    }
+  },
+  "tsn": {
+    "name": "Tswana",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "tswa1253"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 4500000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tswana_language",
+    "tier": 2,
+    "fineweb2": {
+      "Latn": 28692609
+    }
+  },
+  "tso": {
+    "name": "Tsonga",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "tson1249"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 13000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tsonga_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 34932753
+    }
+  },
+  "tuk": {
+    "name": "Turkmen",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "turk1304"
+    ],
+    "families": "Turkic",
+    "speakers": 16000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Turkmen_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 737149133
+    }
+  },
+  "tum": {
+    "name": "Tumbuka",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "tumb1250"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 7000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tumbuka_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 875336
+    }
+  },
+  "tur": {
+    "name": "Turkish",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "nucl1301"
+    ],
+    "families": "Turkic",
+    "speakers": 82231620,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Turkish_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 305497429770
+    }
+  },
+  "twi": {
+    "name": "Akuapem Twi",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "akua1239",
+      "asan1239"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 3000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Twi",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 33003790
+    }
+  },
+  "tyv": {
+    "name": "Tuvan",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "tuvi1240"
+    ],
+    "families": "Turkic",
+    "speakers": 297000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Tuvan_language",
+    "tier": 1,
+    "fineweb2": {
+      "Cyrl": 109715292
+    }
+  },
+  "uig": {
+    "name": "Uyghur",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "uigh1240"
+    ],
+    "families": "Turkic",
+    "speakers": 10400000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Uyghur_language",
+    "tier": 1,
+    "fineweb2": {
+      "Arab": 1116620907
+    }
+  },
+  "ukr": {
+    "name": "Ukrainian",
+    "scripts": [
+      "Cyrl"
+    ],
+    "glottocodes": [
+      "ukra1253"
+    ],
+    "families": "Indo-European",
+    "speakers": 26900000,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Ukrainian_language",
+    "tier": 3,
+    "fineweb2": {
+      "Cyrl": 273654962631
+    }
+  },
+  "umb": {
+    "name": "Umbundu",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "umbu1257"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 6000000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Umbundu",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 5608334
+    }
+  },
+  "urd": {
+    "name": "Urdu",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "urdu1245"
+    ],
+    "families": "Indo-European",
+    "speakers": 68600000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Urdu",
+    "tier": 3,
+    "fineweb2": {
+      "Arab": 21400072163
+    }
+  },
+  "uzn": {
+    "name": "Northern Uzbek",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "nort2690"
+    ],
+    "families": "Turkic",
+    "speakers": 25100000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Northern_Uzbek_language",
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 4780890804
+    }
+  },
+  "uzs": {
+    "name": "Southern Uzbek",
+    "scripts": [
+      "Arab"
+    ],
+    "glottocodes": [
+      "sout2699"
+    ],
+    "families": "Turkic",
+    "speakers": 4165700,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Southern_Uzbek_language",
+    "tier": 3,
+    "fineweb2": {
+      "Arab": 39741578
+    }
+  },
+  "vec": {
+    "name": "Venetian",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "vene1259"
+    ],
+    "families": "Indo-European",
+    "speakers": 2000000,
+    "continent": "South America",
+    "wikipedia": "https://en.wikipedia.org/wiki/Venetian_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 12153631
+    }
+  },
+  "vie": {
+    "name": "Vietnamese",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "viet1252"
+    ],
+    "families": "Austroasiatic",
+    "speakers": 76000000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Vietnamese_language",
+    "tier": 4,
+    "fineweb2": {
+      "Latn": 343416915256
+    }
+  },
+  "vmw": {
+    "name": "Emakhuwa (Central)",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "cent2033"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 7430000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Makhuwa_language",
+    "tier": 0,
+    "fineweb2": {
+      "Latn": 3876154
+    }
+  },
+  "war": {
+    "name": "Waray",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "wara1300"
+    ],
+    "families": "Austronesian",
+    "speakers": 3100000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Waray_language",
+    "tier": 1,
+    "fineweb2": {
+      "Latn": 4037242
+    }
+  },
+  "wol": {
+    "name": "Wolof",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "nucl1347"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 3700000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Wolof_language",
+    "tier": 2,
+    "fineweb2": {
+      "Latn": 19017020
+    }
+  },
+  "wuu": {
+    "name": "Wu Chinese",
+    "scripts": [
+      "Hans"
+    ],
+    "glottocodes": [
+      "suhu1238"
+    ],
+    "families": "Sino-Tibetan",
+    "speakers": 81400000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Wu_Chinese",
+    "tier": 1,
+    "fineweb2": null
+  },
+  "xho": {
+    "name": "Xhosa",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "xhos1239"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 8177300,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Xhosa_language",
+    "tier": 2,
+    "fineweb2": {
+      "Latn": 796963469
+    }
+  },
+  "ydd": {
+    "name": "Eastern Yiddish",
+    "scripts": [
+      "Hebr"
+    ],
+    "glottocodes": [
+      "east2295"
+    ],
+    "families": "Indo-European",
+    "speakers": null,
+    "continent": "Europe",
+    "wikipedia": "https://en.wikipedia.org/wiki/Eastern_Yiddish",
+    "tier": 1,
+    "fineweb2": {
+      "Hebr": 936578790
+    }
+  },
+  "yor": {
+    "name": "Yoruba",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "yoru1245"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 37800000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Yoruba_language",
+    "tier": 2,
+    "fineweb2": {
+      "Latn": 306731770
+    }
+  },
+  "yue": {
+    "name": "Yue Chinese (Hong Kong Cantonese)",
+    "scripts": [
+      "Hant"
+    ],
+    "glottocodes": [
+      "xian1255"
+    ],
+    "families": "Sino-Tibetan",
+    "speakers": 73100000,
+    "continent": "Asia",
+    "wikipedia": "https://en.wikipedia.org/wiki/Yue_Chinese",
+    "tier": 1,
+    "fineweb2": null
+  },
+  "zgh": {
+    "name": "Standard Moroccan Tamazight",
+    "scripts": [
+      "Tfng"
+    ],
+    "glottocodes": [
+      "stan1324"
+    ],
+    "families": "Afro-Asiatic",
+    "speakers": null,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Standard_Moroccan_Amazigh",
+    "tier": 0,
+    "fineweb2": {
+      "Tfng": 1034464
+    }
+  },
+  "zsm": {
+    "name": "Standard Malay",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "stan1306"
+    ],
+    "families": "Austronesian",
+    "speakers": null,
+    "continent": "Asia",
+    "wikipedia": null,
+    "tier": 3,
+    "fineweb2": {
+      "Latn": 34291909291
+    }
+  },
+  "zul": {
+    "name": "Zulu",
+    "scripts": [
+      "Latn"
+    ],
+    "glottocodes": [
+      "zulu1248"
+    ],
+    "families": "Atlantic-Congo",
+    "speakers": 12100000,
+    "continent": "Africa",
+    "wikipedia": "https://en.wikipedia.org/wiki/Zulu_language",
+    "tier": 2,
+    "fineweb2": {
+      "Latn": 511054246
+    }
+  }
+}
