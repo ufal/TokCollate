@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { VisualizationState, GraphConfig } from '../types';
+import { VisualizationState, FigureConfig, MetricDimensionality, VisualizationData } from '../types';
 import MainMenu from './MainMenu';
 import GraphList from './GraphList';
 import GraphConfigurator from './GraphConfigurator';
@@ -7,48 +7,191 @@ import './App.css';
 import { exportAllGraphs } from '../utils/fileUtils';
 
 const App: React.FC = () => {
+
   const [state, setState] = useState<VisualizationState>({
-    graphs: [],
+    figures: [],
     datasetName: 'Unknown',
     availableTokenizers: [],
     availableMetrics: [],
     availableLanguages: [],
+    metricDimensionality: {},
     data: null,
   });
+  const [importStatus, setImportStatus] = useState<{success: boolean, message: string} | null>(null);
 
   const handleLoadVisualization = (data: any) => {
-    const datasetName = data?.metadata?.datasetName || 'Unknown';
+    // Data structure from MainMenu:
+    // { metadata: {...}, npzData: {...} }
+    // OR legacy format: { metrics: {...}, correlation: {...}, metadata: {...} }
+    
+    let datasetName = 'Unknown';
+    let availableTokenizers: string[] = [];
+    let availableMetrics: string[] = [];
+    let availableLanguages: string[] = [];
+    let metricDimensionality: MetricDimensionality = {};
+    let processedData: VisualizationData;
+
+    if (data?.metadata && data?.npzData) {
+      // New format from MainMenu: { metadata, npzData }
+      // npzData contains metrics (from parsed NPZ) and correlation arrays
+      // Metrics are now plain JS arrays (not npyjs objects), so we need to wrap them
+      const metadata = data.metadata;
+      const npzData = data.npzData;
+      
+      datasetName = metadata.dataset_name || 'Unknown';
+      availableTokenizers = metadata.tokenizers || [];
+      availableLanguages = metadata.languages || [];
+      
+      // Extract metrics from npzData
+      // npzData now contains metric arrays converted from numpy (plain JS arrays)
+      // We need to wrap them to work with the graphTypes that expect numpy-like objects with .shape property
+      const metricsObj: Record<string, any> = {};
+      
+      console.log('[App] NPZ data keys:', Object.keys(npzData));
+      console.log('[App] Metadata:', { dataset_name: datasetName, tokenizers: availableTokenizers.length, languages: availableLanguages.length, metrics: metadata.metrics });
+      
+      // Iterate through npzData and wrap metrics
+      for (const [key, value] of Object.entries(npzData)) {
+        if (key === 'correlation') {
+          // Skip correlation for now
+          continue;
+        }
+        
+        if (Array.isArray(value)) {
+          // Convert JS array to numpy-like object with shape property
+          const arrayValue = value as number[][];
+          let shape: number[] = [];
+          
+          // Determine shape by inspecting the nested array structure
+          if (arrayValue.length > 0) {
+            if (Array.isArray(arrayValue[0])) {
+              if (Array.isArray(arrayValue[0][0])) {
+                // 3D array: [tokenizers][languages][languages]
+                shape = [arrayValue.length, arrayValue[0].length, arrayValue[0][0].length];
+              } else {
+                // 2D array: [tokenizers][languages]
+                shape = [arrayValue.length, arrayValue[0].length];
+              }
+            } else {
+              // 1D array
+              shape = [arrayValue.length];
+            }
+          }
+          
+          // Flatten the array to TypedArray-like format (row-major order)
+          const flatArray = new Float64Array(arrayValue.flat(Infinity) as number[]);
+          
+          // Wrap in numpy-like object to be compatible with graphTypes
+          metricsObj[key] = {
+            data: flatArray,
+            shape: shape,
+            dtype: 'float64',
+          };
+          
+          console.log(`[App] Wrapped metric: ${key}`, { shape, dtype: 'float64', dataLength: flatArray.length });
+        }
+      }
+      
+      // If metadata doesn't specify metrics, infer them from the NPZ data keys
+      availableMetrics = metadata.metrics && metadata.metrics.length > 0 
+        ? metadata.metrics 
+        : Object.keys(npzData).filter(k => k !== 'correlation');
+      
+      const correlationObj = npzData?.correlation?.() || npzData?.correlation || {};
+      
+      console.log('[App] Loaded metadata:', { datasetName, tokenizers: availableTokenizers.length, metrics: availableMetrics.length, languages: availableLanguages.length });
+      console.log('[App] Processed metrics:', Object.keys(metricsObj));
+      
+      processedData = {
+        metrics: metricsObj,
+        correlation: correlationObj,
+        metadata: {
+          datasetName,
+          timestamp: metadata.timestamp,
+          version: metadata.version,
+          tokenizers: availableTokenizers,
+          languages: availableLanguages,
+          metrics: availableMetrics,
+        },
+      };
+    } else if (data?.metadata) {
+      // Legacy format or metadata-only
+      datasetName = data.metadata.datasetName || data.metadata.dataset_name || 'Unknown';
+      availableTokenizers = data.metadata.tokenizers || [];
+      availableMetrics = data.metadata.metrics || [];
+      availableLanguages = data.metadata.languages || [];
+      
+      processedData = {
+        metrics: data.metrics || {},
+        correlation: data.correlation || {},
+        metadata: {
+          datasetName,
+          timestamp: data.metadata.timestamp,
+          version: data.metadata.version,
+          tokenizers: availableTokenizers,
+          languages: availableLanguages,
+          metrics: availableMetrics,
+        },
+      };
+    } else {
+      // Fallback to raw data
+      datasetName = data.dataset_name || 'Unknown';
+      availableTokenizers = data.tokenizers || [];
+      availableMetrics = data.metrics || [];
+      availableLanguages = data.languages || [];
+      
+      processedData = {
+        metrics: data.metrics || {},
+        correlation: data.correlation || {},
+        metadata: {
+          datasetName,
+          tokenizers: availableTokenizers,
+          languages: availableLanguages,
+          metrics: availableMetrics,
+        },
+      };
+    }
+
+    // Check for import validity
+    if (!datasetName || (availableTokenizers.length === 0 && availableMetrics.length === 0 && availableLanguages.length === 0)) {
+      setImportStatus({ success: false, message: 'Import failed: Invalid or missing metadata/data.' });
+      console.error('[App] Import validation failed:', { datasetName, tokenizers: availableTokenizers.length, metrics: availableMetrics.length, languages: availableLanguages.length });
+      return;
+    }
+
     setState((prev) => ({
       ...prev,
-      data,
+      data: processedData,
       datasetName,
-      availableTokenizers: extractTokenizers(data),
-      availableMetrics: extractMetrics(data),
-      availableLanguages: extractLanguages(data),
+      availableTokenizers,
+      availableMetrics,
+      availableLanguages,
+      metricDimensionality,
     }));
+    setImportStatus({ success: true, message: 'Data import successful.' });
   };
 
   const handleSaveVisualization = () => {
     if (state.data) {
       const config = {
-        graphs: state.graphs,
+        figures: state.figures,
         data: state.data,
       };
-      saveVisualization(config, `tokeval-viz-${new Date().getTime()}.json`);
+      saveVisualization(config as any, `tokeval-viz-${new Date().getTime()}.json`);
     }
   };
 
-  const handleAddGraph = (graphConfig: GraphConfig) => {
+  const handleAddFigure = (figureConfig: FigureConfig) => {
     setState((prev) => ({
       ...prev,
-      graphs: [...prev.graphs, graphConfig],
+      figures: [...prev.figures, figureConfig],
     }));
   };
 
-  const handleRemoveGraph = (graphId: string) => {
+  const handleRemoveFigure = (figureId: string) => {
     setState((prev) => ({
       ...prev,
-      graphs: prev.graphs.filter((g) => g.id !== graphId),
+      figures: prev.figures.filter((f) => f.id !== figureId),
     }));
   };
 
@@ -60,11 +203,11 @@ const App: React.FC = () => {
   };
 
   const handleExportGraphs = async () => {
-    const graphsForExport = state.graphs.map((graph) => ({
-      id: graph.id,
-      title: graph.title,
+    const figuresForExport = state.figures.map((figure) => ({
+      id: figure.id,
+      title: figure.title,
     }));
-    await exportAllGraphs(graphsForExport);
+    await exportAllGraphs(figuresForExport);
   };
 
   return (
@@ -75,21 +218,37 @@ const App: React.FC = () => {
         onExportGraphs={handleExportGraphs}
         datasetName={state.datasetName}
       />
+      {importStatus && (
+        <div
+          style={{
+            margin: '10px',
+            padding: '8px',
+            background: importStatus.success ? '#e0ffe0' : '#ffe0e0',
+            color: importStatus.success ? '#207520' : '#a00000',
+            border: '1px solid',
+            borderColor: importStatus.success ? '#b0e0b0' : '#e0b0b0',
+            borderRadius: '4px',
+            fontWeight: 'bold',
+          }}
+        >
+          {importStatus.message}
+        </div>
+      )}
       <div className="content">
         <div className="graph-list-container">
           <GraphList
-            graphs={state.graphs}
+            figures={state.figures}
             data={state.data}
-            onRemoveGraph={handleRemoveGraph}
-            datasetType={state.datasetName}
+            onRemoveFigure={handleRemoveFigure}
           />
         </div>
         <div className="configurator-container">
           <GraphConfigurator
-            onAddGraph={handleAddGraph}
+            onAddFigure={handleAddFigure}
             availableTokenizers={state.availableTokenizers}
             availableMetrics={state.availableMetrics}
             availableLanguages={state.availableLanguages}
+            metricDimensionality={state.metricDimensionality}
           />
         </div>
       </div>
@@ -98,6 +257,6 @@ const App: React.FC = () => {
 };
 
 // Helper functions imported from utils
-import { extractTokenizers, extractMetrics, extractLanguages, saveVisualization } from '../utils/fileUtils';
+import { extractTokenizers, extractMetrics, extractLanguages, detectMetricDimensionality, saveVisualization } from '../utils/fileUtils';
 
 export default App;

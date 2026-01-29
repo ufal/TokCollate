@@ -25,9 +25,9 @@ export interface VisualizationData {
   };
 }
 
-export interface GraphConfig {
+export interface FigureConfig {
   id: string;
-  type: 'bar' | 'line' | 'scatter' | 'heatmap';
+  typeId: string; // 'scatter-metric-correlation', 'metrics-table', etc.
   title: string;
   tokenizers: string[];
   languages: string[];
@@ -35,11 +35,16 @@ export interface GraphConfig {
   filters?: Record<string, any>;
 }
 
+export interface MetricDimensionality {
+  [metricName: string]: 1 | 2; // 1 for 1D metrics, 2 for 2D metrics
+}
+
 export interface VisualizationState {
-  graphs: GraphConfig[];
+  figures: FigureConfig[];
   datasetName: string;
   availableTokenizers: string[];
   availableMetrics: string[];
   availableLanguages: string[];
+  metricDimensionality: MetricDimensionality;
   data: VisualizationData | null;
 }

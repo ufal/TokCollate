@@ -1,50 +1,60 @@
 import React from 'react';
-import { GraphConfig, VisualizationData } from '../types';
+import { FigureConfig, VisualizationData } from '../types';
 import Graph from './Graph';
 import './GraphList.css';
 
 interface GraphListProps {
-  graphs: GraphConfig[];
+  figures: FigureConfig[];
   data: VisualizationData | null;
-  onRemoveGraph: (graphId: string) => void;
-  datasetType: 'metrics' | 'correlation';
+  onRemoveFigure: (figureId: string) => void;
 }
 
 const GraphList: React.FC<GraphListProps> = ({
-  graphs,
+  figures,
   data,
-  onRemoveGraph,
-  datasetType,
+  onRemoveFigure,
 }) => {
+  React.useEffect(() => {
+    console.log('[GraphList] Data:', {
+      dataAvailable: !!data,
+      metricsCount: data?.metrics ? Object.keys(data.metrics).length : 0,
+      figuresCount: figures.length,
+    });
+  }, [data, figures]);
+
   return (
     <div className="graph-list">
       <h2>Visualizations</h2>
-      {graphs.length === 0 ? (
+      {figures.length === 0 ? (
         <div className="empty-state">
-          <p>No graphs added yet. Use the configurator on the right to add graphs.</p>
+          <p>No visualizations added yet. Use the configurator on the right to add visualizations.</p>
         </div>
       ) : (
         <div className="graphs-container">
-          {graphs.map((graph) => (
-            <div key={graph.id} className="graph-item">
-              <div className="graph-header">
-                <h3>{graph.title}</h3>
-                <button
-                  className="remove-btn"
-                  onClick={() => onRemoveGraph(graph.id)}
-                >
-                  ✕
-                </button>
+          {figures.map((figure) => {
+            console.log(`[GraphList] Rendering figure ${figure.id}:`, figure);
+            return (
+              <div key={figure.id} className="graph-item">
+                <div className="graph-header">
+                  <h3>{figure.title}</h3>
+                  <button
+                    className="remove-btn"
+                    onClick={() => onRemoveFigure(figure.id)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                {data ? (
+                  <Graph
+                    config={figure}
+                    data={data}
+                  />
+                ) : (
+                  <div className="no-data">No data loaded</div>
+                )}
               </div>
-              {data && (
-                <Graph
-                  config={graph}
-                  data={data}
-                  datasetType={datasetType}
-                />
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
