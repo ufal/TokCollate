@@ -46,13 +46,12 @@ class KullbackLieblerDivergenceMetric(TokEvalMultilingualMetric):
 
         # mask values KL(P || Q), where Q(x) = 0.
         res_mask = (res == np.inf).astype(bool)
-        res[res_mask] = 0.
+        res[res_mask] = 0.0
 
-        import pdb; pdb.set_trace()
         return res.sum(0)
 
     def _extract_vocabulary(self, text: TextType, most_common: int | None = None) -> Counter:
         vocab = get_vocabulary(text=text)
         if most_common is not None:
-            vocab = Counter({k: v for k, v in vocab.most_common(most_common)})
+            vocab = Counter(dict(vocab.most_common(most_common)))
         return vocab
