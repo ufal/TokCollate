@@ -30,6 +30,7 @@ const App: React.FC = () => {
     let availableLanguages: string[] = [];
     let metricDimensionality: MetricDimensionality = {};
     let processedData: VisualizationData;
+    let missingMetrics: string[] = [];
 
     if (data?.metadata && data?.npzData) {
       // New format from MainMenu: { metadata, npzData }
@@ -92,10 +93,38 @@ const App: React.FC = () => {
         }
       }
       
-      // If metadata doesn't specify metrics, infer them from the NPZ data keys
-      availableMetrics = metadata.metrics && metadata.metrics.length > 0 
-        ? metadata.metrics 
-        : Object.keys(npzData).filter(k => k !== 'correlation');
+      // Determine available metrics, preferring those listed in metadata
+      const npzMetricKeys = Object.keys(metricsObj);
+      if (metadata.metrics && Array.isArray(metadata.metrics) && metadata.metrics.length > 0) {
+        const listed = metadata.metrics;
+        const present = listed.filter((m: string) => npzMetricKeys.includes(m));
+        const missing = listed.filter((m: string) => !npzMetricKeys.includes(m));
+        availableMetrics = present;
+        missingMetrics = missing;
+        if (missing.length > 0) {
+          console.warn('[App] Metrics listed in metadata but missing in results.npz:', missing);
+        }
+      } else {
+        // Fallback: use all metrics parsed from NPZ
+        availableMetrics = npzMetricKeys;
+      }
+      
+      // Detect metric dimensionality only for available metrics
+      availableMetrics.forEach((metric) => {
+        if (metricsObj[metric]) {
+          const shape = metricsObj[metric].shape;
+          if (shape.length === 1) {
+            metricDimensionality[metric] = 1; // 1D metric
+          } else if (shape.length === 2) {
+            metricDimensionality[metric] = 2; // 2D metric
+          } else if (shape.length === 3) {
+            metricDimensionality[metric] = 3; // 3D metric
+          } else {
+            metricDimensionality[metric] = 1; // Default to 1D
+          }
+          console.log(`[App] Metric dimensionality: ${metric} = ${metricDimensionality[metric]}D (shape: ${shape.join('x')})`);
+        }
+      });
       
       const correlationObj = npzData?.correlation?.() || npzData?.correlation || {};
       
@@ -168,7 +197,13 @@ const App: React.FC = () => {
       availableLanguages,
       metricDimensionality,
     }));
-    setImportStatus({ success: true, message: 'Data import successful.' });
+    // Build an informative import status message
+    const metaListedCount = (processedData.metadata?.metrics || []).length;
+    const missingSummary = missingMetrics && missingMetrics.length > 0
+      ? `; Missing (listed but not in NPZ): ${missingMetrics.join(', ')}`
+      : '';
+    const importMsg = `Imported "${datasetName}" — Tokenizers: ${availableTokenizers.length}, Languages: ${availableLanguages.length}, Metrics available: ${availableMetrics.length}${metaListedCount ? ` (listed: ${metaListedCount})` : ''}${missingSummary}`;
+    setImportStatus({ success: true, message: importMsg });
   };
 
   const handleSaveVisualization = () => {

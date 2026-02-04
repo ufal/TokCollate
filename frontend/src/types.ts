@@ -36,7 +36,7 @@ export interface FigureConfig {
 }
 
 export interface MetricDimensionality {
-  [metricName: string]: 1 | 2; // 1 for 1D metrics, 2 for 2D metrics
+  [metricName: string]: 1 | 2 | 3; // 1: 1D, 2: 2D, 3: 3D
 }
 
 export interface VisualizationState {

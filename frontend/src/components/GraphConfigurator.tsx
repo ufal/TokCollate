@@ -171,18 +171,34 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
    * Filter metrics based on the current graph type's dimension requirements
    */
   const getFilteredMetrics = (): string[] => {
+    // Special-case Metric Table: allow only 2D or 3D metrics
+    if (currentGraphType?.typeId === 'metric-table') {
+      return availableMetrics.filter((m) => metricDimensionality[m] === 2 || metricDimensionality[m] === 3);
+    }
     if (!currentGraphType?.constraints.metrics.dimension || currentGraphType.constraints.metrics.dimension === 'both') {
       return availableMetrics;
     }
-
     const requiredDimension = currentGraphType.constraints.metrics.dimension;
-    return availableMetrics.filter(m => metricDimensionality[m] === requiredDimension);
+    return availableMetrics.filter((m) => metricDimensionality[m] === requiredDimension);
+  };
+
+  const getExcludedMetrics = (): string[] => {
+    // For Metric Table, excluded metrics are 1D
+    if (currentGraphType?.typeId === 'metric-table') {
+      return availableMetrics.filter((m) => metricDimensionality[m] === 1);
+    }
+    if (!currentGraphType?.constraints.metrics.dimension || currentGraphType.constraints.metrics.dimension === 'both') {
+      return [];
+    }
+    const requiredDimension = currentGraphType.constraints.metrics.dimension;
+    return availableMetrics.filter((m) => metricDimensionality[m] !== requiredDimension);
   };
 
   const getMetricDimensionLabel = (metric: string): string => {
     const dim = metricDimensionality[metric];
     if (dim === 1) return ' (1D)';
     if (dim === 2) return ' (2D)';
+    if (dim === 3) return ' (3D)';
     return '';
   };
 
@@ -266,6 +282,17 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                   </option>
                 ))}
               </select>
+              <div className="selected-count">
+                {getFilteredMetrics().length} compatible / {availableMetrics.length} total
+              </div>
+              {availableMetrics.length > getFilteredMetrics().length && (
+                <div className="info-message">
+                  ⓘ Some metrics are hidden because Metric Table requires matrix metrics (2D or 3D).
+                  {getExcludedMetrics().length > 0 && (
+                    <span> Excluded: {getExcludedMetrics().slice(0, 6).join(', ')}{getExcludedMetrics().length > 6 ? '…' : ''}</span>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

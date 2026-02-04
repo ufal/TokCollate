@@ -173,6 +173,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
         accept=".json,.npz"
         onChange={handleDirectorySelect}
         style={{ display: 'none' }}
+        {...{ webkitdirectory: '' } as any}
       />
     </div>
   );

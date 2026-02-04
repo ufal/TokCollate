@@ -252,7 +252,7 @@ export class MetricTableGraphType extends GraphType {
   description = 'Table displaying a metric matrix with rows as tokenizers and columns as languages (or language-pairs for 3D metrics).';
 
   constraints: VisualizationConstraints = {
-    metrics: { min: 1, max: 1, dimension: 'both' }, // Exactly 1 metric (can be 1D or 2D)
+    metrics: { min: 1, max: 1, dimension: 'both' }, // Exactly 1 metric; UI filters to 2D/3D
     tokenizers: { min: 1, max: Infinity },
     languages: { min: 1, max: Infinity },
   };
@@ -319,6 +319,7 @@ export class MetricTableGraphType extends GraphType {
       rows: selectedTokenizers,
       columns: selectedLanguages,
       data: [],
+      rowHeader: metricName,
     };
 
     if (shape.length === 2) {
@@ -392,10 +393,11 @@ export class MetricTableGraphType extends GraphType {
       console.log('[MetricTable] All tokenizers:', allTokenizers);
       console.log('[MetricTable] All languages:', allLanguages);
 
-      // Create language pair column headers
+      // Create language pair column headers (exclude diagonal pairs)
       const languagePairs: string[] = [];
       for (const lang1 of selectedLanguages) {
         for (const lang2 of selectedLanguages) {
+          if (lang1 === lang2) continue; // skip diagonal
           languagePairs.push(`${lang1}-${lang2}`);
         }
       }
@@ -417,6 +419,10 @@ export class MetricTableGraphType extends GraphType {
             const lang1 = selectedLanguages[lang1Idx];
             const lang2 = selectedLanguages[lang2Idx];
             const pairLabel = `${lang1}-${lang2}`;
+            if (lang1 === lang2) {
+              // skip diagonal pairs (same language)
+              continue;
+            }
             
             // Find the actual positions of these languages in the full array
             const lang1Position = allLanguages.indexOf(lang1);

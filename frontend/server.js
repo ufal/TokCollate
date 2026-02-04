@@ -37,9 +37,11 @@ def convert_array_safe(arr):
     arr_list = arr.tolist()
     
     def replace_special_floats(obj):
-        if isinstance(obj, float):
-            if math.isnan(obj) or math.isinf(obj):
-                return None
+      if isinstance(obj, float):
+        if math.isnan(obj):
+          return 'NaN'
+        if math.isinf(obj):
+          return 'Infinity' if obj > 0 else '-Infinity'
         elif isinstance(obj, list):
             return [replace_special_floats(item) for item in obj]
         elif isinstance(obj, dict):
@@ -73,10 +75,12 @@ try:
                             # Convert array safely, replacing NaN/Inf with None
                             result[k] = convert_array_safe(v)
                         elif isinstance(v, (float, np.floating)):
-                            if math.isnan(v) or math.isinf(v):
-                                result[k] = None
-                            else:
-                                result[k] = float(v)
+                          if math.isnan(v):
+                            result[k] = 'NaN'
+                          elif math.isinf(v):
+                            result[k] = 'Infinity' if v > 0 else '-Infinity'
+                          else:
+                            result[k] = float(v)
                         elif isinstance(v, (int, np.integer)):
                             result[k] = int(v)
                         else:

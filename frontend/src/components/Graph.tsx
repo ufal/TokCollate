@@ -23,7 +23,7 @@ interface GraphProps {
 const Graph: React.FC<GraphProps> = ({ config, data }) => {
   const graphType = getGraphType(config.typeId);
 
-  const getChartData = () => {
+  const getChartData = (): any[] | any => {
     console.log('[Graph.getChartData] Called');
     console.log('[Graph.getChartData] graphType:', graphType?.displayName);
     console.log('[Graph.getChartData] config.metrics:', config.metrics);
@@ -234,7 +234,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
         <table className="metric-table">
           <thead>
             <tr>
-              <th className="table-row-header">Tokenizer</th>
+              <th className="table-row-header">{tableData.rowHeader || 'Tokenizer'}</th>
               {tableData.columns.map((col: string, idx: number) => (
                 <th key={idx} className="table-column-header">{col}</th>
               ))}
