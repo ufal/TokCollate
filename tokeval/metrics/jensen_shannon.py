@@ -47,5 +47,5 @@ class JensenShannonDivergenceMetric(TokEvalMultilingualMetric):
     def _extract_vocabulary(self, text: TextType, most_common: int | None = None) -> Counter:
         vocab = get_vocabulary(text=text)
         if most_common is not None:
-            vocab = Counter(vocab.most_common(most_common))
+            vocab = Counter({k: v for k, v in vocab.most_common(most_common)})
         return vocab
