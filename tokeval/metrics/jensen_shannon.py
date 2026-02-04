@@ -6,7 +6,7 @@ from scipy.spatial.distance import jensenshannon
 
 from tokeval.data import TextType, TokEvalData
 from tokeval.metrics import TokEvalMultilingualMetric, register_metric
-from tokeval.utils import get_unigram_frequencies, get_vocabulary
+from tokeval.utils import get_unigram_distribution, get_vocabulary
 
 
 @register_metric("jensen_shannon_divergence")
@@ -27,22 +27,22 @@ class JensenShannonDivergenceMetric(TokEvalMultilingualMetric):
         text_all = data.get_system_text(system_label=system_label)
         vocab = self._extract_vocabulary(text_all, self.vocab_most_common)
 
-        unigrams_src = get_unigram_frequencies(text_src, vocab=vocab)
-        unigrams_tgt = get_unigram_frequencies(text_tgt, vocab=vocab)
+        unigram_probs_src = get_unigram_distribution(text_src, vocab=vocab)
+        unigram_probs_tgt = get_unigram_distribution(text_tgt, vocab=vocab)
 
-        return jensenshannon(unigrams_src, unigrams_tgt)
+        return jensenshannon(unigram_probs_src, unigram_probs_tgt)
 
     def score_batched(self, data: TokEvalData, system_label: str, languages: list[str]) -> np.ndarray:
         text_all = data.get_system_text(system_label=system_label)
         vocab = self._extract_vocabulary(text_all, self.vocab_most_common)
-        unigrams = np.stack(
+        unigram_probs = np.stack(
             [
-                get_unigram_frequencies(data.get_system_text(system_label=system_label, language=lang), vocab=vocab)
+                get_unigram_distribution(data.get_system_text(system_label=system_label, language=lang), vocab=vocab)
                 for lang in languages
             ],
             axis=1,
         )
-        return jensenshannon(unigrams.reshape(-1, len(languages), 1), unigrams.reshape(-1, 1, len(languages)))
+        return jensenshannon(unigram_probs.reshape(-1, len(languages), 1), unigram_probs.reshape(-1, 1, len(languages)))
 
     def _extract_vocabulary(self, text: TextType, most_common: int | None = None) -> Counter:
         vocab = get_vocabulary(text=text)
