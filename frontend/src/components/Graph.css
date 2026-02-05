@@ -1,0 +1,78 @@
+.graph {
+  width: 100%;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fafafa;
+  border-radius: 4px;
+}
+
+.no-data {
+  color: #95a5a6;
+  font-style: italic;
+  padding: 2rem;
+  text-align: center;
+}
+
+.metric-table-container {
+  width: 100%;
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.metric-table {
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-size: 0.85rem;
+}
+
+.metric-table thead {
+  background-color: #f5f5f5;
+  border-bottom: 2px solid #ddd;
+}
+
+.metric-table th {
+  padding: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  border-right: 1px solid #eee;
+  white-space: nowrap;
+}
+
+.metric-table th.table-row-header {
+  border-right: 2px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.metric-table td {
+  padding: 0.75rem;
+  text-align: right;
+  border-right: 1px solid #eee;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.metric-table td.table-row-label {
+  font-weight: 500;
+  text-align: left;
+  border-right: 2px solid #ddd;
+  background-color: #fafafa;
+  white-space: nowrap;
+  color: #333;
+}
+
+.metric-table td.table-cell {
+  font-family: 'Courier New', monospace;
+  cursor: help;
+}
+
+.metric-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.metric-table tbody tr:hover td.table-cell {
+  background-color: #e8f4f8;
+}
+

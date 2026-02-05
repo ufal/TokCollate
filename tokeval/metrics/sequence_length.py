@@ -19,8 +19,9 @@ class SequenceLengthMetric(TokEvalMetric):
         self,
         data: TokEvalData,
         system_label: str,
+        language: str,
     ) -> float:
-        text = data.get_system_text(system_label=system_label)
+        text = data.get_system_text(system_label=system_label, language=language)
         seq_length = np.array([len(line) for line in text])
         res = self._aggregate_scores(seq_length)
         if self.negate_output:

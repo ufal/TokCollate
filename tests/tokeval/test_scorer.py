@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from omegaconf import OmegaConf
 
-from tokeval.scorer import ScorerResultsSaver, TokEvalScorer
+from tokeval.scorer import ScorerResultSaver, TokEvalScorer
 
 
 @pytest.fixture()
@@ -33,7 +33,7 @@ def test_scorer_saved_results_exist(foo_scorer):
     """TODO"""
     foo_scorer.run()
 
-    for filename in [ScorerResultsSaver._metadata_filename, ScorerResultsSaver._results_filename]:  # noqa: SLF001
+    for filename in [ScorerResultSaver._metadata_filename, ScorerResultSaver._results_filename]:  # noqa: SLF001
         path = Path(foo_scorer.output_dir, filename)
         assert path.exists()
 
@@ -69,7 +69,7 @@ def test_scorer_metric_marix_size(foo_scorer, metric_type):
         if metric_type not in metric_label:
             continue
         if metric_type == "mono":
-            ref_shape = [len(foo_scorer.systems)]
+            ref_shape = [len(foo_scorer.systems), len(foo_scorer.languages)]
         elif metric_type == "multi":
             ref_shape = [len(foo_scorer.systems), len(foo_scorer.languages), len(foo_scorer.languages)]
         assert results["metrics"][metric_label].shape == np.zeros(ref_shape).shape
