@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 from pathlib import Path
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import numpy as np
 from attrs import converters, define, field, fields, validators
@@ -26,6 +26,10 @@ class ScorerResultSaver(dict):
     metrics: list[str] = field(validator=validators.instance_of(list))
     languages: list[str] = field(validator=validators.instance_of(list))
 
+    # TODO(varisd): replace any with proper data structure definition
+    languages_info: dict[str, Any] = field(validator=validators.optional(validators.instance_of(dict)))
+
+    _languages_info_filename: ClassVar[str] = "languages_info.json"
     _metadata_filename: ClassVar[str] = "metadata.json"
     _results_filename: ClassVar[str] = "results.npz"
 
@@ -54,6 +58,11 @@ class ScorerResultSaver(dict):
         path = Path(self.output_dir, self._results_filename)
         np.savez(path, **results)
 
+        if self.languages_info:
+            path = Path(self.output_dir, self._languages_info_filename)
+            with path.open("w") as fh:
+                json.dump(self.languages_info, sort_keys=True, indent=2, fp=fh)
+
 
 @define(kw_only=True)
 class TokEvalScorer:
@@ -80,6 +89,7 @@ class TokEvalScorer:
     output_dir: Path = field(converter=converters.optional(Path), init=False, default=None)
     systems: list[str] = field(init=False)
     languages: list[str] = field(init=False, factory=list)
+    languages_info: dict[str, Any] = field(init=False, default=None)
     file_suffix: str = field(init=False, default="txt")
 
     metrics: dict[str, TokEvalMetric] = field(init=False, default=None)
@@ -90,6 +100,11 @@ class TokEvalScorer:
         """Set the class values based on the config contents and build the requested metric objects."""
         for param in self.list_parameters():
             if param.name == "config":
+                continue
+            if param.name == "languages_info":
+                if getattr(self.config.scorer, param.name, None) is not None:
+                    path = Path(getattr(self.config, param.name))
+                    self.languages_info = json.load(path.open("r", encoding="utf-8"))
                 continue
             if hasattr(self.config.scorer, param.name):
                 setattr(self, param.name, getattr(self.config.scorer, param.name))
@@ -103,6 +118,7 @@ class TokEvalScorer:
             data_dir=self.input_dir,
             systems=self.systems,
             languages=self.languages,
+            languages_info=self.languages_info,
             metrics=self.metrics.values(),
             file_suffix=self.file_suffix,
         )
@@ -131,6 +147,7 @@ class TokEvalScorer:
                 tokenizers=list(self.systems),
                 metrics=list(self.metrics.keys()),
                 languages=list(self.languages),
+                languages_info=self.languages_info,
             ).save_results(results)
         else:
             logger.info("No scorer.output_dir was provided. Printing results to STDOUT:\n")

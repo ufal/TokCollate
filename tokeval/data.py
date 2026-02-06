@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import Any
 
 from attrs import converters, define, field, validators
 
@@ -9,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 TextType = list[list[str]]
 
+LANG_SPEC_LEN = 3
+
 
 @define(kw_only=True)
 class TokEvalData:
@@ -17,6 +20,7 @@ class TokEvalData:
     data_dir: Path = field(converter=Path)
     systems: list[str] = field(converter=converters.optional(list), factory=list)
     languages: list[str] = field(converter=converters.optional(list), factory=list)
+    languages_info: dict[str, Any] = field(validator=validators.optional(validators.instance_of(dict)), default=None)
     metrics: list["TokEvalMetric"] = field(factory=list)  # noqa: F821
     file_suffix: str = field(validator=validators.instance_of(str), default="txt")
     input_file_stem: str = field(validator=validators.instance_of(str), default="input")
@@ -50,6 +54,37 @@ class TokEvalData:
         if self.has_reference_text:
             filename = f"{self.reference_file_stem}.{self.file_suffix}"
             self._data[self._reference_key] = load_tokenized_text_file(Path(self.data_dir, filename))
+
+        if self.languages_info is not None:
+            # The language info needs to follow a strict data structure. In such case, the language specification also
+            # needs to follow it.
+            for lang in self.languages:
+                lang_split = lang.split("_")
+                assert len(lang_split) == LANG_SPEC_LEN
+                if lang[0] not in self.languages_info:
+                    logger.exception(
+                        "Language %s not in the provided languages_info JSON file.\nAvailable languages: [%s]",
+                        lang,
+                        ",".join(self.languages_info.keys()),
+                    )
+                if lang[1] not in self.languages_info[lang[0]]["scripts"]:
+                    logger.exception(
+                        "Script %s of language %s not listed in the languages_info JSON file.\n"
+                        "langages_info['%s'] = %s",
+                        lang[1],
+                        lang[0],
+                        lang[0],
+                        self.languages_info[lang[0]],
+                    )
+                if lang[2] not in self.languages_info[lang[0]]["glottocodes"]:
+                    logger.exception(
+                        "Glottocode %s of language %s not listed in the languages_info JSON file.\n"
+                        "langages_info['%s'] = %s",
+                        lang[2],
+                        lang[0],
+                        lang[0],
+                        self.languages_info[lang[0]],
+                    )
 
     @property
     def has_input_text(self) -> bool:
