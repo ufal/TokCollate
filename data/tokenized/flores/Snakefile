@@ -111,13 +111,13 @@ rule download_flores:
     run:
         from datasets import load_dataset
         import os
-        
+
         # Create output directory if it doesn't exist
         os.makedirs("flores_plaintext", exist_ok=True)
-        
+
         # Load dev and devtest splits for all languages
         ds_dev = load_dataset("openlanguagedata/flores_plus", split="dev")
-        
+
         sentences_per_language = {lang_code: [] for lang_code in FLORES_LANGUAGES}
 
         for item in ds_dev:
@@ -142,18 +142,18 @@ rule tokenize:
         cpus_per_task=1
     run:
         from transformers import AutoTokenizer
-        
+
         tokenizer_name = HF_TOKENIZERS[str(wildcards.tokenizer)]
         tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
-        
+
         with open(input[0], "r", encoding="utf-8") as f:
             lines = f.readlines()
-        
+
         tokenized_lines = []
         for line in lines:
             tokens = tokenizer.tokenize(line.strip())
             tokenized_line = " ".join(tokens)
             tokenized_lines.append(tokenized_line)
-        
+
         with open(output[0], "w", encoding="utf-8") as f:
             f.write("\n".join(tokenized_lines))
