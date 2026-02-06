@@ -1,8 +1,7 @@
 import csv
-import re
 import os
+import re
 import urllib.request
-from collections import defaultdict
 
 """Match FLORES languages with Joshi et al. (2020) language tiers.
 
@@ -13,8 +12,8 @@ The unmatched languages are marked with '?' tier and later are manually checked.
 """
 
 # Download tier data if it doesn't exist
-tier_file = 'lang2tax.txt'
-tier_url = 'https://microsoft.github.io/linguisticdiversity/assets/lang2tax.txt'
+tier_file = "lang2tax.txt"
+tier_url = "https://microsoft.github.io/linguisticdiversity/assets/lang2tax.txt"
 
 
 if not os.path.exists(tier_file):
@@ -23,30 +22,33 @@ if not os.path.exists(tier_file):
     print(f"Downloaded {tier_file}")
 
 # Read tier data from file
-with open(tier_file, 'r', encoding='utf-8') as f:
+with open(tier_file, encoding="utf-8") as f:
     tier_data = f.read()
 
 # Parse tier data
 tier_dict = {}
-for line in tier_data.strip().split('\n'):
-    if ',' in line:
-        lang_name, tier = line.rsplit(',', 1)
+for line in tier_data.strip().split("\n"):
+    if "," in line:
+        lang_name, tier = line.rsplit(",", 1)
         lang_name = lang_name.strip().lower()
         tier = tier.strip()
         tier_dict[lang_name] = tier
 
+
 # Normalize function for better matching
 def normalize_name(name):
     # Remove parentheses and their content
-    name = re.sub(r'\([^)]*\)', '', name)
+    name = re.sub(r"\([^)]*\)", "", name)
     # Convert to lowercase and strip
     name = name.lower().strip()
     # Remove extra whitespace
-    name = ' '.join(name.split())
+    name = " ".join(name.split())
     return name
+
 
 # Create normalized lookup
 normalized_tier_dict = {normalize_name(k): v for k, v in tier_dict.items()}
+
 
 # Matching function
 def find_tier(lang_name):
@@ -56,7 +58,7 @@ def find_tier(lang_name):
         return normalized_tier_dict[normalized]
 
     # Try to extract main language name before parentheses
-    main_name = re.sub(r'\([^)]*\)', '', lang_name).strip().lower()
+    main_name = re.sub(r"\([^)]*\)", "", lang_name).strip().lower()
     if main_name in normalized_tier_dict:
         return normalized_tier_dict[main_name]
 
@@ -64,76 +66,77 @@ def find_tier(lang_name):
     lang_lower = lang_name.lower()
 
     # Handle Arabic variants
-    if 'arabic' in lang_lower:
-        if 'egyptian' in lang_lower:
-            return normalized_tier_dict.get('egyptian arabic', '?')
+    if "arabic" in lang_lower:
+        if "egyptian" in lang_lower:
+            return normalized_tier_dict.get("egyptian arabic", "?")
         else:
-            return normalized_tier_dict.get('arabic', '?')
+            return normalized_tier_dict.get("arabic", "?")
 
     # Handle Chinese variants
-    if 'chinese' in lang_lower:
-        if 'mandarin' in lang_lower:
-            return normalized_tier_dict.get('mandarin', '?')
-        elif 'cantonese' in lang_lower or 'yue' in lang_lower:
-            return normalized_tier_dict.get('cantonese', '?')
-        elif 'wu' in lang_lower:
-            return normalized_tier_dict.get('wu', '?')
+    if "chinese" in lang_lower:
+        if "mandarin" in lang_lower:
+            return normalized_tier_dict.get("mandarin", "?")
+        elif "cantonese" in lang_lower or "yue" in lang_lower:
+            return normalized_tier_dict.get("cantonese", "?")
+        elif "wu" in lang_lower:
+            return normalized_tier_dict.get("wu", "?")
 
     # Handle Kurdish variants
-    if 'kurdish' in lang_lower:
-        if 'northern' in lang_lower or 'kurmanji' in lang_lower:
-            return normalized_tier_dict.get('kurdish (kurmanji)', '?')
-        elif 'central' in lang_lower or 'sorani' in lang_lower:
-            return normalized_tier_dict.get('kurdish (sorani)', '?')
+    if "kurdish" in lang_lower:
+        if "northern" in lang_lower or "kurmanji" in lang_lower:
+            return normalized_tier_dict.get("kurdish (kurmanji)", "?")
+        elif "central" in lang_lower or "sorani" in lang_lower:
+            return normalized_tier_dict.get("kurdish (sorani)", "?")
 
     # Handle Norwegian variants
-    if 'norwegian' in lang_lower:
-        if 'nynorsk' in lang_lower:
-            return normalized_tier_dict.get('norwegian (nynorsk)', '?')
+    if "norwegian" in lang_lower:
+        if "nynorsk" in lang_lower:
+            return normalized_tier_dict.get("norwegian (nynorsk)", "?")
         else:
-            return normalized_tier_dict.get('norwegian (bokmål)', '?')
+            return normalized_tier_dict.get("norwegian (bokmål)", "?")
 
     # Handle Panjabi/Punjabi variants
-    if 'panjabi' in lang_lower or 'punjabi' in lang_lower:
-        if 'eastern' in lang_lower:
-            return normalized_tier_dict.get('eastern punjabi', '?')
-        elif 'western' in lang_lower:
-            return normalized_tier_dict.get('western punjabi', '?')
+    if "panjabi" in lang_lower or "punjabi" in lang_lower:
+        if "eastern" in lang_lower:
+            return normalized_tier_dict.get("eastern punjabi", "?")
+        elif "western" in lang_lower:
+            return normalized_tier_dict.get("western punjabi", "?")
 
     # Handle Sotho variants
-    if 'sotho' in lang_lower:
-        if 'northern' in lang_lower:
-            return normalized_tier_dict.get('northern sotho', '?')
-        elif 'southern' in lang_lower:
-            return normalized_tier_dict.get('sesotho', '?')
+    if "sotho" in lang_lower:
+        if "northern" in lang_lower:
+            return normalized_tier_dict.get("northern sotho", "?")
+        elif "southern" in lang_lower:
+            return normalized_tier_dict.get("sesotho", "?")
 
     # Handle Pashto variants
-    if 'pashto' in lang_lower:
-        return normalized_tier_dict.get('pashto', '?')
+    if "pashto" in lang_lower:
+        return normalized_tier_dict.get("pashto", "?")
 
     # Handle Persian/Dari
-    if 'persian' in lang_lower or 'dari' in lang_lower:
-        return normalized_tier_dict.get('persian', '?')
+    if "persian" in lang_lower or "dari" in lang_lower:
+        return normalized_tier_dict.get("persian", "?")
 
     # Handle other common cases
     common_mappings = {
-        'lhasa tibetan': 'tibetan',
-        'standard malay': 'malay',
-        'halh mongolian': 'mongolian',
-        'khmer': 'khmer',
-        'filipino': 'tagalog',
-        'haitian creole': 'haitian',
-        'mauritian creole': 'mauritian creole',
-        'sinhala': 'sinhalese',
-        'maithili': 'maithili',
-        'azerbaijani': 'azerbaijani',
+        "lhasa tibetan": "tibetan",
+        "standard malay": "malay",
+        "halh mongolian": "mongolian",
+        "khmer": "khmer",
+        "filipino": "tagalog",
+        "haitian creole": "haitian",
+        "mauritian creole": "mauritian creole",
+        "sinhala": "sinhalese",
+        "maithili": "maithili",
+        "azerbaijani": "azerbaijani",
     }
 
     for key, value in common_mappings.items():
         if key in lang_lower:
-            return normalized_tier_dict.get(value, '?')
+            return normalized_tier_dict.get(value, "?")
 
-    return '?'
+    return "?"
+
 
 # Generate output
 results = []
@@ -141,26 +144,21 @@ seen_glottocodes = {}
 
 # Read and parse TSV data from file
 tsv_languages = []
-with open('flores_languages.tsv', 'r', encoding='utf-8') as f:
+with open("flores_languages.tsv", encoding="utf-8") as f:
     for line in f:
         if line.strip():
-            parts = line.strip().split('\t')
+            parts = line.strip().split("\t")
             if len(parts) >= 4:
                 iso_code = parts[0]
                 script = parts[1]
                 glottocode = parts[2]
                 lang_name = parts[3]
-                tsv_languages.append({
-                    'iso': iso_code,
-                    'script': script,
-                    'glottocode': glottocode,
-                    'name': lang_name
-                })
+                tsv_languages.append({"iso": iso_code, "script": script, "glottocode": glottocode, "name": lang_name})
 
 for lang in tsv_languages:
-    glottocode = lang['glottocode']
-    iso_code = lang['iso']
-    lang_name = lang['name']
+    glottocode = lang["glottocode"]
+    iso_code = lang["iso"]
+    lang_name = lang["name"]
 
     tier = find_tier(lang_name)
 
@@ -168,7 +166,7 @@ for lang in tsv_languages:
     if glottocode not in seen_glottocodes:
         seen_glottocodes[glottocode] = (iso_code, tier)
         results.append((iso_code, glottocode, tier))
-    elif tier != '?' and seen_glottocodes[glottocode][1] == '?':
+    elif tier != "?" and seen_glottocodes[glottocode][1] == "?":
         # Update if we found a better match
         seen_glottocodes[glottocode] = (iso_code, tier)
         # Update the result
@@ -178,9 +176,9 @@ for lang in tsv_languages:
                 break
 
 # Write output to TSV
-with open('./code_tiers_automatic.tsv', 'w', newline='', encoding='utf-8') as f:
-    writer = csv.writer(f, delimiter='\t')
-    writer.writerow(['iso_code', 'glottocode', 'tier'])
+with open("./code_tiers_automatic.tsv", "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f, delimiter="\t")
+    writer.writerow(["iso_code", "glottocode", "tier"])
     for iso_code, glottocode, tier in results:
         writer.writerow([iso_code, glottocode, tier])
 

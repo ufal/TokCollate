@@ -1,8 +1,11 @@
-import json
-import time
+#!/usr/bin/env python3
 import csv
+import json
 import logging
+import time
 from io import StringIO
+from pathlib import Path
+from typing import Any
 
 import requests
 
@@ -14,15 +17,17 @@ and from Glottolog (language family). The final output is a JSON object with
 detailed information for each language.
 """
 
+CODE_TIERS_N_COLS = 3
+MORPHOLOGY_TYPES_N_COLS = 3
+FLORES_LANGUAGES_N_COLS = 4
+RESPONSE_SUCCESS_CODE = 200
+
+
 # Configure logging with date and time
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 
-def load_code_tiers(tsv_path):
+def load_code_tiers(tsv_path: Path) -> dict[str, int]:
     """Load language resource tiers from TSV file
 
     Note: One ISO code can have multiple glottocodes, but there is only one tier per ISO code.
@@ -30,12 +35,12 @@ def load_code_tiers(tsv_path):
 
     tiers = {}
 
-    with open(tsv_path, 'r', encoding='utf-8') as f:
-        reader = csv.reader(f, delimiter='\t')
+    with tsv_path.open("r", encoding="utf-8") as f:
+        reader = csv.reader(f, delimiter="\t")
         next(reader, None)  # Skip header row
 
         for row in reader:
-            if len(row) < 3:
+            if len(row) < CODE_TIERS_N_COLS:
                 continue
 
             iso_code = row[0].strip()
@@ -47,7 +52,7 @@ def load_code_tiers(tsv_path):
             # Only store tier if not already set (all entries for same ISO should have same tier)
             if iso_code not in tiers:
                 # Store tier, handling '?' as None and converting to int if possible
-                if tier == '?':
+                if tier == "?":
                     tiers[iso_code] = None
                 else:
                     try:
@@ -58,16 +63,16 @@ def load_code_tiers(tsv_path):
     return tiers
 
 
-def load_morphology_types(tsv_path):
+def load_morphology_types(tsv_path: Path) -> dict[str, str]:
     """Load morphology types from TSV file"""
 
     morphology = {}
 
-    with open(tsv_path, 'r', encoding='utf-8') as f:
-        reader = csv.reader(f, delimiter='\t')
+    with tsv_path.open("r", encoding="utf-8") as f:
+        reader = csv.reader(f, delimiter="\t")
 
         for row in reader:
-            if len(row) < 3:
+            if len(row) < MORPHOLOGY_TYPES_N_COLS:
                 continue
 
             iso_code = row[0].strip()
@@ -81,16 +86,16 @@ def load_morphology_types(tsv_path):
     return morphology
 
 
-def load_flores_languages(tsv_path):
+def load_flores_languages(tsv_path: Path) -> dict[str, dict[str, str | set]]:
     """Load languages from FLORES TSV file and group by language code"""
 
     languages = {}
 
-    with open(tsv_path, 'r', encoding='utf-8') as f:
-        reader = csv.reader(f, delimiter='\t')
+    with tsv_path.open("r", encoding="utf-8") as f:
+        reader = csv.reader(f, delimiter="\t")
 
         for row in reader:
-            if len(row) < 4:
+            if len(row) < FLORES_LANGUAGES_N_COLS:
                 continue
 
             iso_code = row[0].strip()
@@ -118,7 +123,7 @@ def load_flores_languages(tsv_path):
     return languages
 
 
-def get_wikidata_info(iso_codes):
+def get_wikidata_info(iso_codes: list[str]) -> list[str]:
     """Query Wikidata for language info using ISO 639-3 codes"""
 
     endpoint = "https://query.wikidata.org/sparql"
@@ -127,7 +132,7 @@ def get_wikidata_info(iso_codes):
     all_results = []
 
     for i in range(0, len(iso_codes), batch_size):
-        batch = iso_codes[i:i + batch_size]
+        batch = iso_codes[i : i + batch_size]
         values = " ".join([f'"{code}"' for code in batch])
 
         query = f"""
@@ -136,7 +141,7 @@ def get_wikidata_info(iso_codes):
           ?lang wdt:P220 ?iso .
 
           OPTIONAL {{ ?lang wdt:P1098 ?speakers . }}
-          OPTIONAL {{ 
+          OPTIONAL {{
             {{ ?lang wdt:P495 ?country . }} UNION {{ ?lang wdt:P17 ?country . }}
             ?country wdt:P30 ?continent .
           }}
@@ -151,23 +156,21 @@ def get_wikidata_info(iso_codes):
         """
 
         response = requests.get(
-            endpoint,
-            params={"query": query, "format": "json"},
-            headers={"User-Agent": "LanguageDataBot/1.0"}
+            endpoint, params={"query": query, "format": "json"}, headers={"User-Agent": "LanguageDataBot/1.0"}
         )
 
-        if response.status_code == 200:
+        if response.status_code == RESPONSE_SUCCESS_CODE:
             data = response.json()
             all_results.extend(data["results"]["bindings"])
         else:
-            logging.error(f"Error on batch {i}: {response.status_code}")
+            logging.error("Error on batch %i: %i", i, response.status_code)
 
         time.sleep(1)
 
     return all_results
 
 
-def get_glottolog_families(glottocodes):
+def get_glottolog_families(glottocodes: list[str]) -> dict[str, str | None]:
     """Query Glottolog API for language family information using glottocodes"""
 
     families = {}
@@ -181,7 +184,7 @@ def get_glottolog_families(glottocodes):
         try:
             response = requests.get(url, headers={"User-Agent": "LanguageDataBot/1.0"})
 
-            if response.status_code == 200:
+            if response.status_code == RESPONSE_SUCCESS_CODE:
                 data = response.json()
 
                 # Get the classification (family chain)
@@ -193,10 +196,10 @@ def get_glottolog_families(glottocodes):
                     # If no classification, it might be an isolate or top-level family
                     families[glottocode] = None
             else:
-                logging.error(f"Error fetching Glottolog data for {glottocode}: {response.status_code}")
+                logging.error("Error fetching Glottolog data for %s: %i", glottocode, response.status_code)
                 families[glottocode] = None
-        except Exception as e:
-            logging.error(f"Exception fetching Glottolog data for {glottocode}: {e}")
+        except Exception:
+            logging.exception("Exception fetching Glottolog data for %s:", glottocode)
             families[glottocode] = None
 
         time.sleep(0.1)  # Be nice to the API
@@ -204,7 +207,7 @@ def get_glottolog_families(glottocodes):
     return families
 
 
-def get_fineweb2_data():
+def get_fineweb2_data() -> dict[str, int | str | None]:
     """Download and parse Fine Web 2 language distribution data"""
 
     url = "https://raw.githubusercontent.com/huggingface/fineweb-2/refs/heads/main/fineweb2-language-distribution.csv"
@@ -213,8 +216,8 @@ def get_fineweb2_data():
         logging.info("Downloading Fine Web 2 language distribution data...")
         response = requests.get(url, headers={"User-Agent": "LanguageDataBot/1.0"})
 
-        if response.status_code != 200:
-            logging.error(f"Error downloading Fine Web 2 data: {response.status_code}")
+        if response.status_code != RESPONSE_SUCCESS_CODE:
+            logging.error("Error downloading Fine Web 2 data: %i", response.status_code)
             return {}
 
         # Parse CSV
@@ -225,41 +228,48 @@ def get_fineweb2_data():
         fineweb_data = {}
         for row in reader:
             # Skip if not in train split or if it's a removed subset
-            subset = row.get('subset', '')
-            if '_removed' in subset:
+            subset = row.get("subset", "")
+            if "_removed" in subset:
                 continue
 
-            split = row.get('split', '')
-            if split != 'train':
+            split = row.get("split", "")
+            if split != "train":
                 continue
 
-            code = row.get('code', '').strip()
-            script = row.get('script', '').strip()
+            code = row.get("code", "").strip()
+            script = row.get("script", "").strip()
 
             if not code or not script:
                 continue
 
             key = f"{code}_{script}"
 
-           # Store UTF-8 bytes count
+            # Store UTF-8 bytes count
             try:
-                fineweb_data[key] = int(row.get('utf8_bytes', 0))
+                fineweb_data[key] = int(row.get("utf8_bytes", 0))
             except (ValueError, TypeError):
                 # Skip if conversion fails
                 continue
 
         # Manually add eng_Latn (missing from CSV)
-        fineweb_data['eng_Latn'] = 200_000_000_000_000
+        fineweb_data["eng_Latn"] = 200_000_000_000_000
 
-        logging.info(f"Loaded Fine Web 2 data for {len(fineweb_data)} language-script combinations")
-        return fineweb_data
+        logging.info("Loaded Fine Web 2 data for %i language-script combinations", len(fineweb_data))
+        return fineweb_data  # noqa: TRY300
 
-    except Exception as e:
-        logging.error(f"Exception fetching Fine Web 2 data: {e}")
+    except Exception:
+        logging.exception("Exception fetching Fine Web 2 data:")
         return {}
 
 
-def merge_wikidata_info(languages, wikidata_results, glottolog_families, code_tiers, fineweb_data, morphology_types):
+def merge_wikidata_info(  # noqa: PLR0912
+    languages: dict[str, dict[str, str | set]],
+    wikidata_results: list[str],
+    glottolog_families: dict[str, str | None],
+    code_tiers: dict[str, int],
+    fineweb_data: dict[str, int | str | None],
+    morphology_types: dict[str, str],
+) -> dict[str, Any]:
     """Merge Wikidata, Glottolog, tier, and morphology information into language records"""
 
     for r in wikidata_results:
@@ -288,7 +298,7 @@ def merge_wikidata_info(languages, wikidata_results, glottolog_families, code_ti
                 pass
 
     # Add Glottolog family information for each glottocode
-    for iso, lang in languages.items():
+    for lang in languages.values():
         glottocodes = lang.get("glottocodes", set())
         families = set()
         for glottocode in glottocodes:
@@ -298,7 +308,7 @@ def merge_wikidata_info(languages, wikidata_results, glottolog_families, code_ti
                     families.add(family)
         if families:
             # Store as list if multiple families, single value if one, None if empty
-            lang["families"] = sorted(families) if len(families) > 1 else list(families)[0]
+            lang["families"] = sorted(families) if len(families) > 1 else next(iter(families))
 
     # Add tier information
     for iso, lang in languages.items():
@@ -356,18 +366,18 @@ def merge_wikidata_info(languages, wikidata_results, glottolog_families, code_ti
 if __name__ == "__main__":
     # Load languages from FLORES TSV
     logging.info("Loading languages from flores_languages.tsv...")
-    languages = load_flores_languages("../tokeval/resources/language/flores_languages.tsv")
-    logging.info(f"Loaded {len(languages)} unique languages")
+    languages = load_flores_languages(Path("tokeval/resources/language/flores_languages.tsv"))
+    logging.info("Loaded %i unique languages", len(languages))
 
     # Load code tiers
     logging.info("Loading language resource tiers from code_tiers.tsv...")
-    code_tiers = load_code_tiers("../tokeval/resources/language/code_tiers.tsv")
-    logging.info(f"Loaded tiers for {len(code_tiers)} languages")
+    code_tiers = load_code_tiers(Path("tokeval/resources/language/code_tiers.tsv"))
+    logging.info("Loaded tiers for %i languages", len(code_tiers))
 
     # Load morphology types
     logging.info("Loading morphology types from morphology.tsv...")
-    morphology_types = load_morphology_types("../tokeval/resources/language/morphology.tsv")
-    logging.info(f"Loaded morphology types for {len(morphology_types)} languages")
+    morphology_types = load_morphology_types(Path("tokeval/resources/language/morphology.tsv"))
+    logging.info("Loaded morphology types for %i languages", len(morphology_types))
 
     # Get Wikidata information
     logging.info("Querying Wikidata for additional information...")
@@ -389,7 +399,9 @@ if __name__ == "__main__":
 
     # Merge the data
     logging.info("Merging data...")
-    final_data = merge_wikidata_info(languages, wikidata_results, glottolog_families, code_tiers, fineweb_data, morphology_types)
+    final_data = merge_wikidata_info(
+        languages, wikidata_results, glottolog_families, code_tiers, fineweb_data, morphology_types
+    )
 
     # Output as JSON
-    print(json.dumps(final_data, indent=2, ensure_ascii=False))
+    print(json.dumps(final_data, indent=2, ensure_ascii=False))  # noqa: T201
