@@ -32,6 +32,7 @@ pythonpath = ["."]
 [tool.ruff]
 line-length = 120
 include = ["*.py", "*.pyi", "**/pyproject.toml", "*.ipynb"]
+exclude = ["scripts/*py"]  # we are not that strict with scripts/
 lint.select = [
   "F",    # https://docs.astral.sh/ruff/rules/#pyflakes-f
   "E",    # https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
