@@ -42,8 +42,9 @@ class TokEvalData:
             else:
                 logger.debug("Loading %s/{%s}.%s ...", system_label, ",".join(self.languages), self.file_suffix)
                 self._data[system_label] = {
-                    lang: load_tokenized_text_file(Path(self.data_dir, f"{system_label}/{lang}.{self.file_suffix}"))
-                    for lang in self.languages
+                    lang: load_tokenized_text_file(
+                        Path(self.data_dir, f"{system_label}", f"{lang}.{self.file_suffix}")
+                    ) for lang in self.languages
                 }
 
         if self.has_input_text:

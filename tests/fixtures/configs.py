@@ -13,7 +13,7 @@ def foo_config_file(config_dir, input_dir, output_dir, foo_system_output_tiny_mu
             "scorer": {
                 "input_dir": str(input_dir),
                 "output_dir": str(output_dir),
-                "systems": [".".join(path.stem.split(".")[:-1]) for path in foo_system_output_tiny_multilingual],
+                "systems": [str(path.parent).split("/")[-1] for path in foo_system_output_tiny_multilingual],
                 "languages": languages,
                 "file_suffix": "txt",
                 "metrics": [

@@ -44,8 +44,9 @@ def foo_system_output_tiny(input_dir, foo_text_tiny):
 def foo_system_output_tiny_multilingual(input_dir, foo_text_tiny, languages):
     """TODO"""
     paths = []
+    Path(input_dir, "system_multi_1").mkdir()
     for lang in languages:
-        paths.append(Path(input_dir, f"system_multi_1.{lang}.txt"))
+        paths.append(Path(input_dir, "system_multi_1", f"{lang}.txt"))
         with open_file(paths[-1], "w") as fh:
             print(foo_text_tiny, file=fh)
     return paths
@@ -53,9 +54,9 @@ def foo_system_output_tiny_multilingual(input_dir, foo_text_tiny, languages):
 
 @pytest.fixture(scope="session")
 def foo_dataset(input_dir, foo_system_output_tiny_multilingual, languages):
-    system_name = ".".join(foo_system_output_tiny_multilingual[0].name.split(".")[:-2])
+    system_name = str(foo_system_output_tiny_multilingual[0].parent).split("/")[-1]
     return {
         "data_dir": input_dir,
-        "systems": [system_name],
+        "systems": [str(path.parent).split("/")[-1] for path in foo_system_output_tiny_multilingual],
         "languages": languages,
     }

@@ -14,6 +14,8 @@ def foo_data(request, foo_text_tiny, tmp_path_factory):
     """TODO"""
 
     def create_file(file_path, text):  # noqa: ANN202
+        if not file_path.parent.exists():
+            file_path.parent.mkdir(parents=True)
         with open_file(file_path, "w") as fh:
             print(text, file=fh)
 
@@ -35,8 +37,8 @@ def foo_data(request, foo_text_tiny, tmp_path_factory):
         elif "multi" in request.param:
             data["languages"] = LANGUAGES
             for lang in LANGUAGES:
-                data["filenames"].append(f"{system}.{lang}." + data["file_suffix"])
-                create_file(Path(data["input_dir"], data["filenames"][-1]), foo_text_tiny)
+                data["filenames"].append(f"{lang}." + data["file_suffix"])
+                create_file(Path(data["input_dir"], f"{system}", data["filenames"][-1]), foo_text_tiny)
         else:
             pytest.fail(f"Unknown system label ({request.param}).")
 
