@@ -103,7 +103,7 @@ class TokEvalScorer:
                 continue
             if param.name == "languages_info":
                 if getattr(self.config.scorer, param.name, None) is not None:
-                    path = Path(getattr(self.config, param.name))
+                    path = Path(getattr(self.config.scorer, param.name))
                     self.languages_info = json.load(path.open("r", encoding="utf-8"))
                 continue
             if hasattr(self.config.scorer, param.name):

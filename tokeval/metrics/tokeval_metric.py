@@ -127,7 +127,7 @@ class TokEvalMetric:
         res = np.zeros(shape=[len(systems), len(languages)])
         for i, system_label in enumerate(systems):
             for j, lang in enumerate(languages):
-                logger.debug("[%s] Scoring system %s (%lang)...", self.metric_label, system_label, lang)
+                logger.debug("[%s] Scoring system %s (%s)...", self.metric_label, system_label, lang)
                 res[i, j] = self.score(data=data, system_label=system_label, language=lang)
         return res
 

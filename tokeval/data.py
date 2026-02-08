@@ -40,9 +40,9 @@ class TokEvalData:
                 logger.debug("Loading %s ...", filename)
                 self._data[system_label] = load_tokenized_text_file(Path(self.data_dir, filename))
             else:
-                logger.debug("Loading %s.{%s}.%s ...", system_label, ",".join(self.languages), self.file_suffix)
+                logger.debug("Loading %s/{%s}.%s ...", system_label, ",".join(self.languages), self.file_suffix)
                 self._data[system_label] = {
-                    lang: load_tokenized_text_file(Path(self.data_dir, f"{system_label}.{lang}.{self.file_suffix}"))
+                    lang: load_tokenized_text_file(Path(self.data_dir, f"{system_label}/{lang}.{self.file_suffix}"))
                     for lang in self.languages
                 }
 
@@ -61,29 +61,29 @@ class TokEvalData:
             for lang in self.languages:
                 lang_split = lang.split("_")
                 assert len(lang_split) == LANG_SPEC_LEN
-                if lang[0] not in self.languages_info:
+                if lang_split[0] not in self.languages_info:
                     logger.exception(
                         "Language %s not in the provided languages_info JSON file.\nAvailable languages: [%s]",
-                        lang,
+                        lang_split[0],
                         ",".join(self.languages_info.keys()),
                     )
-                if lang[1] not in self.languages_info[lang[0]]["scripts"]:
+                if lang_split[1] not in self.languages_info[lang_split[0]]["scripts"]:
                     logger.exception(
                         "Script %s of language %s not listed in the languages_info JSON file.\n"
                         "langages_info['%s'] = %s",
-                        lang[1],
-                        lang[0],
-                        lang[0],
-                        self.languages_info[lang[0]],
+                        lang_split[1],
+                        lang_split[0],
+                        lang_split[0],
+                        self.languages_info[lang_split[0]],
                     )
-                if lang[2] not in self.languages_info[lang[0]]["glottocodes"]:
+                if lang_split[2] not in self.languages_info[lang_split[0]]["glottocodes"]:
                     logger.exception(
                         "Glottocode %s of language %s not listed in the languages_info JSON file.\n"
                         "langages_info['%s'] = %s",
-                        lang[2],
-                        lang[0],
-                        lang[0],
-                        self.languages_info[lang[0]],
+                        lang_split[2],
+                        lang_split[0],
+                        lang_split[0],
+                        self.languages_info[lang_split[0]],
                     )
 
     @property
