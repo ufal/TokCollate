@@ -38,6 +38,7 @@ const App: React.FC = () => {
       // Metrics are now plain JS arrays (not npyjs objects), so we need to wrap them
       const metadata = data.metadata;
       const npzData = data.npzData;
+      const languagesInfo = data.languagesInfo;
       
       datasetName = metadata.dataset_name || 'Unknown';
       availableTokenizers = metadata.tokenizers || [];
@@ -141,6 +142,7 @@ const App: React.FC = () => {
           tokenizers: availableTokenizers,
           languages: availableLanguages,
           metrics: availableMetrics,
+          languagesInfo: languagesInfo,
         },
       };
     } else if (data?.metadata) {
@@ -284,6 +286,7 @@ const App: React.FC = () => {
             availableMetrics={state.availableMetrics}
             availableLanguages={state.availableLanguages}
             metricDimensionality={state.metricDimensionality}
+            languagesInfo={state.data?.metadata?.languagesInfo || {}}
           />
         </div>
       </div>

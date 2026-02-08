@@ -22,6 +22,7 @@ export interface VisualizationData {
     tokenizers?: string[];
     languages?: string[];
     metrics?: string[];
+    languagesInfo?: Record<string, any>;
   };
 }
 
