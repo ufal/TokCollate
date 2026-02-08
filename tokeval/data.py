@@ -14,6 +14,27 @@ LANG_SPEC_LEN = 3
 
 
 @define(kw_only=True)
+class LanguageInfo(dict):
+    """TODO"""
+
+    name: str = field(validator=validators.instance_of(str))
+    scripts: list[str] = field(validator=validators.instance_of(list))
+    glottocodes: list[str] = field(validator=validators.instance_of(list))
+    families: str = field(validator=validators.instance_of(str))
+    speakers: int = field(validator=validators.instance_of(int))
+    continent: str = field(validator=validators.instance_of(str))
+    wikipedia: str = field(validator=validators.instance_of(str))
+    tier: int = field(validator=validators.instance_of(int))
+    morphology: str = field(validator=validators.instance_of(str))
+    fineweb2: dict[str, int] = field(validator=validators.optional(validators.instance_of(dict)))
+
+    @classmethod
+    def create_entry(cls: "LanguageInfo", entry: dict) -> "LanguageInfo":
+        """TODO"""
+        return cls(**entry)
+
+
+@define(kw_only=True)
 class TokEvalData:
     """TODO"""
 
@@ -42,9 +63,8 @@ class TokEvalData:
             else:
                 logger.debug("Loading %s/{%s}.%s ...", system_label, ",".join(self.languages), self.file_suffix)
                 self._data[system_label] = {
-                    lang: load_tokenized_text_file(
-                        Path(self.data_dir, f"{system_label}", f"{lang}.{self.file_suffix}")
-                    ) for lang in self.languages
+                    lang: load_tokenized_text_file(Path(self.data_dir, f"{system_label}", f"{lang}.{self.file_suffix}"))
+                    for lang in self.languages
                 }
 
         if self.has_input_text:

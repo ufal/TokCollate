@@ -8,7 +8,7 @@ import numpy as np
 from attrs import converters, define, field, fields, validators
 from omegaconf import DictConfig
 
-from tokeval.data import TokEvalData
+from tokeval.data import LanguageInfo, TokEvalData
 from tokeval.metrics import TokEvalMetric, build_metric
 
 logger = logging.getLogger(__name__)
@@ -104,7 +104,10 @@ class TokEvalScorer:
             if param.name == "languages_info":
                 if getattr(self.config.scorer, param.name, None) is not None:
                     path = Path(getattr(self.config.scorer, param.name))
-                    self.languages_info = json.load(path.open("r", encoding="utf-8"))
+                    self.languages_info = {
+                        lang: LanguageInfo.create_entry(entry)
+                        for lang, entry in json.load(path.open("r", encoding="utf-8")).items()
+                    }
                 continue
             if hasattr(self.config.scorer, param.name):
                 setattr(self, param.name, getattr(self.config.scorer, param.name))

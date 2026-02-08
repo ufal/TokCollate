@@ -54,7 +54,6 @@ def foo_system_output_tiny_multilingual(input_dir, foo_text_tiny, languages):
 
 @pytest.fixture(scope="session")
 def foo_dataset(input_dir, foo_system_output_tiny_multilingual, languages):
-    system_name = str(foo_system_output_tiny_multilingual[0].parent).split("/")[-1]
     return {
         "data_dir": input_dir,
         "systems": [str(path.parent).split("/")[-1] for path in foo_system_output_tiny_multilingual],
