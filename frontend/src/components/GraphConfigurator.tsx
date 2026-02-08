@@ -38,6 +38,8 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
   const [morphologyFilter, setMorphologyFilter] = useState<string[]>([]);
   const [tierFilter, setTierFilter] = useState<string>('');
   const [lockFilters, setLockFilters] = useState<boolean>(false);
+  const [speakerOp, setSpeakerOp] = useState<'>=' | '<=' | ''>('>=');
+  const [speakerVal, setSpeakerVal] = useState<string>('');
 
   // Derive filter option values from languagesInfo
   const getLanguageInfo = React.useCallback((lang: string) => {
@@ -111,6 +113,40 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
   const allMorphology = React.useMemo(() => getCategoryList('morphology', true), [getCategoryList]);
 
   const allTiers = React.useMemo(() => getCategoryList('tier', false), [getCategoryList]);
+
+  const buildLanguageTooltip = React.useCallback((label: string): string => {
+    try {
+      const parts = label.split('_');
+      const base = parts.length >= 3 ? parts.slice(0, parts.length - 2).join('_') : label;
+      const info = getLanguageInfo(base) || {};
+
+      const toList = (val: any): string => {
+        if (!val) return '';
+        if (Array.isArray(val)) return val.join(', ');
+        if (typeof val === 'object') return Object.keys(val).join(', ');
+        return String(val);
+      };
+
+      const rows: string[] = [];
+      rows.push(`Language: ${base}`);
+      if (info.continent) rows.push(`Continent: ${info.continent}`);
+      const fam = toList(info.families);
+      if (fam) rows.push(`Families: ${fam}`);
+      const fw = toList(info.fineweb2);
+      if (fw) rows.push(`Fineweb2: ${fw}`);
+      const gc = toList(info.glottocodes);
+      if (gc) rows.push(`Glottocodes: ${gc}`);
+      const morph = toList(info.morphology);
+      if (morph) rows.push(`Morphology: ${morph}`);
+      if (info.tier !== undefined) rows.push(`Tier: ${String(info.tier)}`);
+      if (info.speaker !== undefined) rows.push(`Speakers: ${String(info.speaker)}`);
+      else if (info.speakers !== undefined) rows.push(`Speakers: ${String(info.speakers)}`);
+
+      return rows.join('\n');
+    } catch (e) {
+      return label;
+    }
+  }, [getLanguageInfo]);
 
   const languageMatchesFilters = (lang: string): boolean => {
     const parseLabel = (label: string): { base: string; finewebKey?: string; glottocode?: string } => {
@@ -198,12 +234,30 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       const tv = typeof t === 'number' || typeof t === 'boolean' ? String(t) : (typeof t === 'string' ? t : '');
       if (tv !== tierFilter) return false;
     }
+    // speaker threshold
+    const hasSpeakerFilter = speakerOp !== '' && speakerVal.trim() !== '';
+    if (hasSpeakerFilter) {
+      const raw = info?.speaker !== undefined ? info.speaker : info?.speakers;
+      let n: number | null = null;
+      if (typeof raw === 'number') n = raw;
+      else if (typeof raw === 'string') {
+        const parsed = parseFloat(raw.replace(/[,\s]/g, ''));
+        if (!Number.isNaN(parsed)) n = parsed; else n = null;
+      }
+      const thr = parseFloat(speakerVal);
+      if (n === null || Number.isNaN(thr)) return false;
+      if (speakerOp === '>=') {
+        if (!(n >= thr)) return false;
+      } else if (speakerOp === '<=') {
+        if (!(n <= thr)) return false;
+      }
+    }
     return true;
   };
 
   // Auto-select matching languages when filters are active (disabled when locked)
   React.useEffect(() => {
-    const anyFilterActive = Boolean(continentFilter) || familyFilter.length > 0 || fineweb2Filter.length > 0 || glottocodeFilter.length > 0 || morphologyFilter.length > 0 || Boolean(tierFilter);
+    const anyFilterActive = Boolean(continentFilter) || familyFilter.length > 0 || fineweb2Filter.length > 0 || glottocodeFilter.length > 0 || morphologyFilter.length > 0 || Boolean(tierFilter) || (speakerOp !== '' && speakerVal.trim() !== '');
     if (!anyFilterActive || lockFilters) return;
     const matches = availableLanguages.filter(languageMatchesFilters);
     const current = config.languages || [];
@@ -219,7 +273,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       setConfig(newConfig);
       validateConfig(newConfig);
     }
-  }, [continentFilter, familyFilter, fineweb2Filter, glottocodeFilter, morphologyFilter, tierFilter, availableLanguages, lockFilters]);
+  }, [continentFilter, familyFilter, fineweb2Filter, glottocodeFilter, morphologyFilter, tierFilter, speakerOp, speakerVal, availableLanguages, lockFilters]);
 
   const currentGraphType = getGraphType(config.typeId || 'metric-pair-correlation');
 
@@ -279,7 +333,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     setConfig(newConfig);
 
     // If filters are active and manual selection deviates from matches, clear filters
-    const anyFilterActive = Boolean(continentFilter) || familyFilter.length > 0 || fineweb2Filter.length > 0 || glottocodeFilter.length > 0 || morphologyFilter.length > 0 || Boolean(tierFilter);
+    const anyFilterActive = Boolean(continentFilter) || familyFilter.length > 0 || fineweb2Filter.length > 0 || glottocodeFilter.length > 0 || morphologyFilter.length > 0 || Boolean(tierFilter) || (speakerOp !== '' && speakerVal.trim() !== '');
     if (anyFilterActive && !lockFilters) {
       const matches = availableLanguages.filter(languageMatchesFilters);
       const arraysEqualSet = (a: string[], b: string[]): boolean => {
@@ -296,6 +350,8 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
         setGlottocodeFilter([]);
         setMorphologyFilter([]);
         setTierFilter('');
+        setSpeakerOp('>=');
+        setSpeakerVal('');
       }
     }
 
@@ -625,7 +681,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
               {availableLanguages.map((l) => {
                 const match = languageMatchesFilters(l);
                 return (
-                  <option key={l} value={l}>
+                  <option key={l} value={l} title={buildLanguageTooltip(l)}>
                     {l}{match ? ' ✓' : ''}
                   </option>
                 );
@@ -689,6 +745,16 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <span>Speakers:</span>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <select value={speakerOp} onChange={(e) => setSpeakerOp(e.target.value as any)} style={{ width: '70px' }}>
+                    <option value=">=">≥</option>
+                    <option value="<=">≤</option>
+                  </select>
+                  <input type="number" inputMode="numeric" min="0" step="any" value={speakerVal} onChange={(e) => setSpeakerVal(e.target.value)} placeholder="threshold" />
+                </div>
               </div>
             </div>
             <div style={{ marginTop: '6px' }}>
