@@ -28,29 +28,33 @@ import json
 import numpy as np
 import sys
 import math
+import os
 
 def convert_array_safe(arr):
-    """Convert numpy array to list, replacing NaN/Inf with None"""
-    if not isinstance(arr, np.ndarray):
-        return arr
-    
-    arr_list = arr.tolist()
-    
-    def replace_special_floats(obj):
-      if isinstance(obj, float):
-        if math.isnan(obj):
-          return 'NaN'
-        if math.isinf(obj):
-          return 'Infinity' if obj > 0 else '-Infinity'
-        elif isinstance(obj, list):
-            return [replace_special_floats(item) for item in obj]
-        elif isinstance(obj, dict):
-            return {k: replace_special_floats(v) for k, v in obj.items()}
-        return obj
-    
-    return replace_special_floats(arr_list)
+  """Convert numpy array to list, replacing NaN/Inf with JSON-safe strings, with recursion."""
+  if not isinstance(arr, np.ndarray):
+    return arr
+
+  arr_list = arr.tolist()
+
+  def replace_special_floats(obj):
+    if isinstance(obj, float):
+      if math.isnan(obj):
+        return 'NaN'
+      if math.isinf(obj):
+        return 'Infinity' if obj > 0 else '-Infinity'
+      return obj
+    elif isinstance(obj, list):
+      return [replace_special_floats(item) for item in obj]
+    elif isinstance(obj, dict):
+      return {k: replace_special_floats(v) for k, v in obj.items()}
+    else:
+      return obj
+
+  return replace_special_floats(arr_list)
 
 npz_path = sys.argv[1]
+out_json_path = sys.argv[2] if len(sys.argv) > 2 else None
 try:
     data = np.load(npz_path, allow_pickle=True)
 except Exception as e:
@@ -65,31 +69,49 @@ try:
         
         # Handle object arrays (like pickled metrics dict)
         if arr.dtype == object:
-            if arr.shape == ():
-                # Scalar object array - extract the item
-                obj = arr.item()
-                if isinstance(obj, dict):
-                    # Convert each nested array to list
-                    for k, v in obj.items():
-                        if isinstance(v, np.ndarray):
-                            # Convert array safely, replacing NaN/Inf with None
-                            result[k] = convert_array_safe(v)
-                        elif isinstance(v, (float, np.floating)):
-                          if math.isnan(v):
-                            result[k] = 'NaN'
-                          elif math.isinf(v):
-                            result[k] = 'Infinity' if v > 0 else '-Infinity'
-                          else:
-                            result[k] = float(v)
-                        elif isinstance(v, (int, np.integer)):
-                            result[k] = int(v)
-                        else:
-                            result[k] = v
+          if arr.shape == ():
+            # Scalar object array - extract the item
+            obj = arr.item()
+            if isinstance(obj, dict):
+              # Convert each nested array to list and flatten into top-level keys
+              for k, v in obj.items():
+                if isinstance(v, np.ndarray):
+                  result[k] = convert_array_safe(v)
+                elif isinstance(v, (float, np.floating)):
+                  if math.isnan(v):
+                    result[k] = 'NaN'
+                  elif math.isinf(v):
+                    result[k] = 'Infinity' if v > 0 else '-Infinity'
+                  else:
+                    result[k] = float(v)
+                elif isinstance(v, (int, np.integer)):
+                  result[k] = int(v)
                 else:
-                    result[key] = str(obj)
+                  result[k] = v
             else:
-                # Array of objects - try to convert
-                result[key] = convert_array_safe(arr)
+              result[key] = str(obj)
+          else:
+            # Array of objects - attempt to flatten if it's a single dict container
+            arr_list = arr.tolist()
+            if isinstance(arr_list, list) and len(arr_list) == 1 and isinstance(arr_list[0], dict):
+              obj = arr_list[0]
+              for k, v in obj.items():
+                if isinstance(v, np.ndarray):
+                  result[k] = convert_array_safe(v)
+                elif isinstance(v, (float, np.floating)):
+                  if math.isnan(v):
+                    result[k] = 'NaN'
+                  elif math.isinf(v):
+                    result[k] = 'Infinity' if v > 0 else '-Infinity'
+                  else:
+                    result[k] = float(v)
+                elif isinstance(v, (int, np.integer)):
+                  result[k] = int(v)
+                else:
+                  result[k] = v
+            else:
+              # Fallback: convert to JSON-safe structure under the original key
+              result[key] = convert_array_safe(arr)
         else:
             # Regular numeric array - convert to list safely
             result[key] = convert_array_safe(arr)
@@ -100,26 +122,51 @@ except Exception as e:
     print(json.dumps({"__error__": f"Error processing NPZ data: {str(e)}"}))
     sys.exit(0)
 
-# Use standard json.dumps which will handle None values correctly
-print(json.dumps(result))
+payload = json.dumps(result)
+if out_json_path:
+    try:
+        with open(out_json_path, 'w', encoding='utf-8') as f:
+            f.write(payload)
+    except Exception as e:
+        print(json.dumps({"__error__": f"Failed to write output JSON: {str(e)}"}))
+else:
+    # Fallback to stdout (may be large)
+    print(payload)
 `;
     
     const tempFile = path.join('/tmp', 'npz_parser_' + Date.now() + '.py');
     fs.writeFileSync(tempFile, pythonScript);
+    const tempJson = path.join('/tmp', 'npz_output_' + Date.now() + '.json');
     
     try {
       const pythonPath = '/home/varis/python-virtualenv/tokeval-py3.12/bin/python3';
-      const output = execSync(`"${pythonPath}" "${tempFile}" "${filePath}" 2>&1`, { encoding: 'utf-8', maxBuffer: 50 * 1024 * 1024 });
-      
+      // Use execFileSync to avoid shell and write output to a temp file to
+      // prevent stdout buffer overflows with large NPZ payloads.
+      const { execFileSync } = require('child_process');
+      execFileSync(pythonPath, [tempFile, filePath, tempJson], { stdio: 'pipe', maxBuffer: 100 * 1024 * 1024 });
+
+      // Read the JSON from the temp file
+      let content = '';
+      try {
+        content = fs.readFileSync(tempJson, { encoding: 'utf-8' });
+      } catch (readErr) {
+        // If reading failed, try to capture any stdout output as a fallback
+        console.warn('[NPZ Parser] Failed to read temp JSON, falling back to stdout');
+        const fallback = execSync(`"${pythonPath}" "${tempFile}" "${filePath}" 2>&1`, { encoding: 'utf-8', maxBuffer: 100 * 1024 * 1024 });
+        content = fallback;
+      }
+
+      // Cleanup temp files
       try { fs.unlinkSync(tempFile); } catch (ignore) {}
-      
-      // Parse the JSON output
+      try { fs.unlinkSync(tempJson); } catch (ignore) {}
+
+      // Parse the JSON content
       let result;
       try {
-        result = JSON.parse(output);
+        result = JSON.parse(content);
       } catch (parseError) {
         console.error('[NPZ Parser] Failed to parse Python output as JSON');
-        console.error('[NPZ Parser] Output:', output.substring(0, 500));
+        console.error('[NPZ Parser] Output (truncated):', content.substring(0, 500));
         throw new Error(`Invalid JSON from Python: ${parseError.message}`);
       }
       
@@ -131,6 +178,7 @@ print(json.dumps(result))
       return result;
     } catch (e) {
       try { fs.unlinkSync(tempFile); } catch (ignore) {}
+      try { fs.unlinkSync(tempJson); } catch (ignore) {}
       const errorMsg = e.message || e.toString();
       console.error('[NPZ Parser] Error:', errorMsg);
       throw new Error(errorMsg);

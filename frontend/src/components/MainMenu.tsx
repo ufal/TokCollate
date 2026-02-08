@@ -49,6 +49,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
     // Find metadata.json and results.npz in the selected files
     let metadataFile: File | null = null;
     let resultsFile: File | null = null;
+    let languagesInfoFile: File | null = null;
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -58,6 +59,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
         metadataFile = file;
       } else if (name === 'results.npz') {
         resultsFile = file;
+      } else if (name === 'languages_info.json' || name === 'language_info.json') {
+        languagesInfoFile = file;
       }
     }
 
@@ -78,6 +81,19 @@ const MainMenu: React.FC<MainMenuProps> = ({
       const metadataText = await metadataFile.text();
       const metadata = JSON.parse(metadataText);
       console.log('[MainMenu] ✓ Loaded metadata.json');
+
+      // Optionally load languages_info.json
+      let languagesInfo: any = undefined;
+      if (languagesInfoFile) {
+        try {
+          console.log('[MainMenu] Reading languages_info.json');
+          const langInfoText = await languagesInfoFile.text();
+          languagesInfo = JSON.parse(langInfoText);
+          console.log('[MainMenu] ✓ Loaded languages_info.json');
+        } catch (e) {
+          console.warn('[MainMenu] Failed to parse languages_info.json (continuing without it):', e);
+        }
+      }
 
       // Load results.npz - send to backend for deserialization
       console.log('[MainMenu] Reading results.npz');
@@ -114,14 +130,23 @@ const MainMenu: React.FC<MainMenuProps> = ({
       console.log('[MainMenu] NPZ metrics:', Object.keys(npzData || {}).filter(k => k !== 'correlation'));
 
       // Create visualization data with metadata and NPZ data
-      const visualizationData = {
+      const visualizationData: any = {
         metadata,
         npzData,
       };
+      if (languagesInfo) {
+        visualizationData.languagesInfo = languagesInfo;
+      }
 
       console.log('[MainMenu] ✓ All files loaded successfully');
       onLoadVisualization(visualizationData);
-      window.alert('✓ Successfully loaded:\n  • metadata.json\n  • results.npz\n\nClick on the Dataset Name to start creating figures.');
+      window.alert(
+        '✓ Successfully loaded:\n' +
+        '  • metadata.json\n' +
+        '  • results.npz' +
+        (languagesInfoFile ? '\n  • languages_info.json' : '') +
+        '\n\nClick on the Dataset Name to start creating figures.'
+      );
 
       // Reset the input
       if (dirInputRef.current) {
