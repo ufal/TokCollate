@@ -4,7 +4,7 @@ import MainMenu from './MainMenu';
 import GraphList from './GraphList';
 import GraphConfigurator from './GraphConfigurator';
 import './App.css';
-import { exportAllGraphs } from '../utils/fileUtils';
+import { exportGraphAsPNG } from '../utils/fileUtils';
 
 const App: React.FC = () => {
 
@@ -232,12 +232,21 @@ const App: React.FC = () => {
     }));
   };
 
-  const handleExportGraphs = async () => {
-    const figuresForExport = state.figures.map((figure) => ({
-      id: figure.id,
-      filename: figure.typeId,
-    }));
-    await exportAllGraphs(figuresForExport as any);
+  const handleExportGraph = async () => {
+    const figure = state.figures[0];
+    if (!figure) {
+      alert('No figure to export. Configure a figure first.');
+      return;
+    }
+    const elementId = `graph-${figure.id}`;
+    const baseName = `${state.datasetName || 'dataset'}-${figure.typeId}`.replace(/[^a-z0-9-_]/gi, '_');
+    const filename = `${baseName}.png`;
+    try {
+      await exportGraphAsPNG(elementId, filename);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      alert(`Export failed: ${msg}`);
+    }
   };
 
   return (
@@ -245,7 +254,7 @@ const App: React.FC = () => {
       <MainMenu
         onLoadVisualization={handleLoadVisualization}
         onSaveVisualization={handleSaveVisualization}
-        onExportGraphs={handleExportGraphs}
+        onExportGraph={handleExportGraph}
         datasetName={state.datasetName}
       />
       {importStatus && (

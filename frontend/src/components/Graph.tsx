@@ -264,8 +264,8 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
       : [];
 
     return (
-      <ResponsiveContainer width="100%" height={400}>
-        <ComposedChart margin={{ top: 20, right: 30, left: 60, bottom: 60 }}>
+      <ResponsiveContainer width="100%" height={420}>
+        <ComposedChart margin={{ top: 20, right: 30, left: 60, bottom: 90 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
             type="number" 
@@ -296,7 +296,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
               return null;
             }}
           />
-          <Legend />
+          <Legend verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: 10 }} />
           {trend && (
             <Line
               type="linear"

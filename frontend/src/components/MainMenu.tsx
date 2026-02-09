@@ -4,14 +4,14 @@ import './MainMenu.css';
 interface MainMenuProps {
   onLoadVisualization: (data: any) => void;
   onSaveVisualization: () => void;
-  onExportGraphs?: () => void;
+  onExportGraph?: () => void;
   datasetName: string;
 }
 
 const MainMenu: React.FC<MainMenuProps> = ({
   onLoadVisualization,
   onSaveVisualization,
-  onExportGraphs,
+  onExportGraph,
   datasetName,
 }) => {
   const dirInputRef = useRef<HTMLInputElement>(null);
@@ -149,8 +149,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
         <button className="menu-button" onClick={handleImportDataClick}>
           Import Data
         </button>
-        <button className="menu-button" onClick={onExportGraphs} disabled={!onExportGraphs}>
-          Export graphs
+        <button className="menu-button" onClick={onExportGraph} disabled={!onExportGraph}>
+          Export Graph
         </button>
         <div className="dataset-selector">
           <label>Dataset Name:</label>
