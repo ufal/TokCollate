@@ -4,7 +4,7 @@ import MainMenu from './MainMenu';
 import GraphList from './GraphList';
 import GraphConfigurator from './GraphConfigurator';
 import './App.css';
-import { exportAllGraphs } from '../utils/fileUtils';
+import { exportGraphAsPNG } from '../utils/fileUtils';
 
 const App: React.FC = () => {
 
@@ -218,17 +218,10 @@ const App: React.FC = () => {
     }
   };
 
-  const handleAddFigure = (figureConfig: FigureConfig) => {
+  const handleUpdateFigure = (figureConfig: FigureConfig) => {
     setState((prev) => ({
       ...prev,
-      figures: [...prev.figures, figureConfig],
-    }));
-  };
-
-  const handleRemoveFigure = (figureId: string) => {
-    setState((prev) => ({
-      ...prev,
-      figures: prev.figures.filter((f) => f.id !== figureId),
+      figures: [figureConfig],
     }));
   };
 
@@ -239,12 +232,21 @@ const App: React.FC = () => {
     }));
   };
 
-  const handleExportGraphs = async () => {
-    const figuresForExport = state.figures.map((figure) => ({
-      id: figure.id,
-      title: figure.title,
-    }));
-    await exportAllGraphs(figuresForExport);
+  const handleExportGraph = async () => {
+    const figure = state.figures[0];
+    if (!figure) {
+      alert('No figure to export. Configure a figure first.');
+      return;
+    }
+    const elementId = `graph-${figure.id}`;
+    const baseName = `${state.datasetName || 'dataset'}-${figure.typeId}`.replace(/[^a-z0-9-_]/gi, '_');
+    const filename = `${baseName}.png`;
+    try {
+      await exportGraphAsPNG(elementId, filename);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      alert(`Export failed: ${msg}`);
+    }
   };
 
   return (
@@ -252,7 +254,7 @@ const App: React.FC = () => {
       <MainMenu
         onLoadVisualization={handleLoadVisualization}
         onSaveVisualization={handleSaveVisualization}
-        onExportGraphs={handleExportGraphs}
+        onExportGraph={handleExportGraph}
         datasetName={state.datasetName}
       />
       {importStatus && (
@@ -274,14 +276,13 @@ const App: React.FC = () => {
       <div className="content">
         <div className="graph-list-container">
           <GraphList
-            figures={state.figures}
+            figure={state.figures[0]}
             data={state.data}
-            onRemoveFigure={handleRemoveFigure}
           />
         </div>
         <div className="configurator-container">
           <GraphConfigurator
-            onAddFigure={handleAddFigure}
+            onUpdateFigure={handleUpdateFigure}
             availableTokenizers={state.availableTokenizers}
             availableMetrics={state.availableMetrics}
             availableLanguages={state.availableLanguages}

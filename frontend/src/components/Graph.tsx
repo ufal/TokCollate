@@ -12,6 +12,9 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceLine,
+  ComposedChart,
+  Line,
 } from 'recharts';
 import './Graph.css';
 
@@ -169,9 +172,100 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
     const metricX = metrics[0];
     const metricY = metrics[1];
 
+    const groupBy = config.groupBy || 'tokenizer';
+
+    const getLanguageInfoForLabel = (label: string): any => {
+      const parts = label.split('_');
+      const base = parts.length >= 3 ? parts.slice(0, parts.length - 2).join('_') : label;
+      const glottocode = parts.length >= 3 ? parts[parts.length - 1] : undefined;
+      const root: any = data?.metadata?.languagesInfo || {};
+      const direct = root.languages && root.languages[base] ? root.languages[base]
+        : (root[base] ? root[base] : null);
+      if (direct) return direct;
+      if (glottocode) {
+        const entries: Array<{ key: string; info: any }> = root.languages && typeof root.languages === 'object'
+          ? Object.keys(root.languages).map((k) => ({ key: k, info: root.languages[k] }))
+          : Object.keys(root).map((k) => ({ key: k, info: root[k] }));
+        for (const { info } of entries) {
+          const gc = info?.glottocodes;
+          if (typeof gc === 'string' && gc === glottocode) return info;
+          if (Array.isArray(gc) && gc.includes(glottocode)) return info;
+          if (gc && typeof gc === 'object' && Object.keys(gc).includes(glottocode)) return info;
+        }
+      }
+      return null;
+    };
+
+    const getFamilyForLanguage = (label: string): string => {
+      const info = getLanguageInfoForLabel(label);
+      if (!info) return 'unknown';
+      const fam = info.families;
+      if (Array.isArray(fam)) return fam[0] || 'unknown';
+      if (fam && typeof fam === 'object') {
+        const keys = Object.keys(fam);
+        return keys[0] || 'unknown';
+      }
+      if (typeof fam === 'string') return fam || 'unknown';
+      return 'unknown';
+    };
+
+    const groupKeyForPoint = (pt: any): string => {
+      if (groupBy === 'tokenizer') return pt.tokenizer || 'unknown';
+      if (groupBy === 'language') return pt.language || 'unknown';
+      if (groupBy === 'family') return getFamilyForLanguage(pt.language || '');
+      return 'unknown';
+    };
+
+    // Partition chartData into groups
+    const groupsMap: Map<string, any[]> = new Map();
+    (Array.isArray(chartData) ? chartData : []).forEach((pt) => {
+      const key = groupKeyForPoint(pt);
+      if (!groupsMap.has(key)) groupsMap.set(key, []);
+      groupsMap.get(key)!.push(pt);
+    });
+    const groupNames = Array.from(groupsMap.keys());
+
+    const allPoints: any[] = (Array.isArray(chartData) ? chartData : []).filter((pt) => {
+      const x = pt[metricX];
+      const y = pt[metricY];
+      return typeof x === 'number' && typeof y === 'number' && !Number.isNaN(x) && !Number.isNaN(y) && isFinite(x) && isFinite(y);
+    });
+
+    const computeTrend = (pts: any[]): { m: number; b: number; minX: number; maxX: number } | null => {
+      if (!pts || pts.length < 2) return null;
+      let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+      let minX = Infinity, maxX = -Infinity;
+      for (const p of pts) {
+        const x = p[metricX];
+        const y = p[metricY];
+        sumX += x;
+        sumY += y;
+        sumXY += x * y;
+        sumXX += x * x;
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+      }
+      const n = pts.length;
+      const denom = (n * sumXX - sumX * sumX);
+      if (denom === 0) return null;
+      const m = (n * sumXY - sumX * sumY) / denom;
+      const b = (sumY - m * sumX) / n;
+      return { m, b, minX, maxX };
+    };
+
+    const trend = config.showTrendline ? computeTrend(allPoints) : null;
+
+    // Use ComposedChart to overlay a line on scatter
+    const trendData = trend
+      ? [
+          { [metricX]: trend.minX, [metricY]: trend.m * trend.minX + trend.b },
+          { [metricX]: trend.maxX, [metricY]: trend.m * trend.maxX + trend.b },
+        ]
+      : [];
+
     return (
-      <ResponsiveContainer width="100%" height={400}>
-        <ScatterChart margin={{ top: 20, right: 30, left: 60, bottom: 60 }}>
+      <ResponsiveContainer width="100%" height={420}>
+        <ComposedChart margin={{ top: 20, right: 30, left: 60, bottom: 90 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
             type="number" 
@@ -202,13 +296,29 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
               return null;
             }}
           />
-          <Scatter 
-            name="Metric Pair Correlation" 
-            data={chartData} 
-            fill="#8884d8"
-            isAnimationActive={false}
-          />
-        </ScatterChart>
+          <Legend verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: 10 }} />
+          {trend && (
+            <Line
+              type="linear"
+              data={trendData}
+              dataKey={metricY}
+              name="Trend"
+              stroke="#444"
+              strokeDasharray="4 2"
+              dot={false}
+              isAnimationActive={false}
+            />
+          )}
+          {groupNames.map((name, idx) => (
+            <Scatter
+              key={name}
+              name={name}
+              data={groupsMap.get(name)!}
+              fill={getColorForMetric(idx)}
+              isAnimationActive={false}
+            />
+          ))}
+        </ComposedChart>
       </ResponsiveContainer>
     );
   };

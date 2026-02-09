@@ -29,11 +29,12 @@ export interface VisualizationData {
 export interface FigureConfig {
   id: string;
   typeId: string; // 'scatter-metric-correlation', 'metrics-table', etc.
-  title: string;
   tokenizers: string[];
   languages: string[];
   metrics: string[];
   filters?: Record<string, any>;
+  groupBy?: 'tokenizer' | 'language' | 'family';
+  showTrendline?: boolean;
 }
 
 export interface MetricDimensionality {
