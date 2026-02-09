@@ -34,6 +34,8 @@ export interface FigureConfig {
   languages: string[];
   metrics: string[];
   filters?: Record<string, any>;
+  groupBy?: 'tokenizer' | 'language' | 'family';
+  showTrendline?: boolean;
 }
 
 export interface MetricDimensionality {

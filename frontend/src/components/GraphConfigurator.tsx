@@ -324,6 +324,13 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     validateConfig(newConfig);
   };
 
+  const handleGroupByChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const groupBy = e.target.value as 'tokenizer' | 'language' | 'family';
+    const newConfig = { ...config, groupBy };
+    setConfig(newConfig);
+    validateConfig(newConfig);
+  };
+
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
     const newConfig = {
@@ -414,6 +421,8 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       languages: config.languages || [],
       metrics: config.metrics || [],
       filters: {},
+      groupBy: (config as any).groupBy || 'tokenizer',
+      showTrendline: Boolean((config as any).showTrendline),
     };
 
     console.log('Adding figure:', newFigure);
@@ -427,6 +436,8 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       tokenizers: [],
       languages: [],
       metrics: [],
+      groupBy: 'tokenizer',
+      showTrendline: false,
     });
     setValidationErrors([]);
   };
@@ -624,6 +635,28 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                   </option>
                 ))}
               </select>
+              <div style={{ marginTop: '8px' }}>
+                <label>Color by:</label>
+                <select value={config.groupBy || 'tokenizer'} onChange={handleGroupByChange} className="single-select">
+                  <option value="tokenizer">Tokenizer</option>
+                  <option value="language">Language</option>
+                  <option value="family">Language family</option>
+                </select>
+              </div>
+              <div style={{ marginTop: '8px' }}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={Boolean(config.showTrendline)}
+                    onChange={(e) => {
+                      const newConfig = { ...config, showTrendline: e.target.checked };
+                      setConfig(newConfig);
+                      validateConfig(newConfig);
+                    }}
+                  />{' '}
+                  Show trendline
+                </label>
+              </div>
             </div>
           ) : config.typeId !== 'metric-table' && (
             <div className="config-section">
