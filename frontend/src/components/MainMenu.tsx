@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { loadMetricsFile, loadMetadata } from '../utils/fileUtils';
 import './MainMenu.css';
 
 interface MainMenuProps {
@@ -15,29 +14,11 @@ const MainMenu: React.FC<MainMenuProps> = ({
   onExportGraphs,
   datasetName,
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const dirInputRef = useRef<HTMLInputElement>(null);
-
-  const handleLoadClick = () => {
-    fileInputRef.current?.click();
-  };
 
   const handleImportDataClick = () => {
     // Trigger the directory picker
     dirInputRef.current?.click();
-  };
-
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      try {
-        const data = await loadMetricsFile(file);
-        onLoadVisualization(data);
-      } catch (error) {
-        alert('Failed to load file. Make sure it\'s a valid JSON file.');
-        console.error(error);
-      }
-    }
   };
 
   const handleDirectorySelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,8 +54,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
       return;
     }
 
-    console.log('[MainMenu] Loading from selected directory');
-    
     try {
       // Load metadata.json
       console.log('[MainMenu] Reading metadata.json');
@@ -102,10 +81,10 @@ const MainMenu: React.FC<MainMenuProps> = ({
 
       // Send NPZ to backend for parsing (handles pickled objects)
       console.log('[MainMenu] Sending NPZ to backend for parsing...');
-      const backendURL = process.env.NODE_ENV === 'production' 
-        ? '/api/parse-npz' 
+      const backendURL = process.env.NODE_ENV === 'production'
+        ? '/api/parse-npz'
         : 'http://localhost:5000/api/parse-npz';
-      
+
       const parseResponse = await fetch(backendURL, {
         method: 'POST',
         headers: {
@@ -156,7 +135,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
       console.error('[MainMenu] Error loading data:', error);
       const errorMsg = error instanceof Error ? error.message : String(error);
       window.alert(errorMsg);
-      
+
       // Reset the input
       if (dirInputRef.current) {
         dirInputRef.current.value = '';
@@ -167,14 +146,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
   return (
     <div className="main-menu">
       <div className="menu-buttons">
-        <button className="menu-button" onClick={handleLoadClick}>
-          Load
-        </button>
         <button className="menu-button" onClick={handleImportDataClick}>
           Import Data
-        </button>
-        <button className="menu-button" onClick={onSaveVisualization}>
-          Save
         </button>
         <button className="menu-button" onClick={onExportGraphs} disabled={!onExportGraphs}>
           Export graphs
@@ -184,13 +157,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
           <span className="dataset-display">{datasetName}</span>
         </div>
       </div>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".json,.npz"
-        onChange={handleFileSelect}
-        style={{ display: 'none' }}
-      />
       <input
         ref={dirInputRef}
         type="file"
