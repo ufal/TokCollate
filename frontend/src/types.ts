@@ -29,7 +29,6 @@ export interface VisualizationData {
 export interface FigureConfig {
   id: string;
   typeId: string; // 'scatter-metric-correlation', 'metrics-table', etc.
-  title: string;
   tokenizers: string[];
   languages: string[];
   metrics: string[];

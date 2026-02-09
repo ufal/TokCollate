@@ -282,7 +282,7 @@ export const exportGraphAsPNG = async (
  * Creates a list of exports and triggers download
  */
 export const exportAllGraphs = async (
-  graphs: Array<{ id: string; title: string }>
+  graphs: Array<{ id: string; filename?: string }>
 ): Promise<void> => {
   if (graphs.length === 0) {
     alert('No graphs to export');
@@ -291,7 +291,9 @@ export const exportAllGraphs = async (
 
   try {
     for (const graph of graphs) {
-      const filename = `${graph.title.replace(/[^a-z0-9]/gi, '_')}.png`;
+      const base = graph.filename || graph.id || 'graph';
+      const safe = String(base).replace(/[^a-z0-9]/gi, '_');
+      const filename = `${safe}.png`;
       await exportGraphAsPNG(graph.id, filename);
       // Add small delay between exports to avoid browser throttling
       await new Promise((resolve) => setTimeout(resolve, 500));

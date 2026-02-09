@@ -4,7 +4,7 @@ import { getAvailableGraphTypes, getGraphType } from '../utils/graphTypes';
 import './GraphConfigurator.css';
 
 interface GraphConfiguratorProps {
-  onAddFigure: (config: FigureConfig) => void;
+  onUpdateFigure: (config: FigureConfig) => void;
   availableTokenizers: string[];
   availableMetrics: string[];
   availableLanguages: string[];
@@ -13,7 +13,7 @@ interface GraphConfiguratorProps {
 }
 
 const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
-  onAddFigure,
+  onUpdateFigure,
   availableTokenizers,
   availableMetrics,
   availableLanguages,
@@ -23,7 +23,6 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
   const graphTypes = getAvailableGraphTypes();
   const [config, setConfig] = useState<Partial<FigureConfig>>({
     typeId: '',
-    title: 'New Figure',
     tokenizers: [],
     languages: [],
     metrics: [],
@@ -275,7 +274,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     }
   }, [continentFilter, familyFilter, fineweb2Filter, glottocodeFilter, morphologyFilter, tierFilter, speakerOp, speakerVal, availableLanguages, lockFilters]);
 
-  const currentGraphType = getGraphType(config.typeId || 'metric-pair-correlation');
+  const currentGraphType = getGraphType(config.typeId || 'bar-ranking-correlation');
 
   // Re-validate whenever available options change (e.g., new data loaded)
   React.useEffect(() => {
@@ -288,14 +287,63 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
   }, [availableTokenizers, availableMetrics, availableLanguages]);
 
   const handleGraphTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setConfig((prev) => ({
-      ...prev,
-      typeId: e.target.value,
-      tokenizers: [],
-      languages: [],
-      metrics: [],
-    }));
+    const newTypeId = e.target.value;
+
+    const gt = getGraphType(newTypeId);
+
+    const filterMetricsForType = (typeId: string): string[] => {
+      const t = getGraphType(typeId);
+      if (!t) return availableMetrics;
+      if (t.typeId === 'metric-table') {
+        return availableMetrics.filter((m) => metricDimensionality[m] === 2 || metricDimensionality[m] === 3);
+      }
+      const dim = t.constraints.metrics.dimension;
+      if (!dim || dim === 'both') return availableMetrics;
+      return availableMetrics.filter((m) => metricDimensionality[m] === dim);
+    };
+
+    const filteredMetrics = filterMetricsForType(newTypeId);
+
+    const pickAllOrFirstN = (items: string[], max: number | undefined): string[] => {
+      if (items.length === 0) return [];
+      if (max === undefined || max >= items.length) return items.slice();
+      return items.slice(0, Math.max(0, max));
+    };
+
+    // Defaults for tokenizers and languages: select-all where possible, else up to max
+    const defaultTokenizers = pickAllOrFirstN(availableTokenizers, gt?.constraints.tokenizers.max);
+    const defaultLanguages = pickAllOrFirstN(availableLanguages, gt?.constraints.languages.max);
+
+    // Defaults for metrics depend on graph type and constraints
+    let defaultMetrics: string[] = [];
+    if (newTypeId === 'metric-pair-correlation') {
+      // Choose first for X, second for Y
+      if (filteredMetrics.length >= 2) {
+        defaultMetrics = [filteredMetrics[0], filteredMetrics[1]];
+      } else if (filteredMetrics.length === 1) {
+        defaultMetrics = [filteredMetrics[0]];
+      } else {
+        defaultMetrics = [];
+      }
+    } else if (newTypeId === 'metric-table') {
+      // Single metric: first compatible
+      defaultMetrics = filteredMetrics.length > 0 ? [filteredMetrics[0]] : [];
+    } else {
+      // Select-all where possible, otherwise select up to 'max'
+      defaultMetrics = pickAllOrFirstN(filteredMetrics, gt?.constraints.metrics.max);
+    }
+
+    const newConfig = {
+      ...config,
+      typeId: newTypeId,
+      tokenizers: defaultTokenizers,
+      languages: defaultLanguages,
+      metrics: defaultMetrics,
+    };
+
+    setConfig(newConfig);
     setValidationErrors([]);
+    validateConfig(newConfig);
   };
 
   const handleTokenizerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -386,61 +434,23 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     }, metricDimensionality);
 
     setValidationErrors(validation.errors);
-  }, [metricDimensionality]);
 
-  const handleGenerateGraph = () => {
-    if (!currentGraphType) {
-      alert('Please select a graph type.');
-      return;
+    if (validation.valid) {
+      const newFigure: FigureConfig = {
+        id: 'active-figure',
+        typeId: cfg.typeId || 'bar-ranking-correlation',
+        tokenizers: cfg.tokenizers || [],
+        languages: cfg.languages || [],
+        metrics: cfg.metrics || [],
+        filters: {},
+        groupBy: (cfg as any).groupBy || 'tokenizer',
+        showTrendline: Boolean((cfg as any).showTrendline),
+      };
+      onUpdateFigure(newFigure);
     }
+  }, [metricDimensionality, onUpdateFigure]);
 
-    console.log('Generate graph clicked with config:', {
-      metrics: config.metrics,
-      tokenizers: config.tokenizers,
-      languages: config.languages,
-    });
-
-    const validation = currentGraphType.validate({
-      metrics: config.metrics || [],
-      tokenizers: config.tokenizers || [],
-      languages: config.languages || [],
-    }, metricDimensionality);
-
-    console.log('Validation result:', validation);
-
-    if (!validation.valid) {
-      setValidationErrors(validation.errors);
-      return;
-    }
-
-    const newFigure: FigureConfig = {
-      id: `graph-${Date.now()}`,
-      typeId: config.typeId || 'bar-ranking-correlation',
-      title: config.title || 'New Figure',
-      tokenizers: config.tokenizers || [],
-      languages: config.languages || [],
-      metrics: config.metrics || [],
-      filters: {},
-      groupBy: (config as any).groupBy || 'tokenizer',
-      showTrendline: Boolean((config as any).showTrendline),
-    };
-
-    console.log('Adding figure:', newFigure);
-
-    onAddFigure(newFigure);
-
-    // Reset form
-    setConfig({
-      typeId: 'bar-ranking-correlation',
-      title: 'New Figure',
-      tokenizers: [],
-      languages: [],
-      metrics: [],
-      groupBy: 'tokenizer',
-      showTrendline: false,
-    });
-    setValidationErrors([]);
-  };
+  // Live-update: no generate button; updates are emitted from validateConfig
 
   const getConstraintLabel = (label: string, min: number, max: number): string => {
     if (min === max) {
@@ -484,20 +494,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     return '';
   };
 
-  const handleGenerateGraphClick = () => {
-    console.log('Graph generation clicked');
-    console.log('Current selections:', {
-      typeId: config.typeId,
-      title: config.title,
-      metrics: config.metrics,
-      tokenizers: config.tokenizers,
-      languages: config.languages,
-      availableMetrics: availableMetrics.length,
-      availableTokenizers: availableTokenizers.length,
-      availableLanguages: availableLanguages.length,
-    });
-    handleGenerateGraph();
-  };
+  // Removed Generate Figure button handler
 
   return (
     <div className="graph-configurator">
@@ -528,16 +525,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
 
       {config.typeId && currentGraphType && (
         <>
-          
-          <div className="config-section">
-            <label>Graph Title:</label>
-            <input
-              type="text"
-              value={config.title || ''}
-              onChange={(e) => setConfig((prev) => ({ ...prev, title: e.target.value }))}
-              placeholder="Enter graph title"
-            />
-          </div>
+
 
           {config.typeId === 'metric-table' && (
             <div className="config-section">
@@ -812,13 +800,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
             </div>
           )}
 
-          <button
-            className="generate-btn"
-            onClick={handleGenerateGraphClick}
-            disabled={validationErrors.length > 0}
-          >
-            Generate Figure
-          </button>
+          {/* Generate Figure button removed; figure updates automatically */}
         </>
       )}
     </div>

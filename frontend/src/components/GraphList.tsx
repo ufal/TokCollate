@@ -4,57 +4,35 @@ import Graph from './Graph';
 import './GraphList.css';
 
 interface GraphListProps {
-  figures: FigureConfig[];
+  figure?: FigureConfig;
   data: VisualizationData | null;
-  onRemoveFigure: (figureId: string) => void;
 }
 
-const GraphList: React.FC<GraphListProps> = ({
-  figures,
-  data,
-  onRemoveFigure,
-}) => {
+const GraphList: React.FC<GraphListProps> = ({ figure, data }) => {
   React.useEffect(() => {
     console.log('[GraphList] Data:', {
       dataAvailable: !!data,
       metricsCount: data?.metrics ? Object.keys(data.metrics).length : 0,
-      figuresCount: figures.length,
+      hasFigure: !!figure,
     });
-  }, [data, figures]);
+  }, [data, figure]);
 
   return (
     <div className="graph-list">
-      <h2>Visualizations</h2>
-      {figures.length === 0 ? (
+      {!figure ? (
         <div className="empty-state">
-          <p>No visualizations added yet. Use the configurator on the right to add visualizations.</p>
+          <p>No figure yet. Use the configurator to build one.</p>
         </div>
       ) : (
         <div className="graphs-container">
-          {figures.map((figure) => {
-            console.log(`[GraphList] Rendering figure ${figure.id}:`, figure);
-            return (
-              <div key={figure.id} className="graph-item">
-                <div className="graph-header">
-                  <h3>{figure.title}</h3>
-                  <button
-                    className="remove-btn"
-                    onClick={() => onRemoveFigure(figure.id)}
-                  >
-                    ✕
-                  </button>
-                </div>
-                {data ? (
-                  <Graph
-                    config={figure}
-                    data={data}
-                  />
-                ) : (
-                  <div className="no-data">No data loaded</div>
-                )}
-              </div>
-            );
-          })}
+          <div className="graph-item">
+            {/* Title removed; rendering only the graph */}
+            {data ? (
+              <Graph config={figure} data={data} />
+            ) : (
+              <div className="no-data">No data loaded</div>
+            )}
+          </div>
         </div>
       )}
     </div>

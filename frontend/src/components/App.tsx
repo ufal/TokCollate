@@ -218,17 +218,10 @@ const App: React.FC = () => {
     }
   };
 
-  const handleAddFigure = (figureConfig: FigureConfig) => {
+  const handleUpdateFigure = (figureConfig: FigureConfig) => {
     setState((prev) => ({
       ...prev,
-      figures: [...prev.figures, figureConfig],
-    }));
-  };
-
-  const handleRemoveFigure = (figureId: string) => {
-    setState((prev) => ({
-      ...prev,
-      figures: prev.figures.filter((f) => f.id !== figureId),
+      figures: [figureConfig],
     }));
   };
 
@@ -242,9 +235,9 @@ const App: React.FC = () => {
   const handleExportGraphs = async () => {
     const figuresForExport = state.figures.map((figure) => ({
       id: figure.id,
-      title: figure.title,
+      filename: figure.typeId,
     }));
-    await exportAllGraphs(figuresForExport);
+    await exportAllGraphs(figuresForExport as any);
   };
 
   return (
@@ -274,14 +267,13 @@ const App: React.FC = () => {
       <div className="content">
         <div className="graph-list-container">
           <GraphList
-            figures={state.figures}
+            figure={state.figures[0]}
             data={state.data}
-            onRemoveFigure={handleRemoveFigure}
           />
         </div>
         <div className="configurator-container">
           <GraphConfigurator
-            onAddFigure={handleAddFigure}
+            onUpdateFigure={handleUpdateFigure}
             availableTokenizers={state.availableTokenizers}
             availableMetrics={state.availableMetrics}
             availableLanguages={state.availableLanguages}
