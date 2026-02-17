@@ -86,8 +86,8 @@ The application will open at `http://localhost:3000` in your default browser.
 
 ### Loading Data
 
-1. Click the **Load** button in the top menu
-2. Select a JSON file containing TokEval results (with `metrics` and `correlation` fields)
+1. Click the **Import Data** button in the top menu
+2. Select a directory containing TokEval results
 3. The available tokenizers, metrics, and languages will be extracted automatically
 
 ### Creating Visualizations
