@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import Any
 
 from attrs import converters, define, field, validators
 
@@ -20,11 +19,11 @@ class LanguageInfo(dict):
     name: str = field(validator=validators.instance_of(str))
     scripts: list[str] = field(validator=validators.instance_of(list))
     glottocodes: list[str] = field(validator=validators.instance_of(list))
-    families: str = field(validator=validators.instance_of(str))
-    speakers: int = field(validator=validators.instance_of(int))
-    continent: str = field(validator=validators.instance_of(str))
-    wikipedia: str = field(validator=validators.instance_of(str))
-    tier: int = field(validator=validators.instance_of(int))
+    families: str = field(validator=validators.optional(validators.instance_of(str)))
+    speakers: int = field(validator=validators.optional(validators.instance_of(int)))
+    continent: str = field(validator=validators.optional(validators.instance_of(str)))
+    wikipedia: str = field(validator=validators.optional(validators.instance_of(str)))
+    tier: int = field(validator=validators.optional(validators.instance_of(int)))
     morphology: str = field(validator=validators.instance_of(str))
     fineweb2: dict[str, int] = field(validator=validators.optional(validators.instance_of(dict)))
 
@@ -41,7 +40,9 @@ class TokEvalData:
     data_dir: Path = field(converter=Path)
     systems: list[str] = field(converter=converters.optional(list), factory=list)
     languages: list[str] = field(converter=converters.optional(list), factory=list)
-    languages_info: dict[str, Any] = field(validator=validators.optional(validators.instance_of(dict)), default=None)
+    languages_info: dict[str, LanguageInfo] = field(
+        validator=validators.optional(validators.instance_of(dict)), default=None
+    )
     metrics: list["TokEvalMetric"] = field(factory=list)  # noqa: F821
     file_suffix: str = field(validator=validators.instance_of(str), default="txt")
     input_file_stem: str = field(validator=validators.instance_of(str), default="input")
