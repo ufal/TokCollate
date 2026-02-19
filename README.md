@@ -1,4 +1,4 @@
-# TokEval
+# 🍫 TokCollate 🍫
 
 A tokenization evaluation suite with interactive visualization that allows quick comparison of tokenizers across languages.
 
@@ -40,8 +40,9 @@ Launch the interactive web interface to explore your results:
 
 ```bash
 cd frontend
-npm install  # First time only
-npm run dev
+npm install  # Install dependencies (First time only)
+npm run build  # Build for production
+npm run start  # Run the visualization server
 ```
 
 The visualization interface will open at `http://localhost:3000`. From there:
