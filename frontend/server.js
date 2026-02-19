@@ -10,7 +10,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -139,10 +139,20 @@ else:
     const tempJson = path.join('/tmp', 'npz_output_' + Date.now() + '.json');
     
     try {
-      const pythonPath = '/home/varis/python-virtualenv/tokeval-py3.12/bin/python3';
+      // Determine Python executable path from environment, falling back to `which python3`
+      // and finally to plain 'python3' on PATH.
+      let pythonPath = process.env.TOKEVAL_PYTHON;
+      if (!pythonPath) {
+        try {
+          pythonPath = execSync('which python3', { encoding: 'utf-8' }).trim();
+        } catch (e) {
+          console.warn('[NPZ Parser] Could not locate python3 via `which`; falling back to "python3" on PATH.');
+          pythonPath = 'python3';
+        }
+      }
+
       // Use execFileSync to avoid shell and write output to a temp file to
       // prevent stdout buffer overflows with large NPZ payloads.
-      const { execFileSync } = require('child_process');
       execFileSync(pythonPath, [tempFile, filePath, tempJson], { stdio: 'pipe', maxBuffer: 100 * 1024 * 1024 });
 
       // Read the JSON from the temp file
