@@ -117,3 +117,28 @@
 .generate-btn:active {
   transform: translateY(1px);
 }
+
+.validation-errors {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid #e67e22;
+  background-color: #fff8f2;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.validation-errors strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #d35400;
+}
+
+.validation-errors ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.validation-errors li {
+  margin-bottom: 0.15rem;
+}

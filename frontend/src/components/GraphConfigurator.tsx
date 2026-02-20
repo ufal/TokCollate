@@ -536,6 +536,17 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
         )}
       </div>
 
+      {validationErrors.length > 0 && (
+        <div className="validation-errors">
+          <strong>Configuration Issues:</strong>
+          <ul>
+            {validationErrors.map((error, i) => (
+              <li key={i}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {config.typeId && currentGraphType && (
         <>
 
@@ -804,18 +815,6 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
               {availableLanguages.filter(languageMatchesFilters).length} match / {availableLanguages.length} total
             </div>
           </div>
-
-          {validationErrors.length > 0 && (
-            <div className="validation-errors">
-              <strong>Configuration Issues:</strong>
-              <ul>
-                {validationErrors.map((error, i) => (
-                  <li key={i}>{error}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
           {/* Generate Figure button removed; figure updates automatically */}
         </>
       )}
