@@ -34,7 +34,10 @@ export interface FigureConfig {
   metrics: string[];
   filters?: Record<string, any>;
   groupBy?: 'tokenizer' | 'language' | 'family';
+  // Deprecated boolean flag kept for backward compatibility
   showTrendline?: boolean;
+  // New, more expressive trendline mode
+  trendlineMode?: 'none' | 'global' | 'groups';
 }
 
 export interface MetricDimensionality {

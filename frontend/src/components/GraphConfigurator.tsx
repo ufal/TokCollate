@@ -26,6 +26,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     tokenizers: [],
     languages: [],
     metrics: [],
+    trendlineMode: 'none',
   });
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
@@ -435,6 +436,16 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
 
     setValidationErrors(validation.errors);
 
+    // Determine trendline mode, with backward compatibility for old boolean flag
+    const rawTrendlineMode = (cfg as any).trendlineMode;
+    let trendlineMode: 'none' | 'global' | 'groups' = 'none';
+    if (rawTrendlineMode === 'global' || rawTrendlineMode === 'groups' || rawTrendlineMode === 'none') {
+      trendlineMode = rawTrendlineMode;
+    } else if ((cfg as any).showTrendline) {
+      // Legacy configs with boolean showTrendline => treat as global trendline
+      trendlineMode = 'global';
+    }
+
     if (validation.valid) {
       const newFigure: FigureConfig = {
         id: 'active-figure',
@@ -444,7 +455,9 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
         metrics: cfg.metrics || [],
         filters: {},
         groupBy: (cfg as any).groupBy || 'tokenizer',
-        showTrendline: Boolean((cfg as any).showTrendline),
+        trendlineMode,
+        // Keep boolean flag in sync for any legacy consumers
+        showTrendline: trendlineMode !== 'none',
       };
       onUpdateFigure(newFigure);
     }
@@ -632,18 +645,21 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                 </select>
               </div>
               <div style={{ marginTop: '8px' }}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={Boolean(config.showTrendline)}
-                    onChange={(e) => {
-                      const newConfig = { ...config, showTrendline: e.target.checked };
-                      setConfig(newConfig);
-                      validateConfig(newConfig);
-                    }}
-                  />{' '}
-                  Show trendline
-                </label>
+                <label>Trendline:</label>
+                <select
+                  value={(config as any).trendlineMode || ((config as any).showTrendline ? 'global' : 'none')}
+                  onChange={(e) => {
+                    const mode = e.target.value as 'none' | 'global' | 'groups';
+                    const newConfig = { ...config, trendlineMode: mode };
+                    setConfig(newConfig);
+                    validateConfig(newConfig);
+                  }}
+                  className="single-select"
+                >
+                  <option value="none">None</option>
+                  <option value="global">Global</option>
+                  <option value="groups">Groups</option>
+                </select>
               </div>
             </div>
           ) : config.typeId !== 'metric-table' && (

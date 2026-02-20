@@ -225,11 +225,13 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
     });
     const groupNames = Array.from(groupsMap.keys());
 
-    const allPoints: any[] = (Array.isArray(chartData) ? chartData : []).filter((pt) => {
+    const isValidPoint = (pt: any): boolean => {
       const x = pt[metricX];
       const y = pt[metricY];
       return typeof x === 'number' && typeof y === 'number' && !Number.isNaN(x) && !Number.isNaN(y) && isFinite(x) && isFinite(y);
-    });
+    };
+
+    const allPoints: any[] = (Array.isArray(chartData) ? chartData : []).filter(isValidPoint);
 
     const computeTrend = (pts: any[]): { m: number; b: number; minX: number; maxX: number } | null => {
       if (!pts || pts.length < 2) return null;
@@ -253,15 +255,41 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
       return { m, b, minX, maxX };
     };
 
-    const trend = config.showTrendline ? computeTrend(allPoints) : null;
+    const trendlineMode: 'none' | 'global' | 'groups' =
+      (config as any).trendlineMode || (config.showTrendline ? 'global' : 'none');
 
-    // Use ComposedChart to overlay a line on scatter
-    const trendData = trend
-      ? [
-          { [metricX]: trend.minX, [metricY]: trend.m * trend.minX + trend.b },
-          { [metricX]: trend.maxX, [metricY]: trend.m * trend.maxX + trend.b },
-        ]
-      : [];
+    const buildTrendData = (trend: { m: number; b: number; minX: number; maxX: number }) => ([
+      { [metricX]: trend.minX, [metricY]: trend.m * trend.minX + trend.b },
+      { [metricX]: trend.maxX, [metricY]: trend.m * trend.maxX + trend.b },
+    ]);
+
+    type TrendLineDef = { key: string; name: string; color: string; data: any[] };
+    const trendLines: TrendLineDef[] = [];
+
+    if (trendlineMode === 'global') {
+      const trend = computeTrend(allPoints);
+      if (trend) {
+        trendLines.push({
+          key: 'global-trend',
+          name: 'Trend (global)',
+          color: '#444',
+          data: buildTrendData(trend),
+        });
+      }
+    } else if (trendlineMode === 'groups') {
+      groupNames.forEach((name, idx) => {
+        const groupPts = (groupsMap.get(name) || []).filter(isValidPoint);
+        const trend = computeTrend(groupPts);
+        if (trend) {
+          trendLines.push({
+            key: `trend-${name}`,
+            name: `${name} trend`,
+            color: getColorForMetric(idx),
+            data: buildTrendData(trend),
+          });
+        }
+      });
+    }
 
     return (
       <ResponsiveContainer width="100%" height={420}>
@@ -297,18 +325,19 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
             }}
           />
           <Legend verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: 10 }} />
-          {trend && (
+          {trendLines.map((t) => (
             <Line
+              key={t.key}
               type="linear"
-              data={trendData}
+              data={t.data}
               dataKey={metricY}
-              name="Trend"
-              stroke="#444"
+              name={t.name}
+              stroke={t.color}
               strokeDasharray="4 2"
               dot={false}
               isAnimationActive={false}
             />
-          )}
+          ))}
           {groupNames.map((name, idx) => (
             <Scatter
               key={name}
