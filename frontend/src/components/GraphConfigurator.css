@@ -142,3 +142,20 @@
 .validation-errors li {
   margin-bottom: 0.15rem;
 }
+
+.clear-filters-btn {
+  margin-top: 0.35rem;
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #f7f7f7;
+  color: #555;
+  font-size: 12px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.clear-filters-btn:hover {
+  background-color: #eee;
+}

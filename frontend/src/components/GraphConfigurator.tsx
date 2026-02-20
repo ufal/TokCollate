@@ -424,6 +424,17 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     validateConfig(newConfig);
   };
 
+  const handleClearLanguageFilters = () => {
+    setContinentFilter('');
+    setFamilyFilter([]);
+    setFineweb2Filter([]);
+    setGlottocodeFilter([]);
+    setMorphologyFilter([]);
+    setTierFilter('');
+    setSpeakerOp('>=');
+    setSpeakerVal('');
+  };
+
   const validateConfig = React.useCallback((cfg: Partial<FigureConfig>) => {
     const gt = getGraphType(cfg.typeId || 'bar-ranking-correlation');
     if (!gt) return;
@@ -446,21 +457,24 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       trendlineMode = 'global';
     }
 
-    if (validation.valid) {
-      const newFigure: FigureConfig = {
-        id: 'active-figure',
-        typeId: cfg.typeId || 'bar-ranking-correlation',
-        tokenizers: cfg.tokenizers || [],
-        languages: cfg.languages || [],
-        metrics: cfg.metrics || [],
-        filters: {},
-        groupBy: (cfg as any).groupBy || 'tokenizer',
-        trendlineMode,
-        // Keep boolean flag in sync for any legacy consumers
-        showTrendline: trendlineMode !== 'none',
-      };
-      onUpdateFigure(newFigure);
-    }
+    const newFigure: FigureConfig = {
+      id: 'active-figure',
+      typeId: cfg.typeId || 'bar-ranking-correlation',
+      tokenizers: cfg.tokenizers || [],
+      languages: cfg.languages || [],
+      metrics: cfg.metrics || [],
+      filters: {},
+      groupBy: (cfg as any).groupBy || 'tokenizer',
+      trendlineMode,
+      // Keep boolean flag in sync for any legacy consumers
+      showTrendline: trendlineMode !== 'none',
+    };
+
+    // Always propagate the current configuration to the active figure.
+    // When invalid, graph transformers typically return no data, which clears
+    // any previously rendered datapoints while the "Configuration Issues"
+    // panel explains what needs to be fixed.
+    onUpdateFigure(newFigure);
   }, [metricDimensionality, onUpdateFigure]);
 
   // Live-update: no generate button; updates are emitted from validateConfig
@@ -743,6 +757,13 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
           {/* Language Filters section (moved after Languages selector) */}
           <div className="config-section">
             <label>Language Filters:</label>
+            <button
+              type="button"
+              className="clear-filters-btn"
+              onClick={handleClearLanguageFilters}
+            >
+              Clear Filters
+            </button>
             <div className="filters-grid">
               <div>
                 <span>Continent:</span>
