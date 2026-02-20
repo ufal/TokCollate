@@ -124,6 +124,39 @@ export class MetricPairCorrelationGraphType extends GraphType {
     languages: { min: 1, max: Infinity },
   };
 
+  /**
+   * Custom validation: both metrics must have the same dimensionality
+   * and must be either 2D or 3D, since the correlation scatter only
+   * supports matrix- or tensor-like metrics.
+   */
+  override validate(config: VisualizationConfig, metricDimensionality: MetricDimensionality): ValidationResult {
+    const base = super.validate(config, metricDimensionality);
+    const errors = [...base.errors];
+
+    if (config.metrics.length === 2) {
+      const [mX, mY] = config.metrics;
+      const dimX = metricDimensionality[mX];
+      const dimY = metricDimensionality[mY];
+
+      const allowedDims: Array<1 | 2 | 3> = [2, 3];
+      const invalid: string[] = [];
+      if (!allowedDims.includes(dimX as any)) invalid.push(`${mX} (${dimX ?? 'unknown'}D)`);
+      if (!allowedDims.includes(dimY as any)) invalid.push(`${mY} (${dimY ?? 'unknown'}D)`);
+
+      if (invalid.length > 0) {
+        errors.push(
+          `Metric Pair Correlation supports only 2D or 3D metrics, but got: ${invalid.join(', ')}`,
+        );
+      } else if (dimX !== dimY) {
+        errors.push(
+          `Cannot compare metrics of different dimensionality: ${mX} is ${dimX}D, ${mY} is ${dimY}D.`,
+        );
+      }
+    }
+
+    return { valid: errors.length === 0, errors };
+  }
+
   transform(data: VisualizationData, config: VisualizationConfig): any[] {
     if (!config.metrics || config.metrics.length !== 2) {
       console.error('Metric Pair Correlation requires exactly 2 metrics (X and Y axes)');
