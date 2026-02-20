@@ -23,6 +23,36 @@ interface GraphProps {
   data: VisualizationData;
 }
 
+const ScatterTooltip: React.FC<{ active?: boolean; payload?: any[]; metricX: string; metricY: string }> = ({
+  active,
+  payload,
+  metricX,
+  metricY,
+}) => {
+  if (!active || !payload || payload.length === 0) return null;
+
+  const pt = payload[0]?.payload || {};
+  const hasLanguagePair = pt.languagePair !== undefined && pt.languagePair !== null;
+  const languageLabel = hasLanguagePair ? pt.languagePair : pt.language;
+  const languageTitle = hasLanguagePair ? 'Language pair' : 'Language';
+
+  const xVal = pt[metricX];
+  const yVal = pt[metricY];
+
+  const formatVal = (v: any) => (typeof v === 'number' ? v.toFixed(2) : v);
+
+  return (
+    <div style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '5px' }}>
+      <p><strong>Tokenizer: {pt.tokenizer ?? 'N/A'}</strong></p>
+      {languageLabel !== undefined && (
+        <p>{languageTitle}: {languageLabel}</p>
+      )}
+      <p>{metricX}: {formatVal(xVal)}</p>
+      <p>{metricY}: {formatVal(yVal)}</p>
+    </div>
+  );
+};
+
 const Graph: React.FC<GraphProps> = ({ config, data }) => {
   const graphType = getGraphType(config.typeId);
 
@@ -309,20 +339,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
           />
           <Tooltip 
             cursor={{ strokeDasharray: '3 3' }}
-            content={({ payload }) => {
-              if (payload && payload.length > 0) {
-                const data = payload[0].payload;
-                return (
-                  <div style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '5px' }}>
-                    <p><strong>Tokenizer: {data.tokenizer}</strong></p>
-                    <p>Language: {data.language}</p>
-                    <p>{metricX}: {data[metricX]?.toFixed ? data[metricX].toFixed(2) : data[metricX]}</p>
-                    <p>{metricY}: {data[metricY]?.toFixed ? data[metricY].toFixed(2) : data[metricY]}</p>
-                  </div>
-                );
-              }
-              return null;
-            }}
+            content={<ScatterTooltip metricX={metricX} metricY={metricY} />}
           />
           <Legend verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: 10 }} />
           {trendLines.map((t) => (
@@ -343,6 +360,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
               key={name}
               name={name}
               data={groupsMap.get(name)!}
+              dataKey={metricY}
               fill={getColorForMetric(idx)}
               isAnimationActive={false}
             />
