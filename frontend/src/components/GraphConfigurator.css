@@ -118,6 +118,16 @@
   transform: translateY(1px);
 }
 
+.graph-type-help {
+  margin-top: 0.35rem;
+  padding: 0.35rem 0.5rem;
+  border-left: 3px solid #3498db;
+  background-color: #f4f8fc;
+  border-radius: 3px;
+  font-size: 13px;
+  color: #34495e;
+}
+
 .validation-errors {
   margin-top: 0.5rem;
   margin-bottom: 1rem;
