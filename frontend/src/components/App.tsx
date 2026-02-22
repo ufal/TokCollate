@@ -126,6 +126,48 @@ const App: React.FC = () => {
           console.log(`[App] Metric dimensionality: ${metric} = ${metricDimensionality[metric]}D (shape: ${shape.join('x')})`);
         }
       });
+
+      // Validate that 2D and 3D metric shapes are consistent with
+      // tokenizer and language metadata. This protects the frontend
+      // indexing logic from silent breakage if the server changes
+      // how it lays out metric arrays.
+      const shapeIssues: string[] = [];
+      availableMetrics.forEach((metric) => {
+        const m = metricsObj[metric];
+        if (!m || !Array.isArray(m.shape)) return;
+        const shape = m.shape as number[];
+
+        if (shape.length === 2) {
+          const expectedTok = availableTokenizers.length;
+          const expectedLang = availableLanguages.length;
+          if (shape[0] !== expectedTok || shape[1] !== expectedLang) {
+            shapeIssues.push(
+              `${metric}: expected [${expectedTok}, ${expectedLang}], got [${shape[0]}, ${shape[1]}]`,
+            );
+          }
+        } else if (shape.length === 3) {
+          const expectedTok = availableTokenizers.length;
+          const expectedLang = availableLanguages.length;
+          if (
+            shape[0] !== expectedTok ||
+            shape[1] !== expectedLang ||
+            shape[2] !== expectedLang
+          ) {
+            shapeIssues.push(
+              `${metric}: expected [${expectedTok}, ${expectedLang}, ${expectedLang}], got [${shape.join(', ')}]`,
+            );
+          }
+        }
+      });
+
+      if (shapeIssues.length > 0) {
+        console.error('[App] Metric shape/metadata mismatch detected:', shapeIssues);
+        setImportStatus({
+          success: false,
+          message: 'Import failed: metric array shapes do not match tokenizers/languages metadata. See console for details.',
+        });
+        return;
+      }
       
       const correlationObj = npzData?.correlation?.() || npzData?.correlation || {};
       

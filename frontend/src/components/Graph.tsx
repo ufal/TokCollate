@@ -36,6 +36,8 @@ const ScatterTooltip: React.FC<{ active?: boolean; payload?: any[]; metricX: str
   const languageLabel = hasLanguagePair ? pt.languagePair : pt.language;
   const languageTitle = hasLanguagePair ? 'Language pair' : 'Language';
 
+   const clusterSize = typeof pt.clusterSize === 'number' ? pt.clusterSize : undefined;
+
   const xVal = pt[metricX];
   const yVal = pt[metricY];
 
@@ -47,10 +49,97 @@ const ScatterTooltip: React.FC<{ active?: boolean; payload?: any[]; metricX: str
       {languageLabel !== undefined && (
         <p>{languageTitle}: {languageLabel}</p>
       )}
+      {clusterSize !== undefined && clusterSize > 1 && (
+        <p>Points in cluster: {clusterSize}</p>
+      )}
       <p>{metricX}: {formatVal(xVal)}</p>
       <p>{metricY}: {formatVal(yVal)}</p>
     </div>
   );
+};
+
+const MAX_SCATTER_POINTS_PER_GROUP = 2000;
+
+const downsampleGroupPoints = (
+  points: any[],
+  metricX: string,
+  metricY: string,
+  maxPointsPerGroup: number,
+): any[] => {
+  if (!Array.isArray(points) || points.length <= maxPointsPerGroup) {
+    return points;
+  }
+
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  for (const pt of points) {
+    const x = pt[metricX];
+    const y = pt[metricY];
+    if (typeof x !== 'number' || typeof y !== 'number' || Number.isNaN(x) || Number.isNaN(y)) {
+      continue;
+    }
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+
+  if (!Number.isFinite(minX) || !Number.isFinite(maxX) || !Number.isFinite(minY) || !Number.isFinite(maxY)) {
+    return points;
+  }
+
+  const rangeX = maxX - minX || 1;
+  const rangeY = maxY - minY || 1;
+
+  const gridSize = Math.ceil(Math.sqrt(maxPointsPerGroup));
+  type Cell = { sumX: number; sumY: number; count: number; template: any };
+  const cells: Map<string, Cell> = new Map();
+
+  for (const pt of points) {
+    const x = pt[metricX];
+    const y = pt[metricY];
+    if (typeof x !== 'number' || typeof y !== 'number' || Number.isNaN(x) || Number.isNaN(y)) {
+      continue;
+    }
+
+    const gxRaw = ((x - minX) / rangeX) * gridSize;
+    const gyRaw = ((y - minY) / rangeY) * gridSize;
+    const gx = Math.min(gridSize - 1, Math.max(0, Math.floor(gxRaw)));
+    const gy = Math.min(gridSize - 1, Math.max(0, Math.floor(gyRaw)));
+    const key = `${gx}:${gy}`;
+
+    let cell = cells.get(key);
+    if (!cell) {
+      cell = { sumX: 0, sumY: 0, count: 0, template: pt };
+      cells.set(key, cell);
+    }
+
+    cell.sumX += x;
+    cell.sumY += y;
+    cell.count += 1;
+  }
+
+  const result: any[] = [];
+
+  cells.forEach((cell) => {
+    if (cell.count === 0) return;
+    const centroidX = cell.sumX / cell.count;
+    const centroidY = cell.sumY / cell.count;
+    const centroid: any = {
+      ...cell.template,
+      [metricX]: centroidX,
+      [metricY]: centroidY,
+    };
+    if (cell.count > 1) {
+      centroid.clusterSize = cell.count;
+    }
+    result.push(centroid);
+  });
+
+  return result;
 };
 
 const Graph: React.FC<GraphProps> = ({ config, data }) => {
@@ -246,15 +335,6 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
       return 'unknown';
     };
 
-    // Partition chartData into groups
-    const groupsMap: Map<string, any[]> = new Map();
-    (Array.isArray(chartData) ? chartData : []).forEach((pt) => {
-      const key = groupKeyForPoint(pt);
-      if (!groupsMap.has(key)) groupsMap.set(key, []);
-      groupsMap.get(key)!.push(pt);
-    });
-    const groupNames = Array.from(groupsMap.keys());
-
     const isValidPoint = (pt: any): boolean => {
       const x = pt[metricX];
       const y = pt[metricY];
@@ -262,6 +342,15 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
     };
 
     const allPoints: any[] = (Array.isArray(chartData) ? chartData : []).filter(isValidPoint);
+
+    // Partition chartData into groups (only valid points)
+    const groupsMap: Map<string, any[]> = new Map();
+    allPoints.forEach((pt) => {
+      const key = groupKeyForPoint(pt);
+      if (!groupsMap.has(key)) groupsMap.set(key, []);
+      groupsMap.get(key)!.push(pt);
+    });
+    const groupNames = Array.from(groupsMap.keys());
 
     const computeTrend = (pts: any[]): { m: number; b: number; minX: number; maxX: number } | null => {
       if (!pts || pts.length < 2) return null;
@@ -308,7 +397,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
       }
     } else if (trendlineMode === 'groups') {
       groupNames.forEach((name, idx) => {
-        const groupPts = (groupsMap.get(name) || []).filter(isValidPoint);
+        const groupPts = groupsMap.get(name) || [];
         const trend = computeTrend(groupPts);
         if (trend) {
           trendLines.push({
@@ -320,6 +409,14 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
         }
       });
     }
+
+    // Downsample large groups to avoid rendering too many points
+    const displayGroupsMap: Map<string, any[]> = new Map();
+    groupNames.forEach((name) => {
+      const groupPts = groupsMap.get(name) || [];
+      const displayPts = downsampleGroupPoints(groupPts, metricX, metricY, MAX_SCATTER_POINTS_PER_GROUP);
+      displayGroupsMap.set(name, displayPts);
+    });
 
     return (
       <ResponsiveContainer width="100%" height={420}>
@@ -359,7 +456,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
             <Scatter
               key={name}
               name={name}
-              data={groupsMap.get(name)!}
+              data={displayGroupsMap.get(name)!}
               dataKey={metricY}
               fill={getColorForMetric(idx)}
               isAnimationActive={false}

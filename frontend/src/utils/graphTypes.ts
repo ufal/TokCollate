@@ -200,6 +200,16 @@ export class MetricPairCorrelationGraphType extends GraphType {
     console.log('[MetricPairCorrelation] Metric X shape:', xShape);
     console.log('[MetricPairCorrelation] Metric Y shape:', yShape);
 
+    // Contract with data/metadata:
+    // - 2D metrics are shaped as [tokenizer_index, language_index]
+    // - 3D metrics are shaped as [tokenizer_index, language_i_index, language_j_index]
+    // Indices refer to positions in metadata.tokenizers and metadata.languages.
+
+    // Get the full tokenizer and language lists from metadata so we can
+    // translate selected labels to positions in the underlying arrays.
+    const allTokenizers = data.metadata?.tokenizers || [];
+    const allLanguages = data.metadata?.languages || [];
+
     // For 2D metrics: (tokenizers, languages)
     // Extract values at matching tokenizer/language indices
     if (xShape.length === 2 && yShape.length === 2) {
@@ -208,8 +218,8 @@ export class MetricPairCorrelationGraphType extends GraphType {
 
       for (const tokenizer of config.tokenizers) {
         for (const language of config.languages) {
-          const tokIdx = config.tokenizers.indexOf(tokenizer);
-          const langIdx = config.languages.indexOf(language);
+          const tokIdx = allTokenizers.indexOf(tokenizer);
+          const langIdx = allLanguages.indexOf(language);
 
           if (tokIdx >= 0 && langIdx >= 0) {
             const xIndex = tokIdx * numLanguagesX + langIdx;
@@ -242,11 +252,13 @@ export class MetricPairCorrelationGraphType extends GraphType {
           for (let j = 0; j < config.languages.length; j++) {
             const lang1 = config.languages[i];
             const lang2 = config.languages[j];
-            const tokIdx = config.tokenizers.indexOf(tokenizer);
+            const tokIdx = allTokenizers.indexOf(tokenizer);
+            const lang1Idx = allLanguages.indexOf(lang1);
+            const lang2Idx = allLanguages.indexOf(lang2);
 
-            if (tokIdx >= 0) {
-              const xIndex = tokIdx * (numLang1X * numLang2X) + i * numLang2X + j;
-              const yIndex = tokIdx * (numLang1Y * numLang2Y) + i * numLang2Y + j;
+            if (tokIdx >= 0 && lang1Idx >= 0 && lang2Idx >= 0) {
+              const xIndex = tokIdx * (numLang1X * numLang2X) + lang1Idx * numLang2X + lang2Idx;
+              const yIndex = tokIdx * (numLang1Y * numLang2Y) + lang1Idx * numLang2Y + lang2Idx;
 
               const xVal = xData[xIndex];
               const yVal = yData[yIndex];

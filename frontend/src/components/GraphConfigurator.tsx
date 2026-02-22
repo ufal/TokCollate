@@ -311,9 +311,19 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       return items.slice(0, Math.max(0, max));
     };
 
-    // Defaults for tokenizers and languages: select-all where possible, else up to max
-    const defaultTokenizers = pickAllOrFirstN(availableTokenizers, gt?.constraints.tokenizers.max);
-    const defaultLanguages = pickAllOrFirstN(availableLanguages, gt?.constraints.languages.max);
+    // Defaults for tokenizers and languages
+    // For Metric Pair Correlation, start with a minimal subset to avoid
+    // rendering an extremely large number of scatter points by default.
+    let defaultTokenizers: string[];
+    let defaultLanguages: string[];
+    if (newTypeId === 'metric-pair-correlation') {
+      defaultTokenizers = pickAllOrFirstN(availableTokenizers, 1);
+      defaultLanguages = pickAllOrFirstN(availableLanguages, 2);
+    } else {
+      // For other graph types, select-all where possible, else up to max
+      defaultTokenizers = pickAllOrFirstN(availableTokenizers, gt?.constraints.tokenizers.max);
+      defaultLanguages = pickAllOrFirstN(availableLanguages, gt?.constraints.languages.max);
+    }
 
     // Defaults for metrics depend on graph type and constraints
     let defaultMetrics: string[] = [];
