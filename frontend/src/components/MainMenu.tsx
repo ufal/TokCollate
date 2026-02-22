@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import './MainMenu.css';
 
 interface MainMenuProps {
@@ -15,6 +15,14 @@ const MainMenu: React.FC<MainMenuProps> = ({
   datasetName,
 }) => {
   const dirInputRef = useRef<HTMLInputElement>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState<{
+    step: number;
+    total: number;
+    label: string;
+  } | null>(null);
+
+  const totalSteps = 4;
 
   const handleImportDataClick = () => {
     // Trigger the directory picker
@@ -55,6 +63,9 @@ const MainMenu: React.FC<MainMenuProps> = ({
     }
 
     try {
+      setIsImporting(true);
+      setImportProgress({ step: 1, total: totalSteps, label: 'Reading metadata and language info…' });
+
       // Load metadata.json
       console.log('[MainMenu] Reading metadata.json');
       const metadataText = await metadataFile.text();
@@ -74,6 +85,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
         }
       }
 
+      setImportProgress({ step: 2, total: totalSteps, label: 'Reading results.npz file…' });
+
       // Load results.npz - send to backend for deserialization
       console.log('[MainMenu] Reading results.npz');
       const resultsBuffer = await resultsFile.arrayBuffer();
@@ -84,6 +97,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
       const backendURL = process.env.NODE_ENV === 'production'
         ? '/api/parse-npz'
         : 'http://localhost:5000/api/parse-npz';
+
+      setImportProgress({ step: 3, total: totalSteps, label: 'Parsing results.npz on backend…' });
 
       const parseResponse = await fetch(backendURL, {
         method: 'POST',
@@ -118,6 +133,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
       }
 
       console.log('[MainMenu] ✓ All files loaded successfully');
+      setImportProgress({ step: 4, total: totalSteps, label: 'Finalizing visualization…' });
       onLoadVisualization(visualizationData);
       window.alert(
         '✓ Successfully loaded:\n' +
@@ -131,6 +147,11 @@ const MainMenu: React.FC<MainMenuProps> = ({
       if (dirInputRef.current) {
         dirInputRef.current.value = '';
       }
+
+      setTimeout(() => {
+        setIsImporting(false);
+        setImportProgress(null);
+      }, 500);
     } catch (error) {
       console.error('[MainMenu] Error loading data:', error);
       const errorMsg = error instanceof Error ? error.message : String(error);
@@ -140,13 +161,16 @@ const MainMenu: React.FC<MainMenuProps> = ({
       if (dirInputRef.current) {
         dirInputRef.current.value = '';
       }
+
+      setIsImporting(false);
+      setImportProgress(null);
     }
   };
 
   return (
     <div className="main-menu">
       <div className="menu-buttons">
-        <button className="menu-button" onClick={handleImportDataClick}>
+        <button className="menu-button" onClick={handleImportDataClick} disabled={isImporting}>
           Import Data
         </button>
         <button className="menu-button" onClick={onExportGraph} disabled={!onExportGraph}>
@@ -157,6 +181,19 @@ const MainMenu: React.FC<MainMenuProps> = ({
           <span className="dataset-display">{datasetName}</span>
         </div>
       </div>
+      {importProgress && (
+        <div className="import-progress">
+          <div className="import-progress-bar">
+            <div
+              className="import-progress-bar-fill"
+              style={{ width: `${(importProgress.step / importProgress.total) * 100}%` }}
+            />
+          </div>
+          <div className="import-progress-label">
+            {importProgress.label} ({importProgress.step}/{importProgress.total})
+          </div>
+        </div>
+      )}
       <input
         ref={dirInputRef}
         type="file"
