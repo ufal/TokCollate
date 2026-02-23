@@ -305,25 +305,19 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
 
     const filteredMetrics = filterMetricsForType(newTypeId);
 
-    const pickAllOrFirstN = (items: string[], max: number | undefined): string[] => {
-      if (items.length === 0) return [];
-      if (max === undefined || max >= items.length) return items.slice();
-      return items.slice(0, Math.max(0, max));
+    // Unified defaults for tokenizers and languages across all figure types:
+    // always select up to the first four tokenizers and languages, subject
+    // to each graph type's max constraint.
+    const computeDefaultSelection = (items: string[], maxAllowed: number | undefined): string[] => {
+      if (!items || items.length === 0) return [];
+      const hardCap = 4;
+      const maxConstraint = maxAllowed ?? Infinity;
+      const limit = Math.min(hardCap, items.length, Number.isFinite(maxConstraint) ? maxConstraint : items.length);
+      return items.slice(0, Math.max(0, limit));
     };
 
-    // Defaults for tokenizers and languages
-    // For Metric Pair Correlation, start with a minimal subset to avoid
-    // rendering an extremely large number of scatter points by default.
-    let defaultTokenizers: string[];
-    let defaultLanguages: string[];
-    if (newTypeId === 'metric-pair-correlation') {
-      defaultTokenizers = pickAllOrFirstN(availableTokenizers, 1);
-      defaultLanguages = pickAllOrFirstN(availableLanguages, 2);
-    } else {
-      // For other graph types, select-all where possible, else up to max
-      defaultTokenizers = pickAllOrFirstN(availableTokenizers, gt?.constraints.tokenizers.max);
-      defaultLanguages = pickAllOrFirstN(availableLanguages, gt?.constraints.languages.max);
-    }
+    let defaultTokenizers: string[] = computeDefaultSelection(availableTokenizers, gt?.constraints.tokenizers.max);
+    let defaultLanguages: string[] = computeDefaultSelection(availableLanguages, gt?.constraints.languages.max);
 
     // Defaults for metrics depend on graph type and constraints
     let defaultMetrics: string[] = [];
@@ -340,8 +334,17 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       // Single metric: first compatible
       defaultMetrics = filteredMetrics.length > 0 ? [filteredMetrics[0]] : [];
     } else {
-      // Select-all where possible, otherwise select up to 'max'
-      defaultMetrics = pickAllOrFirstN(filteredMetrics, gt?.constraints.metrics.max);
+      // For other graph types, keep existing behavior: select as many
+      // compatible metrics as allowed by the constraint.
+      if (filteredMetrics.length === 0) {
+        defaultMetrics = [];
+      } else {
+        const maxConstraint = gt?.constraints.metrics.max ?? Infinity;
+        const limit = Number.isFinite(maxConstraint)
+          ? Math.min(filteredMetrics.length, maxConstraint)
+          : filteredMetrics.length;
+        defaultMetrics = filteredMetrics.slice(0, Math.max(0, limit));
+      }
     }
 
     const newConfig = {

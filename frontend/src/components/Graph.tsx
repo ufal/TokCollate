@@ -145,6 +145,11 @@ const downsampleGroupPoints = (
 const Graph: React.FC<GraphProps> = ({ config, data }) => {
   const graphType = getGraphType(config.typeId);
 
+  type RowSortState = { columnIndex: number | null; direction: 'asc' | 'desc' };
+  type ColumnSortState = { rowIndex: number | null; direction: 'asc' | 'desc' };
+  const [rowSort, setRowSort] = React.useState<RowSortState>({ columnIndex: null, direction: 'asc' });
+  const [columnSort, setColumnSort] = React.useState<ColumnSortState>({ rowIndex: null, direction: 'asc' });
+
   const getChartData = (): any[] | any => {
     console.log('[Graph.getChartData] Called');
     console.log('[Graph.getChartData] graphType:', graphType?.displayName);
@@ -483,28 +488,114 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
       return <div className="no-data">No data available for this configuration</div>;
     }
 
+    const handleColumnHeaderClick = (colIdx: number) => {
+      setRowSort((prev) => {
+        if (prev.columnIndex === colIdx) {
+          return { columnIndex: colIdx, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+        }
+        return { columnIndex: colIdx, direction: 'asc' };
+      });
+    };
+
+    const handleRowHeaderClick = (rowIdx: number) => {
+      setColumnSort((prev) => {
+        if (prev.rowIndex === rowIdx) {
+          return { rowIndex: rowIdx, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+        }
+        return { rowIndex: rowIdx, direction: 'asc' };
+      });
+    };
+
+    const sortedRowIndices: number[] = tableData.data.map((_: any, idx: number) => idx);
+    if (rowSort.columnIndex !== null && rowSort.columnIndex >= 0 && rowSort.columnIndex < tableData.columns.length) {
+      const colIdx = rowSort.columnIndex;
+      sortedRowIndices.sort((a, b) => {
+        const cellA = tableData.data[a][colIdx];
+        const cellB = tableData.data[b][colIdx];
+        const vaRaw = cellA ? cellA.value : undefined;
+        const vbRaw = cellB ? cellB.value : undefined;
+        const va = vaRaw === undefined || vaRaw === null || Number.isNaN(Number(vaRaw)) ? Infinity : Number(vaRaw);
+        const vb = vbRaw === undefined || vbRaw === null || Number.isNaN(Number(vbRaw)) ? Infinity : Number(vbRaw);
+        if (rowSort.direction === 'asc') return va - vb;
+        return vb - va;
+      });
+    }
+
+    const sortedColumnIndices: number[] = tableData.columns.map((_: any, idx: number) => idx);
+    if (columnSort.rowIndex !== null && columnSort.rowIndex >= 0 && columnSort.rowIndex < tableData.data.length) {
+      const rowIdx = columnSort.rowIndex;
+      const row = tableData.data[rowIdx];
+      sortedColumnIndices.sort((a, b) => {
+        const cellA = row[a];
+        const cellB = row[b];
+        const vaRaw = cellA ? cellA.value : undefined;
+        const vbRaw = cellB ? cellB.value : undefined;
+        const va = vaRaw === undefined || vaRaw === null || Number.isNaN(Number(vaRaw)) ? Infinity : Number(vaRaw);
+        const vb = vbRaw === undefined || vbRaw === null || Number.isNaN(Number(vbRaw)) ? Infinity : Number(vbRaw);
+        if (columnSort.direction === 'asc') return va - vb;
+        return vb - va;
+      });
+    }
+
     return (
       <div className="metric-table-container">
         <table className="metric-table">
           <thead>
             <tr>
               <th className="table-row-header">{tableData.rowHeader || 'Tokenizer'}</th>
-              {tableData.columns.map((col: string, idx: number) => (
-                <th key={idx} className="table-column-header">{col}</th>
-              ))}
+              {sortedColumnIndices.map((colIdx: number) => {
+                const col = tableData.columns[colIdx];
+                const isActive = rowSort.columnIndex === colIdx;
+                return (
+                <th
+                  key={colIdx}
+                  className="table-column-header"
+                  onClick={() => handleColumnHeaderClick(colIdx)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {col}
+                  {isActive && (
+                    <span style={{ marginLeft: '4px' }}>
+                      {rowSort.direction === 'asc' ? '▲' : '▼'}
+                    </span>
+                  )}
+                </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
-            {tableData.data.map((row: any[], rowIdx: number) => (
-              <tr key={rowIdx}>
-                <td className="table-row-label">{tableData.rows[rowIdx]}</td>
-                {row.map((cell: any, colIdx: number) => (
-                  <td key={colIdx} className="table-cell" title={`Value: ${cell.value !== undefined ? cell.value : 'N/A'}`}>
-                    {cell.formatted}
+            {sortedRowIndices.map((rowIdx: number) => {
+              const row = tableData.data[rowIdx];
+              return (
+                <tr key={rowIdx}>
+                  <td
+                    className="table-row-label"
+                    onClick={() => handleRowHeaderClick(rowIdx)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {tableData.rows[rowIdx]}
+                    {columnSort.rowIndex === rowIdx && (
+                      <span style={{ marginLeft: '4px' }}>
+                        {columnSort.direction === 'asc' ? '▲' : '▼'}
+                      </span>
+                    )}
                   </td>
-                ))}
-              </tr>
-            ))}
+                  {sortedColumnIndices.map((colIdx: number) => {
+                    const cell = row[colIdx];
+                    return (
+                    <td
+                      key={colIdx}
+                      className="table-cell"
+                      title={`Value: ${cell && cell.value !== undefined ? cell.value : 'N/A'}`}
+                    >
+                      {cell ? cell.formatted : 'N/A'}
+                    </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
