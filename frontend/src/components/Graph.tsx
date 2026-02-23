@@ -558,6 +558,70 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
       });
     }
 
+    let minValue = Infinity;
+    let maxValue = -Infinity;
+
+    sortedRowIndices.forEach((rowIdx: number) => {
+      const row = tableData.data[rowIdx];
+      sortedColumnIndices.forEach((colIdx: number) => {
+        const cell = row[colIdx];
+        if (!cell || cell.value === undefined || cell.value === null) {
+          return;
+        }
+        const v = Number(cell.value);
+        if (!Number.isFinite(v)) {
+          return;
+        }
+        if (v < minValue) minValue = v;
+        if (v > maxValue) maxValue = v;
+      });
+    });
+
+    const hasValueRange = Number.isFinite(minValue) && Number.isFinite(maxValue);
+
+    const getCellBackground = (raw: any): React.CSSProperties['backgroundColor'] => {
+      if (!hasValueRange) return undefined;
+      const v = Number(raw);
+      if (!Number.isFinite(v)) return undefined;
+
+      if (minValue === maxValue) {
+        return 'rgba(76, 175, 80, 0.25)';
+      }
+
+      const t = (v - minValue) / (maxValue - minValue);
+      const clamped = Math.max(0, Math.min(1, t));
+
+      const start = { r: 232, g: 246, b: 231 }; // #e8f6e7 very light green
+      const end = { r: 0, g: 120, b: 50 };     // dark green
+
+      const r = Math.round(start.r + (end.r - start.r) * clamped);
+      const g = Math.round(start.g + (end.g - start.g) * clamped);
+      const b = Math.round(start.b + (end.b - start.b) * clamped);
+
+      return `rgb(${r}, ${g}, ${b})`;
+    };
+
+    const getCellTextColor = (raw: any): React.CSSProperties['color'] => {
+      if (!hasValueRange || minValue === maxValue) return undefined;
+      const v = Number(raw);
+      if (!Number.isFinite(v)) return undefined;
+
+      const t = (v - minValue) / (maxValue - minValue);
+      if (t >= 0.65) {
+        return '#ffffff';
+      }
+      return '#2c3e50';
+    };
+
+    const formatLegendValue = (v: number): string => {
+      if (!Number.isFinite(v)) return '';
+      const abs = Math.abs(v);
+      if ((abs >= 1000 && abs < Infinity) || (abs > 0 && abs < 0.01)) {
+        return v.toExponential(2);
+      }
+      return v.toFixed(3);
+    };
+
     return (
       <div className="metric-table-container">
         <table className="metric-table">
@@ -604,11 +668,15 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
                   </td>
                   {sortedColumnIndices.map((colIdx: number) => {
                     const cell = row[colIdx];
+                    const rawValue = cell && cell.value !== undefined ? cell.value : undefined;
+                    const backgroundColor = getCellBackground(rawValue);
+                    const color = getCellTextColor(rawValue);
                     return (
                     <td
                       key={colIdx}
                       className="table-cell"
-                      title={`Value: ${cell && cell.value !== undefined ? cell.value : 'N/A'}`}
+                      title={`Value: ${rawValue !== undefined ? rawValue : 'N/A'}`}
+                      style={{ backgroundColor, color }}
                     >
                       {cell ? cell.formatted : 'N/A'}
                     </td>
@@ -619,6 +687,21 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
             })}
           </tbody>
         </table>
+        {hasValueRange && (
+          <div className="metric-table-legend">
+            <div className="metric-table-legend-title">
+              Cell color shows relative value (lower -&gt; higher)
+            </div>
+            <div className="metric-table-legend-bar-wrapper">
+              <div className="metric-table-legend-bar" />
+            </div>
+            <div className="metric-table-legend-labels">
+              <span>{formatLegendValue(minValue)}</span>
+              <span>{formatLegendValue((minValue + maxValue) / 2)}</span>
+              <span>{formatLegendValue(maxValue)}</span>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
