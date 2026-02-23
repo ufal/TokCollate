@@ -6,7 +6,7 @@
 
 .graph-configurator h2 {
   margin-bottom: 1.5rem;
-  color: #2c3e50;
+  color: #3b2314;
   font-size: 18px;
 }
 
@@ -17,7 +17,7 @@
 .config-section label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #2c3e50;
+  color: #3b2314;
   font-weight: 500;
   font-size: 14px;
 }
@@ -43,15 +43,15 @@
 }
 
 .config-section select.multi-select option:checked {
-  background-color: #3498db;
-  color: white;
+  background-color: #c76c3a;
+  color: #2b1308;
 }
 
 .config-section input:focus,
 .config-section select:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+  border-color: #c76c3a;
+  box-shadow: 0 0 0 2px rgba(199, 108, 58, 0.1);
 }
 
 .selected-items {
@@ -74,12 +74,12 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #e8f4f8;
-  color: #2c3e50;
+  background-color: #f8ebe4;
+  color: #3b2314;
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
   font-size: 12px;
-  border: 1px solid #3498db;
+  border: 1px solid #c76c3a;
 }
 
 .tag button {
@@ -121,11 +121,11 @@
 .graph-type-help {
   margin-top: 0.35rem;
   padding: 0.35rem 0.5rem;
-  border-left: 3px solid #3498db;
-  background-color: #f4f8fc;
+  border-left: 3px solid #c76c3a;
+  background-color: #f8ebe4;
   border-radius: 3px;
   font-size: 13px;
-  color: #34495e;
+  color: #3b2314;
 }
 
 .validation-errors {

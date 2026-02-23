@@ -170,13 +170,18 @@ const MainMenu: React.FC<MainMenuProps> = ({
   return (
     <div className="main-menu">
       <div className="menu-buttons">
-        <button className="menu-button" onClick={handleImportDataClick} disabled={isImporting}>
-          Import Data
-        </button>
-        <button className="menu-button" onClick={onExportGraph} disabled={!onExportGraph}>
-          Export Graph
-        </button>
-        <div className="dataset-selector">
+        <div className="menu-section menu-section-left">
+          <button className="menu-button" onClick={handleImportDataClick} disabled={isImporting}>
+            Import Data
+          </button>
+          <button className="menu-button" onClick={onExportGraph} disabled={!onExportGraph}>
+            Export Graph
+          </button>
+        </div>
+        <div className="menu-section menu-section-center">
+          <div className="app-title">TokCollate 🍫 Data Visualizer</div>
+        </div>
+        <div className="menu-section menu-section-right dataset-selector">
           <label>Dataset Name:</label>
           <span className="dataset-display">{datasetName}</span>
         </div>

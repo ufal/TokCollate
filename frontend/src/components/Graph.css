@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fafafa;
+  background-color: #fffaf7;
   border-radius: 4px;
 }
 
@@ -79,6 +79,6 @@
 }
 
 .metric-table tbody tr:hover td.table-cell {
-  background-color: #e8f4f8;
+  background-color: #f8ebe4;
 }
 
