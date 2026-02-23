@@ -488,6 +488,27 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
       return <div className="no-data">No data available for this configuration</div>;
     }
 
+    const is3DMetricTable =
+      config.typeId === 'metric-table' &&
+      Array.isArray(config.metrics) &&
+      config.metrics.length === 1 &&
+      (data as any).metrics?.[config.metrics[0]]?.shape &&
+      (data as any).metrics[config.metrics[0]].shape.length === 3;
+
+    const renderColumnLabel = (col: string) => {
+      if (is3DMetricTable && col.includes('-')) {
+        const [lang1, lang2] = col.split('-', 2);
+        return (
+          <span className="metric-table-col-label">
+            <span>{lang1}</span>
+            <br />
+            <span>{lang2}</span>
+          </span>
+        );
+      }
+      return col;
+    };
+
     const handleColumnHeaderClick = (colIdx: number) => {
       setRowSort((prev) => {
         if (prev.columnIndex === colIdx) {
@@ -553,7 +574,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
                   onClick={() => handleColumnHeaderClick(colIdx)}
                   style={{ cursor: 'pointer' }}
                 >
-                  {col}
+                  {renderColumnLabel(col)}
                   {isActive && (
                     <span style={{ marginLeft: '4px' }}>
                       {rowSort.direction === 'asc' ? '▲' : '▼'}

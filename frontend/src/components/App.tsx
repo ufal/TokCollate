@@ -10,7 +10,7 @@ const App: React.FC = () => {
 
   const [state, setState] = useState<VisualizationState>({
     figures: [],
-    datasetName: 'Unknown',
+    datasetName: 'None',
     availableTokenizers: [],
     availableMetrics: [],
     availableLanguages: [],
