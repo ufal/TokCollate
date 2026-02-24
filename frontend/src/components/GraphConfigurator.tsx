@@ -120,6 +120,18 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     [availableLanguages],
   );
 
+  const getLanguageDisplayName = React.useCallback((label: string): string | null => {
+    try {
+      const parts = label.split('_');
+      const base = parts.length >= 3 ? parts.slice(0, parts.length - 2).join('_') : label;
+      const info = getLanguageInfo(base) || {};
+      const name = info.Name || info.name;
+      return name ? String(name) : null;
+    } catch {
+      return null;
+    }
+  }, [getLanguageInfo]);
+
   const buildLanguageTooltip = React.useCallback((label: string): string => {
     try {
       const parts = label.split('_');
@@ -134,7 +146,8 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       };
 
       const rows: string[] = [];
-      rows.push(`Language: ${base}`);
+      const displayName = info.Name || info.name || base;
+      rows.push(`Language: ${displayName}`);
       if (info.continent) rows.push(`Continent: ${info.continent}`);
       const fam = toList(info.families);
       if (fam) rows.push(`Families: ${fam}`);
@@ -761,9 +774,12 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
             >
               {availableLanguages.map((l) => {
                 const match = languageMatchesFilters(l);
+                const shortLabel = getDisplayLanguageLabel(l, languageLabelMap);
+                const displayName = getLanguageDisplayName(l);
+                const optionLabel = displayName ? `${shortLabel} [${displayName}]` : shortLabel;
                 return (
                   <option key={l} value={l} title={buildLanguageTooltip(l)}>
-                    {getDisplayLanguageLabel(l, languageLabelMap)}{match ? ' ✓' : ''}
+                    {optionLabel}{match ? ' ✓' : ''}
                   </option>
                 );
               })}
