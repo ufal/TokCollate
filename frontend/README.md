@@ -1,10 +1,10 @@
-# TokEval Frontend Visualizer
+# TokCollate Frontend Visualizer
 
-A single-page web application for visualizing and analyzing TokEval tokenization metrics and correlation results.
+A single-page web application for visualizing and analyzing TokCollate tokenization metrics and correlation results.
 
 ## Features
 
-- **Load Results**: Load TokEval metrics and correlation data from JSON/NPZ files
+- **Load Results**: Load TokCollate metrics and correlation data from JSON/NPZ files
 - **Interactive Visualizations**: Create bar charts and line charts from your metrics
 - **Flexible Configuration**: 
   - Select tokenizers to compare
@@ -87,7 +87,7 @@ The application will open at `http://localhost:3000` in your default browser.
 ### Loading Data
 
 1. Click the **Import Data** button in the top menu
-2. Select a directory containing TokEval results
+2. Select a directory containing TokCollate results
 3. The available tokenizers, metrics, and languages will be extracted automatically
 
 ### Creating Visualizations

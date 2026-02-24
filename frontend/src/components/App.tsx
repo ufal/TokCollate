@@ -256,7 +256,7 @@ const App: React.FC = () => {
         figures: state.figures,
         data: state.data,
       };
-      saveVisualization(config as any, `tokeval-viz-${new Date().getTime()}.json`);
+      saveVisualization(config as any, `tokcollate-viz-${new Date().getTime()}.json`);
     }
   };
 

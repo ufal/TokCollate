@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Simple Express server for TokEval Frontend
+ * Simple Express server for TokCollate Frontend
  * Serves the built frontend and provides an API to load local files
  * NPZ files are automatically parsed using Python and served as JSON
  */
@@ -141,7 +141,7 @@ else:
     try {
       // Determine Python executable path from environment, falling back to `which python3`
       // and finally to plain 'python3' on PATH.
-      let pythonPath = process.env.TOKEVAL_PYTHON;
+      let pythonPath = process.env.TOKCOLLATE_PYTHON;
       if (!pythonPath) {
         try {
           pythonPath = execSync('which python3', { encoding: 'utf-8' }).trim();
@@ -304,7 +304,8 @@ if (fs.existsSync(distPath)) {
   });
 }
 
+
 app.listen(PORT, () => {
-  console.log(`[Server] TokEval Frontend Server running at http://localhost:${PORT}`);
+  console.log(`[Server] TokCollate Frontend Server running at http://localhost:${PORT}`);
   console.log(`[Server] API available at http://localhost:${PORT}/api/load-file?path=<path>`);
 });

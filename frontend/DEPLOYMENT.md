@@ -1,8 +1,8 @@
-# TokEval Frontend Deployment Guide
+# TokCollate Frontend Deployment Guide
 
 ## Overview
 
-The TokEval frontend is a React + TypeScript application built with Vite. It includes an Express.js backend server for loading local files from the filesystem.
+The TokCollate frontend is a React + TypeScript application built with Vite. It includes an Express.js backend server for loading local files from the filesystem.
 
 ## Development
 
@@ -156,8 +156,8 @@ CMD ["node", "server.js"]
 
 Build and run:
 ```bash
-docker build -t tokeval-frontend .
-docker run -p 5000:5000 -v /path/to/data:/data:ro tokeval-frontend
+docker build -t tokcollate-frontend .
+docker run -p 5000:5000 -v /path/to/data:/data:ro tokcollate-frontend
 ```
 
 Then access at `http://localhost:5000` and use paths like `/data/...` in the import dialog.
