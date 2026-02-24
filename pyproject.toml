@@ -1,6 +1,6 @@
 
 [project]
-name = "TokEval"
+name = "TokCollate"
 description = "TODO."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -14,15 +14,15 @@ classifiers = [
 dynamic = ["version", "dependencies", "optional-dependencies"]
 
 [project.scripts]
-tokeval = "go:main_cli"
+tokcollate = "go:main_cli"
 
 [project.urls]
-Documentation = "https://github.com/ufal/tokeval#readme"
-Issues = "https://github.com/ufal/tokeval/issues"
-Repository = "https://github.com/ufal/TokEval.git"
+Documentation = "https://github.com/ufal/tokcollate#readme"
+Issues = "https://github.com/ufal/tokcollate/issues"
+Repository = "https://github.com/ufal/TokCollate.git"
 
 [tool.setuptools]
-py-modules = ["tokeval", "tokeval_cli"]
+py-modules = ["tokcollate", "tokcollate_cli"]
 
 [tool.pytest.ini_options]
 log_cli = true
