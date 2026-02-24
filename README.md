@@ -1,4 +1,4 @@
-# 🍫 TokCollate 🍫
+# TokCollate 🍫
 
 A tokenization evaluation suite with interactive visualization that allows quick comparison of tokenizers across languages.
 
