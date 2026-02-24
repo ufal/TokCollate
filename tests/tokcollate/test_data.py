@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 
 from tests.utils import FooMetric
-from tokeval.data import TokEvalData
-from tokeval.utils import open_file, remove_dir
+from tokcollate.data import TokCollateData
+from tokcollate.utils import open_file, remove_dir
 
 LANGUAGES = ["en", "fr"]
 
@@ -58,9 +58,9 @@ def foo_data(request, foo_text_tiny, tmp_path_factory):
 
 
 @pytest.fixture()
-def foo_tokeval_data_obj(foo_data):
+def foo_tokcollate_data_obj(foo_data):
     foo_metric = FooMetric(has_input=("input" in foo_data["params"]), has_reference=("ref" in foo_data["params"]))
-    return TokEvalData(
+    return TokCollateData(
         data_dir=foo_data["input_dir"],
         systems=foo_data["systems"],
         languages=foo_data["languages"],
@@ -71,45 +71,45 @@ def foo_tokeval_data_obj(foo_data):
     )
 
 
-def test_list_systems(foo_data, foo_tokeval_data_obj):
+def test_list_systems(foo_data, foo_tokcollate_data_obj):
     """TODO"""
-    assert set(foo_data["systems"]) == set(foo_tokeval_data_obj.systems)
+    assert set(foo_data["systems"]) == set(foo_tokcollate_data_obj.systems)
 
 
-def test_list_languages(foo_data, foo_tokeval_data_obj):
+def test_list_languages(foo_data, foo_tokcollate_data_obj):
     """TODO"""
-    assert set(foo_data["languages"]) == set(foo_tokeval_data_obj.languages)
+    assert set(foo_data["languages"]) == set(foo_tokcollate_data_obj.languages)
 
 
-def test_load_data(foo_tokeval_data_obj):
+def test_load_data(foo_tokcollate_data_obj):
     """TODO"""
-    assert isinstance(foo_tokeval_data_obj, TokEvalData)
+    assert isinstance(foo_tokcollate_data_obj, TokCollateData)
 
 
-def test_get_full_text(foo_data, foo_tokeval_data_obj, foo_text_tiny_tokenized):
+def test_get_full_text(foo_data, foo_tokcollate_data_obj, foo_text_tiny_tokenized):
     """TODO"""
-    text = foo_tokeval_data_obj.get_full_text()
+    text = foo_tokcollate_data_obj.get_full_text()
     assert text is not None
     assert len(text) == len(foo_data["filenames"]) * len(foo_text_tiny_tokenized)
 
 
-def test_get_metric_text(foo_data, foo_tokeval_data_obj):
+def test_get_metric_text(foo_data, foo_tokcollate_data_obj):
     """TODO"""
     if "input" in foo_data["params"]:
-        assert foo_tokeval_data_obj.get_input_text() is not None
+        assert foo_tokcollate_data_obj.get_input_text() is not None
     elif "ref" in foo_data["params"]:
-        assert foo_tokeval_data_obj.get_reference_text() is not None
+        assert foo_tokcollate_data_obj.get_reference_text() is not None
     else:
         with pytest.raises(AttributeError):
-            assert foo_tokeval_data_obj.get_input_text() is None
+            assert foo_tokcollate_data_obj.get_input_text() is None
         with pytest.raises(AttributeError):
-            assert foo_tokeval_data_obj.get_reference_text() is None
+            assert foo_tokcollate_data_obj.get_reference_text() is None
 
 
-def test_get_system_texts(foo_data, foo_tokeval_data_obj, foo_text_tiny_tokenized):
+def test_get_system_texts(foo_data, foo_tokcollate_data_obj, foo_text_tiny_tokenized):
     """TODO"""
     for sys in foo_data["systems"]:
-        text = foo_tokeval_data_obj.get_system_text(sys, language=None)
+        text = foo_tokcollate_data_obj.get_system_text(sys, language=None)
         num_subsets = len(foo_data["languages"])
         if not foo_data["languages"]:
             num_subsets = 1
@@ -117,10 +117,10 @@ def test_get_system_texts(foo_data, foo_tokeval_data_obj, foo_text_tiny_tokenize
         assert len(text) == num_subsets * len(foo_text_tiny_tokenized)
 
 
-def test_get_system_language_text(foo_data, foo_tokeval_data_obj, foo_text_tiny_tokenized):
+def test_get_system_language_text(foo_data, foo_tokcollate_data_obj, foo_text_tiny_tokenized):
     """TODO"""
     for sys in foo_data["systems"]:
         for lang in foo_data["languages"]:
-            text = foo_tokeval_data_obj.get_system_text(sys, language=lang)
+            text = foo_tokcollate_data_obj.get_system_text(sys, language=lang)
             assert text is not None
             assert len(text) == len(foo_text_tiny_tokenized)

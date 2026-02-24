@@ -1,13 +1,13 @@
 import pytest
 
-from tokeval import metrics
+from tokcollate import metrics
 
 
 @pytest.fixture(scope="module")
 def foo_metric_cls():
-    """Mock class that inherits from TokEvalMetric."""
+    """Mock class that inherits from TokCollateMetric."""
 
-    class FooMetric(metrics.TokEvalMetric):
+    class FooMetric(metrics.TokCollateMetric):
         pass
 
     return FooMetric
@@ -21,7 +21,7 @@ def test_register_metric_name(clear_registries, foo_metric_cls):  # noqa: ARG001
 
 
 def test_register_metric_incorrect_subclass_fail(clear_registries):  # noqa: ARG001
-    """Fail when the registered metric class does not inherit from TokEvalMetric."""
+    """Fail when the registered metric class does not inherit from TokCollateMetric."""
 
     class FooMetric:
         pass
@@ -40,7 +40,7 @@ def test_register_metric_duplicate_class_fail(clear_registries, foo_metric_cls):
 def test_register_metric_duplicate_name_fail(clear_registries, foo_metric_cls):  # noqa: ARG001
     """Fail when trying to register duplicate metric name."""
 
-    class BarMetric(metrics.TokEvalMetric):
+    class BarMetric(metrics.TokCollateMetric):
         pass
 
     metrics.register_metric("foo")(foo_metric_cls)
@@ -51,12 +51,12 @@ def test_register_metric_duplicate_name_fail(clear_registries, foo_metric_cls): 
 def test_list_registered_metrics(clear_registries):  # noqa: ARG001
     """Test listing registered metrics."""
 
-    class FooMetric(metrics.TokEvalMetric):
+    class FooMetric(metrics.TokCollateMetric):
         pass
 
     metrics.register_metric("foo")(FooMetric)
 
-    class BarMetric(metrics.TokEvalMetric):
+    class BarMetric(metrics.TokCollateMetric):
         pass
 
     metrics.register_metric("bar")(BarMetric)
@@ -67,7 +67,7 @@ def test_list_registered_metrics(clear_registries):  # noqa: ARG001
 def test_list_instantiated_metric_labels(clear_registries):  # noqa: ARG001
     """Test listing of all instantiated metric labels."""
 
-    class FooMetric(metrics.TokEvalMetric):
+    class FooMetric(metrics.TokCollateMetric):
         pass
 
     metrics.register_metric("foo")(FooMetric)

@@ -1,6 +1,6 @@
 import pytest
 
-from tokeval_cli import main
+from tokcollate_cli import main
 
 
 def test_run_default_values(foo_config_file):

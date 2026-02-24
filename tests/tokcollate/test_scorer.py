@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from omegaconf import OmegaConf
 
-from tokeval.scorer import ScorerResultSaver, TokEvalScorer
+from tokcollate.scorer import ScorerResultSaver, TokCollateScorer
 
 
 @pytest.fixture()
@@ -16,7 +16,7 @@ def foo_config(foo_config_file):
 @pytest.fixture()
 def foo_scorer(foo_config):
     """TODO"""
-    return TokEvalScorer(config=foo_config)
+    return TokCollateScorer(config=foo_config)
 
 
 @pytest.mark.parametrize("save_results", [False, True])
@@ -25,7 +25,7 @@ def test_scorer_default_run(foo_config, save_results):
     if not save_results:
         foo_config.scorer.output_dir = None
 
-    scorer = TokEvalScorer(config=foo_config)
+    scorer = TokCollateScorer(config=foo_config)
     scorer.run()
 
 
@@ -38,7 +38,7 @@ def test_scorer_saved_results_exist(foo_scorer):
         assert path.exists()
 
 
-@pytest.mark.parametrize("metric_type", TokEvalScorer._metric_n_dim)  # noqa: SLF001
+@pytest.mark.parametrize("metric_type", TokCollateScorer._metric_n_dim)  # noqa: SLF001
 def test_scorer_correlate_no_or_single_metric(foo_scorer, metric_type):
     """TODO"""
     metric = next(iter(foo_scorer.metrics.values()))
@@ -53,7 +53,7 @@ def test_scorer_correlate_no_or_single_metric(foo_scorer, metric_type):
         assert results["correlation"][metric_type].ndim == 0
 
 
-@pytest.mark.parametrize("metric_type", TokEvalScorer._metric_n_dim)  # noqa: SLF001
+@pytest.mark.parametrize("metric_type", TokCollateScorer._metric_n_dim)  # noqa: SLF001
 def test_scorer_correlation_matrix_size(foo_scorer, metric_type):
     """TODO"""
     results = foo_scorer.run()
@@ -61,7 +61,7 @@ def test_scorer_correlation_matrix_size(foo_scorer, metric_type):
     assert results["correlation"][metric_type].shape == np.zeros(ref_shape).shape
 
 
-@pytest.mark.parametrize("metric_type", TokEvalScorer._metric_n_dim)  # noqa: SLF001
+@pytest.mark.parametrize("metric_type", TokCollateScorer._metric_n_dim)  # noqa: SLF001
 def test_scorer_metric_marix_size(foo_scorer, metric_type):
     """TODO"""
     results = foo_scorer.run()

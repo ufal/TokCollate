@@ -1,10 +1,10 @@
 from attrs import define
 
-from tokeval.metrics import TokEvalMetric
+from tokcollate.metrics import TokCollateMetric
 
 
 @define(kw_only=True)
-class FooMetric(TokEvalMetric):
+class FooMetric(TokCollateMetric):
     """Mock metric used for testing."""
 
     metric: str = "foo_metric"

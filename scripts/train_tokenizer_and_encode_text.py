@@ -6,7 +6,7 @@ import sys
 
 from collections.abc import Sequence
 from pathlib import Path
-from tokeval.utils import concat_files
+from tokcollate.utils import concat_files
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ def main(args: argparse.Namespace) -> int:
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Train a tokenizer and evaluate it using TokEval")
+    parser = argparse.ArgumentParser(description="Train a tokenizer and evaluate it using TokCollate")
     parser.add_argument("--tokenizer-args", type=str, default=None, help="Tokenizer training parameters.")
     parser.add_argument("--train-datasets", type=str, nargs="+", required=True, help="List of training corpora.")
     parser.add_argument(

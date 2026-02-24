@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from tokeval.utils import open_file
+from tokcollate.utils import open_file
 
 
 @pytest.fixture(scope="session")

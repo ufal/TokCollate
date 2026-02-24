@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from tokeval.data import LanguageInfo
-from tokeval.utils import open_file, remove_dir
+from tokcollate.data import LanguageInfo
+from tokcollate.utils import open_file, remove_dir
 
 
 @pytest.fixture()

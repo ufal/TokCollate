@@ -1,6 +1,6 @@
 import pytest
 
-from tokeval import metrics
+from tokcollate import metrics
 
 pytest_plugins = ["fixtures.configs", "fixtures.data", "fixtures.directories"]
 

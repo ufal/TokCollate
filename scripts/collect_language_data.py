@@ -366,17 +366,17 @@ def merge_wikidata_info(  # noqa: PLR0912
 if __name__ == "__main__":
     # Load languages from FLORES TSV
     logging.info("Loading languages from flores_languages.tsv...")
-    languages = load_flores_languages(Path("tokeval/resources/language/flores_languages.tsv"))
+    languages = load_flores_languages(Path("tokcollate/resources/language/flores_languages.tsv"))
     logging.info("Loaded %i unique languages", len(languages))
 
     # Load code tiers
     logging.info("Loading language resource tiers from code_tiers.tsv...")
-    code_tiers = load_code_tiers(Path("tokeval/resources/language/code_tiers.tsv"))
+    code_tiers = load_code_tiers(Path("tokcollate/resources/language/code_tiers.tsv"))
     logging.info("Loaded tiers for %i languages", len(code_tiers))
 
     # Load morphology types
     logging.info("Loading morphology types from morphology.tsv...")
-    morphology_types = load_morphology_types(Path("tokeval/resources/language/morphology.tsv"))
+    morphology_types = load_morphology_types(Path("tokcollate/resources/language/morphology.tsv"))
     logging.info("Loaded morphology types for %i languages", len(morphology_types))
 
     # Get Wikidata information
