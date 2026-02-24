@@ -5,7 +5,7 @@ from pathlib import Path
 
 from omegaconf import DictConfig, OmegaConf
 
-from tokeval.utils import file_path
+from tokcollate.utils import file_path
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +16,9 @@ def parse_args(argv: Sequence[str]) -> DictConfig:
     Loads the configuration file given the --config-file option and overwrites the file parameters given
     the OmegaConf-style notation. The resulting config object is later used to configure the scoring pipeline.
     """
-    parser = argparse.ArgumentParser(description="TokEval: Tokenization Evaluation.")
+    parser = argparse.ArgumentParser(description="TokCollate: Tokenization Evaluation.")
     parser.add_argument(
-        "--config-file", type=file_path, required=True, help="TokEval execution configuration YAML file."
+        "--config-file", type=file_path, required=True, help="TokCollate execution configuration YAML file."
     )
     parser.add_argument(
         "--log-level", type=str, choices=["info", "debug"], default="info", help="Current logging level."

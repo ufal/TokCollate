@@ -6,13 +6,13 @@ from pathlib import Path
 
 from omegaconf import DictConfig
 
-from tokeval import options
+from tokcollate import options
 
 CMD_MODULES = {}
 
 
 def _print_usage() -> None:
-    """Print the TokEval usage message."""
+    """Print the TokCollate usage message."""
     print(  # noqa: T201
         f"usage: {sys.argv[0]} " + "{" + ",".join(CMD_MODULES.keys()) + "} [options]",
     )
@@ -56,5 +56,5 @@ for file in cli_dir.iterdir():
         cmd_name = file.stem if file.name.endswith(".py") else file
 
         # Import all the CLI modules and register them for later calls
-        importlib.import_module(f"tokeval_cli.{cmd_name}")
-        CMD_MODULES[cmd_name] = sys.modules[f"tokeval_cli.{cmd_name}"]
+        importlib.import_module(f"tokcollate_cli.{cmd_name}")
+        CMD_MODULES[cmd_name] = sys.modules[f"tokcollate_cli.{cmd_name}"]

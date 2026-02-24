@@ -4,15 +4,15 @@ import sys
 
 from omegaconf import DictConfig
 
-from tokeval.options import parse_args
-from tokeval.scorer import TokEvalScorer
+from tokcollate.options import parse_args
+from tokcollate.scorer import TokCollateScorer
 
 logger = logging.getLogger(__name__)
 
 
 def main(config: DictConfig) -> int:
-    """Main TokEval entry point. Executes the scoring based on the provided config file."""
-    scorer = TokEvalScorer(config=config)
+    """Main TokCollate entry point. Executes the scoring based on the provided config file."""
+    scorer = TokCollateScorer(config=config)
     scorer.run()
     return 0
 

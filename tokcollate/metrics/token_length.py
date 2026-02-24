@@ -1,22 +1,22 @@
 import numpy as np
 from attrs import define, field
 
-from tokeval.data import TokEvalData
-from tokeval.metrics import TokEvalMetric, register_metric
+from tokcollate.data import TokCollateData
+from tokcollate.metrics import TokCollateMetric, register_metric
 
-from .tokeval_metric import EvalMode
+from .tokcollate_metric import EvalMode
 
 
 @register_metric("token_length")
 @define(kw_only=True)
-class TokenLengthMetric(TokEvalMetric):
+class TokenLengthMetric(TokCollateMetric):
     """Compute the average number of utf-8 characters per token."""
 
     mode: EvalMode = field(converter=EvalMode, default=EvalMode.MEAN)
 
     def score(
         self,
-        data: TokEvalData,
+        data: TokCollateData,
         system_label: str,
         language: str,
     ) -> float:

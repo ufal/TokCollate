@@ -1,20 +1,20 @@
 import numpy as np
 from attrs import define, field
 
-from tokeval.data import TokEvalData
-from tokeval.metrics import TokEvalMultilingualMetric, register_metric
+from tokcollate.data import TokCollateData
+from tokcollate.metrics import TokCollateMultilingualMetric, register_metric
 
-from .tokeval_metric import EvalMode
+from .tokcollate_metric import EvalMode
 
 
 @register_metric("sequence_ratio")
 @define(kw_only=True)
-class SequenceRatioMetric(TokEvalMultilingualMetric):
+class SequenceRatioMetric(TokCollateMultilingualMetric):
     """Compute the sequence length ratio between two outputs of a single tokenizer."""
 
     mode: EvalMode = field(converter=EvalMode, default=EvalMode.MEAN)
 
-    def score(self, data: TokEvalData, system_label: str, src_lang: str, tgt_lang: str) -> float:
+    def score(self, data: TokCollateData, system_label: str, src_lang: str, tgt_lang: str) -> float:
         text_src = data.get_system_text(system_label=system_label, language=src_lang)
         text_tgt = data.get_system_text(system_label=system_label, language=tgt_lang)
 
@@ -23,7 +23,7 @@ class SequenceRatioMetric(TokEvalMultilingualMetric):
         ratios = lengths_src / lengths_tgt
         return self._aggregate_scores(ratios)
 
-    def score_batched(self, data: TokEvalData, system_label: str, languages: list[str]) -> np.ndarray:
+    def score_batched(self, data: TokCollateData, system_label: str, languages: list[str]) -> np.ndarray:
         texts = [data.get_system_text(system_label=system_label, language=lang) for lang in languages]
         lengths = np.stack([np.array([len(line) for line in text]) for text in texts], axis=1)
         ratios = lengths.reshape(-1, len(languages), 1) / lengths.reshape(-1, 1, len(languages))

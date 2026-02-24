@@ -1,15 +1,15 @@
 import numpy as np
 from attrs import define, field
 
-from tokeval.data import TokEvalData
-from tokeval.metrics import TokEvalMetric, register_metric
+from tokcollate.data import TokCollateData
+from tokcollate.metrics import TokCollateMetric, register_metric
 
-from .tokeval_metric import EvalMode
+from .tokcollate_metric import EvalMode
 
 
 @register_metric("sequence_length")
 @define(kw_only=True)
-class SequenceLengthMetric(TokEvalMetric):
+class SequenceLengthMetric(TokCollateMetric):
     """Computes the average sequence length in the terms of tokens per line."""
 
     negate_output: bool = field(default=True)  # negate output so higher is better
@@ -17,7 +17,7 @@ class SequenceLengthMetric(TokEvalMetric):
 
     def score(
         self,
-        data: TokEvalData,
+        data: TokCollateData,
         system_label: str,
         language: str,
     ) -> float:

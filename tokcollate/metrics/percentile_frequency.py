@@ -1,14 +1,14 @@
 import numpy as np
 from attrs import define, field
 
-from tokeval.data import TokEvalData
-from tokeval.metrics import TokEvalMetric, register_metric
-from tokeval.utils import get_unigram_distribution
+from tokcollate.data import TokCollateData
+from tokcollate.metrics import TokCollateMetric, register_metric
+from tokcollate.utils import get_unigram_distribution
 
 
 @register_metric("percentile_frequency")
 @define(kw_only=True)
-class PercentileFrequencyMetric(TokEvalMetric):
+class PercentileFrequencyMetric(TokCollateMetric):
     """Computes the percentile frequency from `Zouhar et al., 2023, Tokenization and the Noiseless Channel`.
 
     Args:
@@ -21,7 +21,7 @@ class PercentileFrequencyMetric(TokEvalMetric):
 
     def score(
         self,
-        data: TokEvalData,
+        data: TokCollateData,
         system_label: str,
         language: str,
     ) -> float:

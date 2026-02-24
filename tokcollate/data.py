@@ -3,7 +3,7 @@ from pathlib import Path
 
 from attrs import converters, define, field, validators
 
-from tokeval.utils import load_tokenized_text_file
+from tokcollate.utils import load_tokenized_text_file
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class LanguageInfo(dict):
 
 
 @define(kw_only=True)
-class TokEvalData:
+class TokCollateData:
     """TODO"""
 
     data_dir: Path = field(converter=Path)
@@ -43,7 +43,7 @@ class TokEvalData:
     languages_info: dict[str, LanguageInfo] = field(
         validator=validators.optional(validators.instance_of(dict)), default=None
     )
-    metrics: list["TokEvalMetric"] = field(factory=list)  # noqa: F821
+    metrics: list["TokCollateMetric"] = field(factory=list)  # noqa: F821
     file_suffix: str = field(validator=validators.instance_of(str), default="txt")
     input_file_stem: str = field(validator=validators.instance_of(str), default="input")
     reference_file_stem: str = field(validator=validators.instance_of(str), default="reference")

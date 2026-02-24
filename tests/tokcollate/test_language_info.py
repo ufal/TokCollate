@@ -1,31 +1,21 @@
-from pathlib import Path
-
 import pytest
 
 from tokcollate.data import LanguageInfo
-from tokcollate.utils import open_file, remove_dir
 
 
 @pytest.fixture()
 def foo_language_info_dict():
     return {
         "name": "Acehnese (Jawi script)",
-        "scripts": [
-            "Arab",
-            "Latn"
-        ],
-        "glottocodes": [
-            "achi1257"
-        ],
+        "scripts": ["Arab", "Latn"],
+        "glottocodes": ["achi1257"],
         "families": "Austronesian",
         "speakers": 3500032,
         "continent": "Asia",
         "wikipedia": "https://en.wikipedia.org/wiki/Acehnese_language",
         "tier": 1,
         "morphology": "isolating",
-        "fineweb2": {
-            "Latn": 13810487
-        }
+        "fineweb2": {"Latn": 13810487},
     }
 
 

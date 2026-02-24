@@ -4,14 +4,14 @@ import numpy as np
 from attrs import define, field, validators
 from scipy.special import kl_div
 
-from tokeval.data import TextType, TokEvalData
-from tokeval.metrics import TokEvalMultilingualMetric, register_metric
-from tokeval.utils import get_unigram_distribution, get_vocabulary
+from tokcollate.data import TextType, TokCollateData
+from tokcollate.metrics import TokCollateMultilingualMetric, register_metric
+from tokcollate.utils import get_unigram_distribution, get_vocabulary
 
 
 @register_metric("kullback_liebler_divergence")
 @define(kw_only=True)
-class KullbackLieblerDivergenceMetric(TokEvalMultilingualMetric):
+class KullbackLieblerDivergenceMetric(TokCollateMultilingualMetric):
     """Measures the Kullback-Liebler Divergence of two vocabulary distributions extracted from (parallel/bilingual)
     texts.
 
@@ -21,7 +21,7 @@ class KullbackLieblerDivergenceMetric(TokEvalMultilingualMetric):
 
     vocab_most_common: int = field(validator=validators.optional(validators.instance_of(int)), default=None)
 
-    def score(self, data: TokEvalData, system_label: str, src_lang: str, tgt_lang: str) -> float:
+    def score(self, data: TokCollateData, system_label: str, src_lang: str, tgt_lang: str) -> float:
         text_src = data.get_system_text(system_label=system_label, language=src_lang)
         text_tgt = data.get_system_text(system_label=system_label, language=tgt_lang)
         text_all = data.get_system_text(system_label=system_label)
@@ -32,7 +32,7 @@ class KullbackLieblerDivergenceMetric(TokEvalMultilingualMetric):
 
         return kl_div(unigram_probs_src, unigram_probs_tgt).sum()
 
-    def score_batched(self, data: TokEvalData, system_label: str, languages: list[str]) -> np.ndarray:
+    def score_batched(self, data: TokCollateData, system_label: str, languages: list[str]) -> np.ndarray:
         text_all = data.get_system_text(system_label=system_label)
         vocab = self._extract_vocabulary(text_all, self.vocab_most_common)
         unigram_probs = np.stack(

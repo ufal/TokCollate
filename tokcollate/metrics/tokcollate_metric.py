@@ -4,7 +4,7 @@ import logging
 import numpy as np
 from attrs import define, field, validators
 
-from tokeval.data import TokEvalData
+from tokcollate.data import TokCollateData
 
 logger = logging.getLogger(__name__)
 
@@ -27,13 +27,13 @@ class EvalMode(enum.Enum):
 
 
 @define(kw_only=True)
-class TokEvalMetric:
-    """Base class for TokEval metrics.
+class TokCollateMetric:
+    """Base class for TokCollate metrics.
 
-    Each TokEvalMetric derived class must implement the following interface, mainly the .score() and .score_all()
+    Each TokCollateMetric derived class must implement the following interface, mainly the .score() and .score_all()
     methods.
-    Derived classes must be registered using tokeval.metrics.register_metric() decorator.
-    Instances should be created using the tokeval.metrics.build_metric() method.
+    Derived classes must be registered using tokcollate.metrics.register_metric() decorator.
+    Instances should be created using the tokcollate.metrics.build_metric() method.
 
     Some metrics might require a reference or an input file in addition to the tokenizer output. In such cases,
     the metric should set the relevat private class attributes self._requires_*_text to True.
@@ -52,14 +52,14 @@ class TokEvalMetric:
 
     @classmethod
     def build_metric(
-        cls: "TokEvalMetric",
+        cls: "TokCollateMetric",
         metric: str,
         metric_label: str,
         **kwargs,  # noqa: ANN003
-    ) -> "TokEvalMetric":
+    ) -> "TokCollateMetric":
         """Build a specified metric instance.
 
-        This method can be called directly or (preferably) using the tokeval.metrics.build_metric() method.
+        This method can be called directly or (preferably) using the tokcollate.metrics.build_metric() method.
 
         Args:
             metric (str): metric class identifier (registered using register_metric)
@@ -83,18 +83,18 @@ class TokEvalMetric:
 
     def score(
         self,
-        data: TokEvalData,
+        data: TokCollateData,
         system_label: str,
         **kwargs,  # noqa: ANN003
     ) -> float:
         """Implements the metric computation.
 
-        The method receives a data representation TokEvalData instance, a label of the evaluated system and additional
-        (optional) arguments such as languages for retrieving a required set of texts from the TokEvalData and
-        computing the metric score.
+        The method receives a data representation TokCollateData instance, a label of the evaluated system and
+        additional (optional) arguments such as languages for retrieving a required set of texts from the
+        TokCollateData and computing the metric score.
 
         Args:
-            data (TokEvalData): data structure containing all texts available for evaluation
+            data (TokCollateData): data structure containing all texts available for evaluation
             system_label (str): tokenizer label used for text selection
             src_lang (str): optional source language for text selection. Usually used with tgt_lang argument during
                 a multilingual evaluation
@@ -107,14 +107,14 @@ class TokEvalMetric:
         """
         raise NotImplementedError()
 
-    def score_all(self, data: TokEvalData, systems: list[str], languages: list[str]) -> np.ndarray:
+    def score_all(self, data: TokCollateData, systems: list[str], languages: list[str]) -> np.ndarray:
         """Wrapper for evaluating a set of tokenizers (and languages).
 
         Calls the .score() method for each provided system (and languages) and collects the results in a single
         np.ndarray.
 
         Args:
-            data (TokEvalData): data structure containing all texts available for evaluation
+            data (TokCollateData): data structure containing all texts available for evaluation
             systems (list[str]): list of the evaluated tokenizer labels
             **kwargs: catch-all parameter for parameters required by specific metric groupings
                 (e.g. multilingual metrics)
@@ -132,14 +132,14 @@ class TokEvalMetric:
         return res
 
 
-class TokEvalMultilingualMetric(TokEvalMetric):
+class TokCollateMultilingualMetric(TokCollateMetric):
     """TODO"""
 
     batched: bool = field(validator=validators.instance_of(bool), default=True)
 
     def score(
         self,
-        data: TokEvalData,
+        data: TokCollateData,
         system_label: str,
         src_lang: str,
         tgt_lang: str,
@@ -148,13 +148,13 @@ class TokEvalMultilingualMetric(TokEvalMetric):
 
     def score_batched(
         self,
-        data: TokEvalData,
+        data: TokCollateData,
         system_label: str,
         languages: list[str],
     ) -> np.ndarray:
         raise NotImplementedError()
 
-    def score_all(self, data: TokEvalData, systems: list[str], languages: list[str]) -> np.ndarray:
+    def score_all(self, data: TokCollateData, systems: list[str], languages: list[str]) -> np.ndarray:
         """TODO"""
         res = np.zeros(shape=[len(systems), len(languages), len(languages)])
         for i, system_label in enumerate(systems):

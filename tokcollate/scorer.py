@@ -8,15 +8,15 @@ import numpy as np
 from attrs import converters, define, field, fields, validators
 from omegaconf import DictConfig
 
-from tokeval.data import LanguageInfo, TokEvalData
-from tokeval.metrics import TokEvalMetric, build_metric
+from tokcollate.data import LanguageInfo, TokCollateData
+from tokcollate.metrics import TokCollateMetric, build_metric
 
 logger = logging.getLogger(__name__)
 
 
 @define(kw_only=True)
 class ScorerResultSaver(dict):
-    """Class for saving the TokEvalScorer results with the scorer metadata."""
+    """Class for saving the TokCollateScorer results with the scorer metadata."""
 
     output_dir: Path = field(converter=Path)
 
@@ -65,7 +65,7 @@ class ScorerResultSaver(dict):
 
 
 @define(kw_only=True)
-class TokEvalScorer:
+class TokCollateScorer:
     """Base Scorer class.
 
     The scorer loads the provided datasets (system outputs, input and reference files) and scores them using
@@ -73,7 +73,7 @@ class TokEvalScorer:
     The metric results are then correlated based on their results across the system outputs
 
     Args:
-        config (DictConfig): TokEval configuration containing scorer details
+        config (DictConfig): TokCollate configuration containing scorer details
 
     OmegaConf Args:
         scorer.input_dir: location of the dataset files
@@ -92,8 +92,8 @@ class TokEvalScorer:
     languages_info: dict[str, Any] = field(init=False, default=None)
     file_suffix: str = field(init=False, default="txt")
 
-    metrics: dict[str, TokEvalMetric] = field(init=False, default=None)
-    data: TokEvalData = field(init=False, default=None)
+    metrics: dict[str, TokCollateMetric] = field(init=False, default=None)
+    data: TokCollateData = field(init=False, default=None)
     _metric_n_dim: ClassVar[dict] = {"mono": 2, "multi": 3}
 
     def __attrs_post_init__(self) -> None:
@@ -117,7 +117,7 @@ class TokEvalScorer:
                 )
                 raise ValueError(err_msg)
         self.metrics = self._build_metrics(self.config.scorer)
-        self.data = TokEvalData(
+        self.data = TokCollateData(
             data_dir=self.input_dir,
             systems=self.systems,
             languages=self.languages,
@@ -160,7 +160,7 @@ class TokEvalScorer:
         return results
 
     @classmethod
-    def list_parameters(cls: "TokEvalScorer") -> list[str]:
+    def list_parameters(cls: "TokCollateScorer") -> list[str]:
         """List the class parameter names."""
         param_list = []
         for p in fields(cls):
@@ -169,7 +169,7 @@ class TokEvalScorer:
             param_list.append(p)
         return param_list
 
-    def _build_metrics(self, config: DictConfig) -> dict[str, TokEvalMetric]:
+    def _build_metrics(self, config: DictConfig) -> dict[str, TokCollateMetric]:
         """Build the requested metric objects based on their definition in the config."""
         metrics = {}
         for metric_params in config.metrics:

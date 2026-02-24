@@ -3,16 +3,16 @@ import logging
 import numpy as np
 from attrs import Attribute, define, field, validators
 
-from tokeval.data import TokEvalData
-from tokeval.metrics import TokEvalMetric, register_metric
-from tokeval.utils import get_unigram_distribution
+from tokcollate.data import TokCollateData
+from tokcollate.metrics import TokCollateMetric, register_metric
+from tokcollate.utils import get_unigram_distribution
 
 logger = logging.getLogger(__name__)
 
 
 @register_metric("entropy")
 @define(kw_only=True)
-class EntropyMetric(TokEvalMetric):
+class EntropyMetric(TokCollateMetric):
     """Metric class implementing various entropy computations.
 
     Args:
@@ -38,7 +38,7 @@ class EntropyMetric(TokEvalMetric):
 
     def score(
         self,
-        data: TokEvalData,
+        data: TokCollateData,
         system_label: str,
         language: str,
     ) -> float:
