@@ -79,7 +79,7 @@ npm install
 
 ## Configuration
 
-TokEval uses YAML configuration files. See `example-config.yml` for a template that works with the FLORES-200 Snakemake pipeline.
+TokCollate uses YAML configuration files. See `example-config.yml` for a template that works with the FLORES-200 Snakemake pipeline.
 
 Key configuration options:
 
