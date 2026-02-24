@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FigureConfig, MetricDimensionality } from '../types';
 import { getAvailableGraphTypes, getGraphType } from '../utils/graphTypes';
+import { buildLanguageLabelMap, getDisplayLanguageLabel } from '../utils/languageLabels';
 import './GraphConfigurator.css';
 
 interface GraphConfiguratorProps {
@@ -113,6 +114,11 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
   const allMorphology = React.useMemo(() => getCategoryList('morphology', true), [getCategoryList]);
 
   const allTiers = React.useMemo(() => getCategoryList('tier', false), [getCategoryList]);
+
+  const languageLabelMap = React.useMemo(
+    () => buildLanguageLabelMap(availableLanguages),
+    [availableLanguages],
+  );
 
   const buildLanguageTooltip = React.useCallback((label: string): string => {
     try {
@@ -757,7 +763,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                 const match = languageMatchesFilters(l);
                 return (
                   <option key={l} value={l} title={buildLanguageTooltip(l)}>
-                    {l}{match ? ' ✓' : ''}
+                    {getDisplayLanguageLabel(l, languageLabelMap)}{match ? ' ✓' : ''}
                   </option>
                 );
               })}

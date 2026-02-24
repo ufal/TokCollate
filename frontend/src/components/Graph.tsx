@@ -1,6 +1,7 @@
 import React from 'react';
 import { FigureConfig, VisualizationData } from '../types';
 import { getGraphType } from '../utils/graphTypes';
+import { buildLanguageLabelMap, getDisplayLanguageLabel, getDisplayLanguagePairLabel } from '../utils/languageLabels';
 import {
   BarChart,
   Bar,
@@ -23,17 +24,28 @@ interface GraphProps {
   data: VisualizationData;
 }
 
-const ScatterTooltip: React.FC<{ active?: boolean; payload?: any[]; metricX: string; metricY: string }> = ({
+const ScatterTooltip: React.FC<{
+  active?: boolean;
+  payload?: any[];
+  metricX: string;
+  metricY: string;
+  formatLanguage?: (label: string, isPair: boolean) => string;
+}> = ({
   active,
   payload,
   metricX,
   metricY,
+  formatLanguage,
 }) => {
   if (!active || !payload || payload.length === 0) return null;
 
   const pt = payload[0]?.payload || {};
   const hasLanguagePair = pt.languagePair !== undefined && pt.languagePair !== null;
-  const languageLabel = hasLanguagePair ? pt.languagePair : pt.language;
+  const rawLanguageLabel = hasLanguagePair ? pt.languagePair : pt.language;
+  const languageLabel =
+    rawLanguageLabel !== undefined && formatLanguage
+      ? formatLanguage(String(rawLanguageLabel), hasLanguagePair)
+      : rawLanguageLabel;
   const languageTitle = hasLanguagePair ? 'Language pair' : 'Language';
 
    const clusterSize = typeof pt.clusterSize === 'number' ? pt.clusterSize : undefined;
@@ -178,6 +190,12 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
   };
 
   const chartData = getChartData();
+
+  const allLanguages = data.metadata?.languages || [];
+  const languageLabelMap = React.useMemo(
+    () => buildLanguageLabelMap(allLanguages),
+    [allLanguages],
+  );
 
   React.useEffect(() => {
     console.log('=== Graph Component Mount/Update ===');
@@ -441,7 +459,17 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
           />
           <Tooltip 
             cursor={{ strokeDasharray: '3 3' }}
-            content={<ScatterTooltip metricX={metricX} metricY={metricY} />}
+              content={(
+                <ScatterTooltip
+                  metricX={metricX}
+                  metricY={metricY}
+                  formatLanguage={(label, isPair) =>
+                    isPair
+                      ? getDisplayLanguagePairLabel(label, languageLabelMap)
+                      : getDisplayLanguageLabel(label, languageLabelMap)
+                  }
+                />
+              )}
           />
           <Legend verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: 10 }} />
           {trendLines.map((t) => (
@@ -500,13 +528,13 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
         const [lang1, lang2] = col.split('-', 2);
         return (
           <span className="metric-table-col-label">
-            <span>{lang1}</span>
+            <span>{getDisplayLanguageLabel(lang1, languageLabelMap)}</span>
             <br />
-            <span>{lang2}</span>
+            <span>{getDisplayLanguageLabel(lang2, languageLabelMap)}</span>
           </span>
         );
       }
-      return col;
+      return getDisplayLanguageLabel(col, languageLabelMap);
     };
 
     const handleColumnHeaderClick = (colIdx: number) => {
