@@ -25,9 +25,9 @@ For development with hot module reloading:
 npm run dev
 ```
 
-This starts the Vite dev server on `http://localhost:3002` (or the next available port).
+This starts the Vite dev server on `http://localhost:3000` (or the next available port).
 
-**Note:** The dev server does NOT provide the `/api/load-file` endpoint. To test file loading, use production mode (see below).
+**Note:** The dev server does NOT provide the `/api/load-file` or `/api/parse-npz` endpoints. For full import functionality (including NPZ parsing), run the Express backend (`npm start`) and access the app at `http://localhost:5000`.
 
 ### Building for Production
 
@@ -69,6 +69,7 @@ The server will:
 #### Environment Variables
 
 - `PORT`: Server port (default: 5000)
+ - `TOKCOLLATE_PYTHON`: Optional path to the Python interpreter used for NPZ parsing (defaults to `python3` on PATH)
 
 Example:
 ```bash
@@ -89,7 +90,7 @@ Loads a file from the server filesystem and returns its content.
 
 **Returns:**
 - For `.json` files: JSON content with `Content-Type: application/json`
-- For `.npz` files: Binary content with `Content-Type: application/octet-stream`
+- For `.npz` files: JSON produced by the Python NPZ helper (arrays converted to JSON-safe lists)
 
 **Examples:**
 ```bash
@@ -109,19 +110,20 @@ Returns `{"status": "ok"}` if the server is running.
 
 ## Frontend Features
 
-### Import Local Data
+### Import Data
 
-The "Import Local Data" button opens a dialog to enter the directory path where metadata and results files are located.
+The **Import Data** button in the top menu opens a directory picker for selecting local results.
 
-**Supported files:**
-- `metadata.json` (required) - Contains dataset metadata
-- `results.json` or `results.npz` (optional) - Contains metric results
+**Expected contents of the selected directory:**
+- `metadata.json` (required) — describes dataset name, tokenizers, languages, metrics, and file paths
+- `results.npz` (required) — NPZ file with metric arrays
+- `languages_info.json` (optional) — language metadata used for advanced filters (continent, families, tier, etc.)
 
 **Usage:**
-1. Click "Import Local Data" button
-2. Enter the full directory path (e.g., `/home/user/experiments/output/`)
-3. Click "Load"
-4. The frontend will fetch files via the `/api/load-file` endpoint
+1. Click **Import Data**.
+2. Select a directory containing the files above.
+3. The browser reads `metadata.json` and sends `results.npz` to `/api/parse-npz` on the backend.
+4. On success, the frontend shows a multi-step import progress indicator and then enables figure configuration.
 
 **Requirements:**
 - Backend server must be running (`npm start`)
@@ -205,10 +207,10 @@ The server has CORS enabled by default. If you still see CORS errors, check:
 frontend/
 ├── src/
 │   ├── components/
-│   │   ├── App.tsx          - Main app component
-│   │   ├── MainMenu.tsx     - Menu with Import Local Data button
-│   │   ├── Graph.tsx        - Graph/chart rendering
-│   │   ├── GraphConfigurator.tsx - Figure configuration UI
+│   │   ├── App.tsx               - Main app component and visualization state
+│   │   ├── MainMenu.tsx          - Top menu with Import Data / Export Graph
+│   │   ├── Graph.tsx             - Graph/chart and metric table rendering
+│   │   ├── GraphConfigurator.tsx - Figure configuration UI and validation
 │   │   └── ...
 │   ├── utils/
 │   │   ├── fileUtils.ts     - File loading utilities
@@ -228,13 +230,6 @@ frontend/
 - `npm run serve` - Build and start Express server
 - `npm start` - Start Express server (requires prior `npm run build`)
 - `npm run preview` - Preview production build locally
-
-## Performance Notes
-
-- Frontend bundle is ~550KB minified + gzipped
-- Consider using a CDN for static assets in production
-- For large `.npz` files (>100MB), ensure adequate memory for browser-side parsing
-- Network latency may affect import performance; consider caching on the backend
 
 ## Security Considerations
 

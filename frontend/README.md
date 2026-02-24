@@ -4,18 +4,14 @@ A single-page web application for visualizing and analyzing TokCollate tokenizat
 
 ## Features
 
-- **Load Results**: Load TokCollate metrics and correlation data from JSON/NPZ files
-- **Interactive Visualizations**: Create bar charts and line charts from your metrics
-- **Flexible Configuration**: 
-  - Select tokenizers to compare
-  - Filter by languages
-  - Choose which metrics to visualize
-  - Customize graph titles and types
-- **Responsive Layout**: 
-  - Main menu bar with dataset selector
-  - Two-column layout: wider left column for graphs, compact right panel for configuration
-  - Scrollable graph list and configurator
-- **Save/Load**: Save visualization configurations and load them later
+- **Load Results**: Load TokCollate metrics and correlation data from JSON/NPZ files via a local directory picker and backend NPZ parser
+- **Interactive Visualizations**:
+  - Scatter plots for metric–metric correlations with optional trendlines (global or grouped)
+  - Metric tables with sortable rows/columns and value-based green heatmap-style shading
+- **Flexible Configuration**:
+  - Select tokenizers and languages (with rich filters based on language metadata when available)
+  - Choose which metrics to visualize, including both monolingual and multilingual (language pairwise) metrics
+  - Configure figure types, trendline modes, and grouping options
 
 ## Project Structure
 
@@ -86,73 +82,65 @@ The application will open at `http://localhost:3000` in your default browser.
 
 ### Loading Data
 
-1. Click the **Import Data** button in the top menu
-2. Select a directory containing TokCollate results
-3. The available tokenizers, metrics, and languages will be extracted automatically
+1. Start the backend server (see `DEPLOYMENT.md`) or run the frontend in dev mode.
+2. Click the **Import Data** button in the top menu.
+3. In the directory picker, choose a folder containing at least:
+  - `metadata.json` (required)
+  - `results.npz` (required)
+  - `languages_info.json` (optional; adds richer language filtering/metadata)
+4. Watch the import progress indicator; once complete, the dataset name will appear in the top-right.
 
 ### Creating Visualizations
 
-1. In the right panel (Graph Configuration):
-   - Enter a title for your graph
-   - Select the graph type (Bar Chart or Line Chart)
-   - Add tokenizers to compare
-   - Select metrics to visualize
-   - Optionally filter by languages
-2. Click **Generate Graph** to add it to the left column
-3. The graph will render based on the configuration
+1. Use the right panel (**Figure Configuration**) to:
+  - Choose a **Figure Type** (e.g., metric correlation scatter, metric table).
+  - Select tokenizers and languages (optionally using continent/family/tier and other filters).
+  - Pick one or more metrics depending on the figure type.
+  - Optionally enable trendlines for correlation scatter plots.
+2. The graph updates automatically as you adjust configuration.
+3. If a configuration is invalid, the **Configuration Issues** box explains what needs fixing.
 
-### Managing Graphs
+### Managing Figures
 
-- Remove a graph by clicking the **✕** button in its header
-- Switch between different dataset names using the selector
-- Export all graphs as PNG files by clicking **Export graphs**
-
-### Saving Configurations
-
-Click the **Save** button to download the current visualization configuration as JSON.
+- Configure one primary figure at a time; the current figure is shown in the left column.
+- Export the currently visible graph as PNG via the **Export Graph** button in the top menu.
 
 ## Data Format
 
-The application expects a JSON file with the following structure:
+TokCollate primarily consumes NPZ files produced by the TokCollate scorer.
+
+- `metadata.json` describes the dataset and metric layout (tokenizers, languages, metrics, and paths).
+- `results.npz` contains the actual metric arrays:
+  - 2D metrics typically have shape `[num_tokenizers, num_languages]`.
+  - 3D metrics (e.g., language–language matrices per tokenizer) typically have shape `[num_tokenizers, num_languages, num_languages]`.
+- The backend Python helper deserializes these arrays to JSON-safe structures for the frontend.
+
+You can also work with pre-built JSON exports that follow this structure:
 
 ```json
 {
   "metrics": {
-    "tokenizer_1_metric_name_lang1": [value],
-    "tokenizer_2_metric_name_lang1": [value]
+    "some_metric": {
+      "data": [[1.0, 2.0], [3.0, 4.0]],
+      "shape": [2, 2]
+    }
   },
-  "correlation": {
-    "metric_1_metric_2": [value]
+  "correlation": {},
+  "metadata": {
+    "datasetName": "example-dataset",
+    "tokenizers": ["tok1", "tok2"],
+    "languages": ["eng_Latn", "ces_Latn"],
+    "metrics": ["some_metric"]
   }
 }
 ```
 
 ## Future Enhancements
 
-- [ ] Support for NPZ file format (binary numpy archives)
-- [ ] Scatter plots and heatmaps
-- [ ] Advanced filtering options
+- [ ] Additional figure types
 - [ ] Export graphs as PDF
-- [ ] Correlation matrix visualization
-- [ ] Add custom tokenizers at runtime
-- [ ] Dark mode
-- [ ] Graph customization (colors, fonts, axis ranges)
-
-## Development
-
-### Building for Production
-
-```bash
-npm run build
-```
-
-The optimized build will be in the `dist/` directory.
-
-### Type Checking
-
-```bash
-npm run type-check
-```
+- [ ] Run the TokCollate CLI using the analysis config via the web frontend
+- [ ] Graph customization (zoom, panning)
 
 ## Notes
 
