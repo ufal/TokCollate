@@ -1,5 +1,5 @@
 import numpy as np
-from attrs import define, field
+from attrs import define
 
 from tokcollate.data import TokCollateData
 from tokcollate.metrics import TokCollateMetric, register_metric
@@ -14,8 +14,6 @@ class BitsMetric(TokCollateMetric):
     Based on the code from https://github.com/zouharvi/tokenization-scorer/blob/main/tokenization_scorer/metrics.py#L48
     """
 
-    negate_output: bool = field(default=True)  # negate output so higher is better
-
     def score(
         self,
         data: TokCollateData,
@@ -25,7 +23,4 @@ class BitsMetric(TokCollateMetric):
         text = data.get_system_text(system_label=system_label, language=language)
         unigram_freqs = get_unigram_frequencies(text)
         vocab_size = unigram_freqs.size
-        res = unigram_freqs.sum() * np.log2(vocab_size)
-        if self.negate_output:
-            return -res
-        return res
+        return unigram_freqs.sum() * np.log2(vocab_size)

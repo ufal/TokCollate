@@ -12,7 +12,6 @@ from .tokcollate_metric import EvalMode
 class SequenceLengthMetric(TokCollateMetric):
     """Computes the average sequence length in the terms of tokens per line."""
 
-    negate_output: bool = field(default=True)  # negate output so higher is better
     mode: EvalMode = field(converter=EvalMode, default=EvalMode.MEAN)
 
     def score(
@@ -23,10 +22,7 @@ class SequenceLengthMetric(TokCollateMetric):
     ) -> float:
         text = data.get_system_text(system_label=system_label, language=language)
         seq_length = np.array([len(line) for line in text])
-        res = self._aggregate_scores(seq_length)
-        if self.negate_output:
-            return -res
-        return res
+        return self._aggregate_scores(seq_length)
 
     def _aggregate_scores(self, scores: np.ndarray) -> float:
         if self.mode == EvalMode.MEAN:
