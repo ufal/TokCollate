@@ -325,18 +325,40 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     const filteredMetrics = filterMetricsForType(newTypeId);
 
     // Unified defaults for tokenizers and languages across all figure types:
-    // always select up to the first four tokenizers and languages, subject
-    // to each graph type's max constraint.
-    const computeDefaultSelection = (items: string[], maxAllowed: number | undefined): string[] => {
+    // select only 1	62 items by default (subject to each graph type's
+    // min/max constraints) instead of all or many.
+    const computeDefaultSelection = (
+      items: string[],
+      minAllowed: number | undefined,
+      maxAllowed: number | undefined,
+    ): string[] => {
       if (!items || items.length === 0) return [];
-      const hardCap = 4;
+
+      const desiredMax = 2;
+      const minConstraint = minAllowed ?? 0;
       const maxConstraint = maxAllowed ?? Infinity;
-      const limit = Math.min(hardCap, items.length, Number.isFinite(maxConstraint) ? maxConstraint : items.length);
+
+      let limit = Math.min(desiredMax, items.length);
+      if (limit < minConstraint) {
+        limit = Math.min(minConstraint, items.length);
+      }
+      if (Number.isFinite(maxConstraint)) {
+        limit = Math.min(limit, maxConstraint);
+      }
+
       return items.slice(0, Math.max(0, limit));
     };
 
-    let defaultTokenizers: string[] = computeDefaultSelection(availableTokenizers, gt?.constraints.tokenizers.max);
-    let defaultLanguages: string[] = computeDefaultSelection(availableLanguages, gt?.constraints.languages.max);
+    let defaultTokenizers: string[] = computeDefaultSelection(
+      availableTokenizers,
+      gt?.constraints.tokenizers.min,
+      gt?.constraints.tokenizers.max,
+    );
+    let defaultLanguages: string[] = computeDefaultSelection(
+      availableLanguages,
+      gt?.constraints.languages.min,
+      gt?.constraints.languages.max,
+    );
 
     // Defaults for metrics depend on graph type and constraints
     let defaultMetrics: string[] = [];
@@ -384,6 +406,20 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     const newConfig = {
       ...config,
       tokenizers: selectedOptions,
+    };
+    setConfig(newConfig);
+    validateConfig(newConfig);
+  };
+
+  const handleSelectAllTokenizers = () => {
+    const max = currentGraphType?.constraints.tokenizers.max;
+    const limit = typeof max === 'number' && Number.isFinite(max)
+      ? Math.min(availableTokenizers.length, max)
+      : availableTokenizers.length;
+    const newTokenizers = availableTokenizers.slice(0, Math.max(0, limit));
+    const newConfig = {
+      ...config,
+      tokenizers: newTokenizers,
     };
     setConfig(newConfig);
     validateConfig(newConfig);
@@ -443,6 +479,20 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       }
     }
 
+    validateConfig(newConfig);
+  };
+
+  const handleSelectAllLanguages = () => {
+    const max = currentGraphType?.constraints.languages.max;
+    const limit = typeof max === 'number' && Number.isFinite(max)
+      ? Math.min(availableLanguages.length, max)
+      : availableLanguages.length;
+    const newLanguages = availableLanguages.slice(0, Math.max(0, limit));
+    const newConfig = {
+      ...config,
+      languages: newLanguages,
+    };
+    setConfig(newConfig);
     validateConfig(newConfig);
   };
 
@@ -638,13 +688,23 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
           )}
 
           <div className="config-section">
-            <label>
-              {getConstraintLabel(
-                'Tokenizers',
-                currentGraphType.constraints.tokenizers.min,
-                currentGraphType.constraints.tokenizers.max
-              )}
-            </label>
+            <div className="config-header-row">
+              <label>
+                {getConstraintLabel(
+                  'Tokenizers',
+                  currentGraphType.constraints.tokenizers.min,
+                  currentGraphType.constraints.tokenizers.max
+                )}
+              </label>
+              <button
+                type="button"
+                className="select-all-btn"
+                onClick={handleSelectAllTokenizers}
+                disabled={availableTokenizers.length === 0}
+              >
+                Select all
+              </button>
+            </div>
             <select
               multiple
               value={config.tokenizers || []}
@@ -758,13 +818,23 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
           )}
 
           <div className="config-section">
-            <label>
-              {getConstraintLabel(
-                'Languages',
-                currentGraphType.constraints.languages.min,
-                currentGraphType.constraints.languages.max
-              )}
-            </label>
+            <div className="config-header-row">
+              <label>
+                {getConstraintLabel(
+                  'Languages',
+                  currentGraphType.constraints.languages.min,
+                  currentGraphType.constraints.languages.max
+                )}
+              </label>
+              <button
+                type="button"
+                className="select-all-btn"
+                onClick={handleSelectAllLanguages}
+                disabled={availableLanguages.length === 0}
+              >
+                Select all
+              </button>
+            </div>
             <select
               multiple
               value={config.languages || []}
@@ -791,14 +861,16 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
 
           {/* Language Filters section (moved after Languages selector) */}
           <div className="config-section">
-            <label>Language Filters:</label>
-            <button
-              type="button"
-              className="clear-filters-btn"
-              onClick={handleClearLanguageFilters}
-            >
-              Clear Filters
-            </button>
+            <div className="config-header-row">
+              <label>Language Filters:</label>
+              <button
+                type="button"
+                className="clear-filters-btn"
+                onClick={handleClearLanguageFilters}
+              >
+                Clear filters
+              </button>
+            </div>
             <div className="filters-grid">
               <div>
                 <span>Continent:</span>
