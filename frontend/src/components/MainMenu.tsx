@@ -94,9 +94,24 @@ const MainMenu: React.FC<MainMenuProps> = ({
 
       // Send NPZ to backend for parsing (handles pickled objects)
       console.log('[MainMenu] Sending NPZ to backend for parsing...');
-      const backendURL = process.env.NODE_ENV === 'production'
-        ? '/api/parse-npz'
-        : 'http://localhost:5000/api/parse-npz';
+
+      const getBackendURL = () => {
+        if (process.env.NODE_ENV === 'production') {
+          // When served from a subpath like /tokcollate/, keep API calls
+          // under the same prefix so reverse-proxy rules apply correctly.
+          try {
+            const path = window.location.pathname || '/';
+            const m = path.match(/^\/[^/]+\//); // e.g., "/tokcollate/"
+            const base = m ? m[0].replace(/\/$/, '') : '';
+            return `${base}/api/parse-npz` || '/api/parse-npz';
+          } catch {
+            return '/api/parse-npz';
+          }
+        }
+        return 'http://localhost:5000/api/parse-npz';
+      };
+
+      const backendURL = getBackendURL();
 
       setImportProgress({ step: 3, total: totalSteps, label: 'Parsing results.npz on backend…' });
 
@@ -115,7 +130,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
         throw new Error(
           `Failed to parse results.npz\n\n` +
           `Server response: ${parseResponse.status} ${parseResponse.statusText}\n\n` +
-          `Make sure the backend server is running: cd frontend && node server.js`
+          `Make sure the backend server is running and reachable from this URL.`
         );
       }
 
