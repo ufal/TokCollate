@@ -1,4 +1,5 @@
 attrs
+datasets==4.6.0
 dit
 numpy
 omegaconf
