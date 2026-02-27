@@ -1,7 +1,7 @@
 scorer:
   metrics:
     - metric: vocab_size
-      metric: vocab_size
+      metric_label: vocab_size
     - metric: bits
       metric_label: bits
     - metric: entropy
@@ -41,7 +41,7 @@ scorer:
       metric_label: tok_len_var
       mode: var
 
-  languages_info: "tokeval/resources/language/languages.json"
+  languages_info: "tokcollate/resources/language/languages.json"
   system_dataset_suffix: "txt"
   languages:
     - ace_Arab_achi1257
