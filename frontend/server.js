@@ -15,11 +15,85 @@ const { execSync, execFileSync } = require('child_process');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Root directory for persistent datasets
+const DATA_ROOT = process.env.TOKCOLLATE_DATA_DIR
+  ? path.resolve(process.env.TOKCOLLATE_DATA_DIR)
+  : path.join(__dirname, 'data');
+
+// Ensure data root exists
+try {
+  fs.mkdirSync(DATA_ROOT, { recursive: true });
+  console.log(`[Server] Dataset root: ${DATA_ROOT}`);
+} catch (e) {
+  console.error('[Server] Failed to create dataset root directory:', e.message);
+}
+
 // Middleware
 app.use(cors());
 
-// JSON parser with size limit
+// JSON parser with size limit (for simple APIs)
 app.use(express.json({ limit: '10mb' }));
+
+// Multipart/form-data parser for dataset uploads (no extra dependency)
+// This is a very small, purpose-built handler that expects three fields:
+// - field "id" as text
+// - field "metadata" as a JSON file (metadata.json)
+// - field "results" as a binary file (results.npz)
+// - optional field "languagesInfo" as a JSON file (languages_info.json)
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
+
+// Utility: scan available datasets in DATA_ROOT
+function scanDatasets() {
+  const datasets = [];
+  let entries = [];
+  try {
+    entries = fs.readdirSync(DATA_ROOT, { withFileTypes: true });
+  } catch (e) {
+    console.warn('[Datasets] Failed to read dataset root:', e.message);
+    return datasets;
+  }
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const id = entry.name;
+    const dirPath = path.join(DATA_ROOT, id);
+    const metadataPath = path.join(dirPath, 'metadata.json');
+    const resultsPath = path.join(dirPath, 'results.npz');
+    const languagesInfoPath = path.join(dirPath, 'languages_info.json');
+
+    if (!fs.existsSync(metadataPath) || !fs.existsSync(resultsPath)) {
+      continue;
+    }
+
+    let hasLanguagesInfo = false;
+    try {
+      hasLanguagesInfo = fs.existsSync(languagesInfoPath);
+    } catch {
+      hasLanguagesInfo = false;
+    }
+
+    let createdAt = null;
+    let modifiedAt = null;
+    try {
+      const stat = fs.statSync(metadataPath);
+      createdAt = stat.birthtime || null;
+      modifiedAt = stat.mtime || null;
+    } catch {
+      // ignore
+    }
+
+    datasets.push({
+      id,
+      displayName: id,
+      hasLanguagesInfo,
+      createdAt,
+      modifiedAt,
+    });
+  }
+
+  return datasets;
+}
 
 // Helper function to parse NPZ files using Python
 function parseNPZWithPython(filePath) {
@@ -239,6 +313,65 @@ app.get('/api/load-file', (req, res) => {
   }
 });
 
+// List available server-side datasets
+app.get('/api/datasets', (req, res) => {
+  try {
+    const datasets = scanDatasets();
+    res.json({ datasets });
+  } catch (e) {
+    console.error('[Datasets] Failed to list datasets:', e.message);
+    res.status(500).json({ error: 'Failed to list datasets' });
+  }
+});
+
+// Load a specific dataset (metadata + results.npz + optional languages_info)
+app.get('/api/datasets/:id', (req, res) => {
+  const id = req.params.id;
+  const dirPath = path.join(DATA_ROOT, id);
+  const metadataPath = path.join(dirPath, 'metadata.json');
+  const resultsPath = path.join(dirPath, 'results.npz');
+  const languagesInfoPath = path.join(dirPath, 'languages_info.json');
+
+  if (!fs.existsSync(dirPath)) {
+    return res.status(404).json({ error: `Dataset '${id}' not found` });
+  }
+  if (!fs.existsSync(metadataPath) || !fs.existsSync(resultsPath)) {
+    return res.status(400).json({ error: `Dataset '${id}' is missing required files (metadata.json, results.npz)` });
+  }
+
+  try {
+    const metadataRaw = fs.readFileSync(metadataPath, { encoding: 'utf-8' });
+    const metadata = JSON.parse(metadataRaw);
+
+    let languagesInfo = undefined;
+    if (fs.existsSync(languagesInfoPath)) {
+      try {
+        const langRaw = fs.readFileSync(languagesInfoPath, { encoding: 'utf-8' });
+        languagesInfo = JSON.parse(langRaw);
+      } catch (e) {
+        console.warn(`[Datasets] Failed to parse languages_info.json for dataset '${id}':`, e.message);
+      }
+    }
+
+    console.log(`[Datasets] Parsing results.npz for dataset '${id}'`);
+    const npzData = parseNPZWithPython(resultsPath);
+
+    if (!npzData) {
+      return res.status(500).json({ error: `Failed to parse results.npz for dataset '${id}'` });
+    }
+
+    res.json({
+      id,
+      metadata,
+      npzData,
+      languagesInfo,
+    });
+  } catch (e) {
+    console.error(`[Datasets] Error loading dataset '${id}':`, e.message);
+    res.status(500).json({ error: `Error loading dataset '${id}': ${e.message}` });
+  }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
@@ -290,6 +423,73 @@ app.post('/api/parse-npz', express.raw({ type: 'application/octet-stream', limit
   } catch (error) {
     console.error('[API] Unexpected error parsing NPZ:', error.message);
     res.status(500).json({ error: 'Error parsing file: ' + error.message });
+  }
+});
+
+// Create a new persistent dataset on the server
+// Expects multipart/form-data with fields:
+// - id: dataset identifier / directory name (text field)
+// - metadata: metadata.json file
+// - results: results.npz file
+// - optional languagesInfo: languages_info.json file
+app.post('/api/datasets', upload.fields([
+  { name: 'metadata', maxCount: 1 },
+  { name: 'results', maxCount: 1 },
+  { name: 'languagesInfo', maxCount: 1 },
+]), (req, res) => {
+  try {
+    const id = (req.body && req.body.id ? String(req.body.id) : '').trim();
+    if (!id) {
+      return res.status(400).json({ error: 'Missing dataset id' });
+    }
+
+    // Sanitize id for filesystem usage: allow alphanum, dash, underscore
+    const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '_');
+    if (!safeId) {
+      return res.status(400).json({ error: 'Invalid dataset id' });
+    }
+
+    const dirPath = path.join(DATA_ROOT, safeId);
+    if (fs.existsSync(dirPath)) {
+      return res.status(409).json({
+        error: `Dataset '${safeId}' already exists on the server. There is a name duplicity; you can change the uploaded dataset name in metadata.json and try again.`,
+      });
+    }
+
+    const files = req.files || {};
+    const metadataFiles = files.metadata || [];
+    const resultsFiles = files.results || [];
+    const languagesInfoFiles = files.languagesInfo || [];
+
+    if (metadataFiles.length === 0 || resultsFiles.length === 0) {
+      return res.status(400).json({ error: 'Both metadata and results files are required' });
+    }
+
+    const metadataFile = metadataFiles[0];
+    const resultsFile = resultsFiles[0];
+    const languagesInfoFile = languagesInfoFiles[0];
+
+    // Create directory and write files
+    fs.mkdirSync(dirPath, { recursive: true });
+
+    const metadataPath = path.join(dirPath, 'metadata.json');
+    const resultsPath = path.join(dirPath, 'results.npz');
+    const languagesInfoPath = path.join(dirPath, 'languages_info.json');
+
+    fs.writeFileSync(metadataPath, metadataFile.buffer);
+    fs.writeFileSync(resultsPath, resultsFile.buffer);
+    if (languagesInfoFile) {
+      fs.writeFileSync(languagesInfoPath, languagesInfoFile.buffer);
+    }
+
+    console.log(`[Datasets] Created dataset '${safeId}' at ${dirPath}`);
+
+    // Return updated descriptor
+    const [descriptor] = scanDatasets().filter((d) => d.id === safeId);
+    res.status(201).json({ dataset: descriptor || { id: safeId, displayName: safeId } });
+  } catch (e) {
+    console.error('[Datasets] Failed to create dataset:', e.message);
+    res.status(500).json({ error: 'Failed to create dataset: ' + e.message });
   }
 });
 
