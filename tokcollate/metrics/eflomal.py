@@ -8,7 +8,6 @@ from attr import define
 from tokcollate.data import TokCollateData
 from tokcollate.metrics import register_metric
 from tokcollate.metrics.tokcollate_metric import TokCollateMultilingualMetric
-from tokcollate.utils_alignment import symmetrize_alignment
 
 import eflomal
 
