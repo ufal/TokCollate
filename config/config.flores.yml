@@ -40,6 +40,8 @@ scorer:
     - metric: token_length
       metric_label: tok_len_var
       mode: var
+    - metric: eflomal
+      metric_label: eflomal_score
 
   languages_info: "tokcollate/resources/language/languages.json"
   system_dataset_suffix: "txt"
