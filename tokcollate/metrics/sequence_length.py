@@ -13,6 +13,7 @@ class SequenceLengthMetric(TokCollateMetric):
     """Computes the average sequence length in the terms of tokens per line."""
 
     mode: EvalMode = field(converter=EvalMode, default=EvalMode.MEAN)
+    use_bytes: bool = field(default=False)
 
     def score(
         self,
@@ -21,7 +22,10 @@ class SequenceLengthMetric(TokCollateMetric):
         language: str,
     ) -> float:
         text = data.get_system_text(system_label=system_label, language=language)
-        seq_length = np.array([len(line) for line in text])
+        if self.use_bytes:
+            seq_length = np.array([sum(len(tok.encode('utf-8')) for tok in line) for line in text])
+        else:
+            seq_length = np.array([len(line) for line in text])
         return self._aggregate_scores(seq_length)
 
     def _aggregate_scores(self, scores: np.ndarray) -> float:
