@@ -89,7 +89,7 @@ class TokCollateData:
                         lang_split[0],
                         ",".join(self.languages_info.keys()),
                     )
-                if lang_split[1] not in self.languages_info[lang_split[0]]["scripts"]:
+                if lang_split[1] not in self.languages_info[lang_split[0]].scripts:
                     logger.exception(
                         "Script %s of language %s not listed in the languages_info JSON file.\n"
                         "langages_info['%s'] = %s",
@@ -98,7 +98,7 @@ class TokCollateData:
                         lang_split[0],
                         self.languages_info[lang_split[0]],
                     )
-                if lang_split[2] not in self.languages_info[lang_split[0]]["glottocodes"]:
+                if lang_split[2] not in self.languages_info[lang_split[0]].glottocodes:
                     logger.exception(
                         "Glottocode %s of language %s not listed in the languages_info JSON file.\n"
                         "langages_info['%s'] = %s",
