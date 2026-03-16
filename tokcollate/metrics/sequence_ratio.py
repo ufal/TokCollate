@@ -20,8 +20,8 @@ class SequenceRatioMetric(TokCollateMultilingualMetric):
         text_tgt = data.get_system_text(system_label=system_label, language=tgt_lang)
 
         if self.use_bytes:
-            lengths_src = np.array([sum(len(tok.encode('utf-8')) for tok in line) for line in text_src])
-            lengths_tgt = np.array([sum(len(tok.encode('utf-8')) for tok in line) for line in text_tgt])
+            lengths_src = np.array([sum(len(tok.encode("utf-8")) for tok in line) for line in text_src])
+            lengths_tgt = np.array([sum(len(tok.encode("utf-8")) for tok in line) for line in text_tgt])
         else:
             lengths_src = np.array([len(line) for line in text_src])
             lengths_tgt = np.array([len(line) for line in text_tgt])
@@ -31,7 +31,9 @@ class SequenceRatioMetric(TokCollateMultilingualMetric):
     def score_batched(self, data: TokCollateData, system_label: str, languages: list[str]) -> np.ndarray:
         texts = [data.get_system_text(system_label=system_label, language=lang) for lang in languages]
         if self.use_bytes:
-            lengths = np.stack([np.array([sum(len(tok.encode('utf-8')) for tok in line) for line in text]) for text in texts], axis=1)
+            lengths = np.stack(
+                [np.array([sum(len(tok.encode("utf-8")) for tok in line) for line in text]) for text in texts], axis=1
+            )
         else:
             lengths = np.stack([np.array([len(line) for line in text]) for text in texts], axis=1)
         ratios = lengths.reshape(-1, len(languages), 1) / lengths.reshape(-1, 1, len(languages))

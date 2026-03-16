@@ -23,7 +23,7 @@ class SequenceLengthMetric(TokCollateMetric):
     ) -> float:
         text = data.get_system_text(system_label=system_label, language=language)
         if self.use_bytes:
-            seq_length = np.array([sum(len(tok.encode('utf-8')) for tok in line) for line in text])
+            seq_length = np.array([sum(len(tok.encode("utf-8")) for tok in line) for line in text])
         else:
             seq_length = np.array([len(line) for line in text])
         return self._aggregate_scores(seq_length)
