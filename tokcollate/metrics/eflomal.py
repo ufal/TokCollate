@@ -28,8 +28,6 @@ class EflomalScore(TokCollateMultilingualMetric):
         text_src = data.get_system_text(system_label=system_label, language=src_lang)
         text_tgt = data.get_system_text(system_label=system_label, language=tgt_lang)
 
-        aligner = eflomal.Aligner()
-
         # Create file-like objects from the text variables
         src_data = StringIO("\n".join([" ".join(line) for line in text_src]))
         trg_data = StringIO("\n".join([" ".join(line) for line in text_tgt]))
