@@ -1,5 +1,4 @@
-import numpy as np
-from attrs import define, field
+from attrs import define
 
 from tokcollate.data import TokCollateData
 from tokcollate.metrics import TokCollateMetric, register_metric
@@ -13,6 +12,7 @@ class VocabSizeMetric(TokCollateMetric):
 
     Useful for visualizing correlation of other metrics with respect to vocabulary size.
     """
+
     def score(
         self,
         data: TokCollateData,
