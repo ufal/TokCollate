@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { VisualizationState, FigureConfig, MetricDimensionality, VisualizationData } from '../types';
 import MainMenu from './MainMenu';
 import GraphList from './GraphList';
@@ -7,7 +7,6 @@ import './App.css';
 import { exportGraphAsPNG } from '../utils/fileUtils';
 
 const App: React.FC = () => {
-
   const [state, setState] = useState<VisualizationState>({
     figures: [],
     datasetName: 'None',
@@ -18,6 +17,53 @@ const App: React.FC = () => {
     data: null,
   });
   const [importStatus, setImportStatus] = useState<{success: boolean, message: string} | null>(null);
+
+  type DatasetOption = {
+    key: string;
+    label: string;
+    source: 'server' | 'local';
+    serverId?: string;
+  };
+
+  const [datasetOptions, setDatasetOptions] = useState<DatasetOption[]>([]);
+  const [selectedDatasetKey, setSelectedDatasetKey] = useState<string>('none');
+  const [datasetLoadProgress, setDatasetLoadProgress] = useState<{ step: number; total: number; label: string } | null>(null);
+
+  const getApiUrl = (path: string): string => {
+    if (process.env.NODE_ENV === 'production') {
+      try {
+        const locPath = window.location.pathname || '/';
+        const m = locPath.match(/^\/[^/]+\//); // e.g., "/tokcollate/"
+        const base = m ? m[0].replace(/\/$/, '') : '';
+        return `${base}${path}` || path;
+      } catch {
+        return path;
+      }
+    }
+    return `http://localhost:5000${path}`;
+  };
+
+  // Load server-side datasets on startup
+  useEffect(() => {
+    const loadDatasets = async () => {
+      try {
+        const resp = await fetch(getApiUrl('/api/datasets'));
+        if (!resp.ok) return;
+        const json = await resp.json();
+        const ds = Array.isArray(json.datasets) ? json.datasets : [];
+        const options: DatasetOption[] = ds.map((d: any) => ({
+          key: `server:${d.id}`,
+          label: d.displayName || d.id,
+          source: 'server',
+          serverId: d.id,
+        }));
+        setDatasetOptions(options);
+      } catch (e) {
+        console.warn('[App] Failed to load server datasets:', e);
+      }
+    };
+    loadDatasets();
+  }, []);
 
   const handleLoadVisualization = (data: any) => {
     // Data structure from MainMenu:
@@ -274,6 +320,74 @@ const App: React.FC = () => {
     }));
   };
 
+  const handleSelectDataset = async (key: string) => {
+    setSelectedDatasetKey(key);
+    if (!key || key === 'none') {
+      return;
+    }
+    const option = datasetOptions.find((o) => o.key === key);
+    if (!option) return;
+
+    if (option.source === 'server' && option.serverId) {
+      try {
+        const totalSteps = 3;
+        setDatasetLoadProgress({ step: 1, total: totalSteps, label: `Requesting dataset "${option.label}" from server…` });
+        const resp = await fetch(getApiUrl(`/api/datasets/${encodeURIComponent(option.serverId)}`));
+        if (!resp.ok) {
+          console.error('[App] Failed to load dataset from server:', resp.status, resp.statusText);
+          setDatasetLoadProgress(null);
+          setImportStatus({
+            success: false,
+            message: `Failed to load dataset "${option.label}" from server (HTTP ${resp.status} ${resp.statusText}).`,
+          });
+          return;
+        }
+        setDatasetLoadProgress({ step: 2, total: totalSteps, label: `Downloading dataset "${option.label}"…` });
+        const payload = await resp.json();
+        setDatasetLoadProgress({ step: 3, total: totalSteps, label: `Finalizing dataset "${option.label}"…` });
+        const { metadata, npzData, languagesInfo } = payload;
+        const visualizationData: any = { metadata, npzData };
+        if (languagesInfo) visualizationData.languagesInfo = languagesInfo;
+        handleLoadVisualization(visualizationData);
+        setDatasetLoadProgress(null);
+      } catch (e) {
+        console.error('[App] Error loading dataset from server:', e);
+        setDatasetLoadProgress(null);
+        setImportStatus({
+          success: false,
+          message: `Error loading dataset "${option.label}" from server. See console for details.`,
+        });
+      }
+    }
+  };
+
+  const registerLocalDataset = (name: string) => {
+    if (!name) return;
+    const label = `${name} (local only)`;
+    const existing = datasetOptions.find((o) => o.source === 'local' && o.label === label);
+    if (existing) {
+      setSelectedDatasetKey(existing.key);
+      return;
+    }
+    const key = `local:${Date.now()}`;
+    const next: DatasetOption = { key, label, source: 'local' };
+    setDatasetOptions((prev) => [...prev, next]);
+    setSelectedDatasetKey(key);
+  };
+
+  const registerServerDataset = (descriptor: any) => {
+    if (!descriptor || !descriptor.id) return;
+    const id = descriptor.id as string;
+    const label = (descriptor.displayName as string) || id;
+    const key = `server:${id}`;
+    setDatasetOptions((prev) => {
+      const exists = prev.find((o) => o.key === key);
+      if (exists) return prev;
+      return [...prev, { key, label, source: 'server', serverId: id }];
+    });
+    setSelectedDatasetKey(key);
+  };
+
   const handleExportGraph = async () => {
     const figure = state.figures[0];
     if (!figure) {
@@ -298,6 +412,11 @@ const App: React.FC = () => {
         onSaveVisualization={handleSaveVisualization}
         onExportGraph={handleExportGraph}
         datasetName={state.datasetName}
+        datasets={datasetOptions.map((d) => ({ key: d.key, label: d.label }))}
+        selectedDatasetKey={selectedDatasetKey}
+        onSelectDataset={handleSelectDataset}
+        onRegisterLocalDataset={registerLocalDataset}
+        serverLoadProgress={datasetLoadProgress}
       />
       {importStatus && (
         <div

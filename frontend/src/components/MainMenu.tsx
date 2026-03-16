@@ -6,6 +6,11 @@ interface MainMenuProps {
   onSaveVisualization: () => void;
   onExportGraph?: () => void;
   datasetName: string;
+  datasets: { key: string; label: string }[];
+  selectedDatasetKey: string;
+  onSelectDataset: (key: string) => void;
+  onRegisterLocalDataset: (datasetName: string) => void;
+  serverLoadProgress?: { step: number; total: number; label: string } | null;
 }
 
 const MainMenu: React.FC<MainMenuProps> = ({
@@ -13,6 +18,11 @@ const MainMenu: React.FC<MainMenuProps> = ({
   onSaveVisualization,
   onExportGraph,
   datasetName,
+  datasets,
+  selectedDatasetKey,
+  onSelectDataset,
+  onRegisterLocalDataset,
+  serverLoadProgress,
 }) => {
   const dirInputRef = useRef<HTMLInputElement>(null);
   const [isImporting, setIsImporting] = useState(false);
@@ -150,13 +160,18 @@ const MainMenu: React.FC<MainMenuProps> = ({
       console.log('[MainMenu] ✓ All files loaded successfully');
       setImportProgress({ step: 4, total: totalSteps, label: 'Finalizing visualization…' });
       onLoadVisualization(visualizationData);
+
+      const datasetTitle = metadata.dataset_name || metadata.datasetName || 'Unknown';
+
       window.alert(
         '✓ Successfully loaded:\n' +
         '  • metadata.json\n' +
         '  • results.npz' +
-        (languagesInfoFile ? '\n  • languages_info.json' : '') +
-        '\n\nClick on the Dataset Name to start creating figures.'
+        (languagesInfoFile ? '\n  • languages_info.json' : '')
       );
+
+      // Register this dataset as local-only for the current session
+      onRegisterLocalDataset(datasetTitle);
 
       // Reset the input
       if (dirInputRef.current) {
@@ -198,7 +213,16 @@ const MainMenu: React.FC<MainMenuProps> = ({
         </div>
         <div className="menu-section menu-section-right dataset-selector">
           <label>Dataset Name:</label>
-          <span className="dataset-display">{datasetName}</span>
+          <select
+            className="dataset-select"
+            value={selectedDatasetKey}
+            onChange={(e) => onSelectDataset(e.target.value)}
+          >
+            <option value="none">(none)</option>
+            {datasets.map((d) => (
+              <option key={d.key} value={d.key}>{d.label}</option>
+            ))}
+          </select>
         </div>
       </div>
       {importProgress && (
@@ -211,6 +235,19 @@ const MainMenu: React.FC<MainMenuProps> = ({
           </div>
           <div className="import-progress-label">
             {importProgress.label} ({importProgress.step}/{importProgress.total})
+          </div>
+        </div>
+      )}
+      {!importProgress && serverLoadProgress && (
+        <div className="import-progress">
+          <div className="import-progress-bar">
+            <div
+              className="import-progress-bar-fill"
+              style={{ width: `${(serverLoadProgress.step / serverLoadProgress.total) * 100}%` }}
+            />
+          </div>
+          <div className="import-progress-label">
+            {serverLoadProgress.label} ({serverLoadProgress.step}/{serverLoadProgress.total})
           </div>
         </div>
       )}
