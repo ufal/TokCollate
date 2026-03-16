@@ -28,18 +28,42 @@ scorer:
     - metric: sequence_length
       metric_label: seq_len_var
       mode: var
+    - metric: sequence_length
+      metric_label: seq_len_mean_bytes
+      mode: mean
+      use_bytes: true
+    - metric: sequence_length
+      metric_label: seq_len_var_bytes
+      mode: var
+      use_bytes: true
     - metric: sequence_ratio
       metric_label: seq_ratio_mean
       mode: mean
     - metric: sequence_ratio
       metric_label: seq_ratio_var
       mode: var
+    - metric: sequence_ratio
+      metric_label: seq_ratio_mean_bytes
+      mode: mean
+      use_bytes: true
+    - metric: sequence_ratio
+      metric_label: seq_ratio_var_bytes
+      mode: var
+      use_bytes: true
     - metric: token_length
       metric_label: tok_len_mean
       mode: mean
     - metric: token_length
       metric_label: tok_len_var
       mode: var
+    - metric: token_length
+      metric_label: tok_len_mean_bytes
+      mode: mean
+      use_bytes: true
+    - metric: token_length
+      metric_label: tok_len_var_bytes
+      mode: var
+      use_bytes: true
 
   languages_info: "tokcollate/resources/language/languages.json"
   system_dataset_suffix: "txt"
