@@ -1,8 +1,8 @@
 attrs
 datasets==4.6.0
-dit
+eflomal
 numpy
 omegaconf
-sentencepiece
 scipy
+sentencepiece
 typing-extensions

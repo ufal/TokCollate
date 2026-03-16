@@ -1,8 +1,9 @@
 attrs
 dit
+eflomal
 numpy
 omegaconf
 pytest==8.3.5
-sentencepiece
 scipy
+sentencepiece
 typing-extensions

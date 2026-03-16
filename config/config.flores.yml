@@ -51,12 +51,6 @@ scorer:
       mode: var
       use_bytes: true
     - metric: token_length
-      metric_label: tok_len_mean
-      mode: mean
-    - metric: token_length
-      metric_label: tok_len_var
-      mode: var
-    - metric: token_length
       metric_label: tok_len_mean_bytes
       mode: mean
       use_bytes: true
@@ -64,6 +58,8 @@ scorer:
       metric_label: tok_len_var_bytes
       mode: var
       use_bytes: true
+    - metric: eflomal
+      metric_label: eflomal_score
 
   languages_info: "tokcollate/resources/language/languages.json"
   system_dataset_suffix: "txt"
