@@ -1,4 +1,5 @@
 import datetime
+import gzip
 import json
 import logging
 from pathlib import Path
@@ -8,7 +9,7 @@ import numpy as np
 from attrs import converters, define, field, fields, validators
 from omegaconf import DictConfig
 
-from tokcollate.data import LanguageInfo, TokCollateData
+from tokcollate.data import LanguageInfo, TokCollateData, TextType
 from tokcollate.metrics import TokCollateMetric, build_metric
 
 logger = logging.getLogger(__name__)
@@ -28,10 +29,14 @@ class ScorerResultSaver(dict):
 
     # TODO(varisd): replace any with proper data structure definition
     languages_info: dict[str, Any] = field(validator=validators.optional(validators.instance_of(dict)))
+    tokenizations: dict[str, dict[str, TextType] | TextType] = field(
+        validator=validators.optional(validators.instance_of(dict)), default=None
+    )
 
     _languages_info_filename: ClassVar[str] = "languages_info.json"
     _metadata_filename: ClassVar[str] = "metadata.json"
     _results_filename: ClassVar[str] = "results.npz"
+    _tokenizations_filename: ClassVar[str] = "tokenizations.json.gz"
 
     def __attrs_post_init__(self) -> None:
         """Set default values."""
@@ -47,9 +52,24 @@ class ScorerResultSaver(dict):
             "tokenizers": self.tokenizers,
             "metrics": self.metrics,
             "languages": self.languages,
+            "has_tokenizations": self.tokenizations is not None,
         }
         with path.open("w") as fh:
             json.dump(data, sort_keys=True, indent=2, fp=fh)
+
+    def _save_tokenizations(self) -> None:
+        """Save tokenizations as compressed JSON for visualization."""
+        if self.tokenizations is None:
+            logger.debug("No tokenizations data to save.")
+            return
+
+        path = Path(self.output_dir, self._tokenizations_filename)
+        logger.info("Saving tokenizations to %s", path)
+
+        # Convert tokenizations to JSON-serializable format
+        # The structure is: {tokenizer: {lang: [[tokens], ...]} or {tokenizer: [[tokens], ...]}}
+        with gzip.open(path, "wt", encoding="utf-8") as fh:
+            json.dump(self.tokenizations, fp=fh, ensure_ascii=False, indent=None)
 
     def save_results(self, results: dict) -> None:
         logger.info("Saving scorer results to %s", self.output_dir)
@@ -62,6 +82,8 @@ class ScorerResultSaver(dict):
             path = Path(self.output_dir, self._languages_info_filename)
             with path.open("w") as fh:
                 json.dump(self.languages_info, sort_keys=True, indent=2, fp=fh)
+
+        self._save_tokenizations()
 
 
 @define(kw_only=True)
@@ -151,6 +173,7 @@ class TokCollateScorer:
                 metrics=list(self.metrics.keys()),
                 languages=list(self.languages),
                 languages_info=self.languages_info,
+                tokenizations=self._extract_tokenizations(),
             ).save_results(results)
         else:
             logger.info("No scorer.output_dir was provided. Printing results to STDOUT:\n")
@@ -202,3 +225,28 @@ class TokCollateScorer:
                 scores_flat = scores_stacked.reshape((scores_stacked.shape[0], -1))
                 corr_scores[key] = np.corrcoef(scores_flat, rowvar=True)
         return corr_scores
+
+    def _extract_tokenizations(self) -> dict[str, dict[str, TextType] | TextType]:
+        """Extract tokenizations from the data object for visualization.
+
+        Returns:
+            Dictionary mapping system labels to their tokenizations.
+            For multilingual: {tokenizer: {lang: [[tokens], ...]}}
+            For non-multilingual: {tokenizer: [[tokens], ...]}
+        """
+        if self.data is None:
+            return {}
+
+        tokenizations = {}
+        for system_label in self.systems:
+            if self.languages:
+                # Multilingual case: extract per-language tokenizations
+                tokenizations[system_label] = {
+                    lang: self.data.get_system_text(system_label=system_label, language=lang)
+                    for lang in self.languages
+                }
+            else:
+                # Non-multilingual case: extract single tokenization
+                tokenizations[system_label] = self.data.get_system_text(system_label=system_label)
+
+        return tokenizations

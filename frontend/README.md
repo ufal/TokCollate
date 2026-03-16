@@ -88,6 +88,7 @@ The application will open at `http://localhost:3000` in your default browser.
   - `metadata.json` (required)
   - `results.npz` (required)
   - `languages_info.json` (optional; adds richer language filtering/metadata)
+  - `tokenizations.json.gz` (optional; enables tokenization visualization)
 4. Watch the import progress indicator; once complete, the dataset name will appear in the top-right.
 
 ### Creating Visualizations
