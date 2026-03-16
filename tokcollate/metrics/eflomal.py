@@ -1,7 +1,8 @@
-
 import tempfile
 from io import StringIO
+from pathlib import Path
 
+import eflomal
 import numpy as np
 from attr import define
 
@@ -9,7 +10,6 @@ from tokcollate.data import TokCollateData
 from tokcollate.metrics import register_metric
 from tokcollate.metrics.tokcollate_metric import TokCollateMultilingualMetric
 
-import eflomal
 
 @register_metric("eflomal")
 @define(kw_only=True)
@@ -21,7 +21,7 @@ class EflomalScore(TokCollateMultilingualMetric):
     forward and reverse alignment scores of the alignment between the source and
     target tokens.
 
-    See https://aclanthology.org/2025.naacl-short.63 for more details.    
+    See https://aclanthology.org/2025.naacl-short.63 for more details.
     """
 
     def score(self, data: TokCollateData, system_label: str, src_lang: str, tgt_lang: str) -> float:
@@ -33,34 +33,35 @@ class EflomalScore(TokCollateMultilingualMetric):
         # Create file-like objects from the text variables
         src_data = StringIO("\n".join([" ".join(line) for line in text_src]))
         trg_data = StringIO("\n".join([" ".join(line) for line in text_tgt]))
-        
+
         aligner = eflomal.Aligner()
 
         # Create temporary files for alignment scores
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.fwd.scores', delete=False) as fwd_scores_file, \
-                tempfile.NamedTemporaryFile(mode='w', suffix='.rev.scores', delete=False) as rev_scores_file:
-            fwd_scores_path = fwd_scores_file.name
-            rev_scores_path = rev_scores_file.name
+        with (
+            tempfile.NamedTemporaryFile(mode="w", suffix=".fwd.scores", delete=False) as fwd_scores_file,
+            tempfile.NamedTemporaryFile(mode="w", suffix=".rev.scores", delete=False) as rev_scores_file,
+        ):
+            fwd_scores_path = Path(fwd_scores_file.name)
+            rev_scores_path = Path(rev_scores_file.name)
 
         try:
             aligner.align(
-                src_data, trg_data,
-                scores_filename_fwd=fwd_scores_path,
-                scores_filename_rev=rev_scores_path)
-            
+                src_data, trg_data, scores_filename_fwd=str(fwd_scores_path), scores_filename_rev=str(rev_scores_path)
+            )
+
             # Read the alignment scores
-            with open(fwd_scores_path, 'r', encoding='utf-8') as f:
+            with fwd_scores_path.open("r", encoding="utf-8") as f:
                 fwd_scores = f.read()
-            with open(rev_scores_path, 'r', encoding='utf-8') as f:
+            with rev_scores_path.open("r", encoding="utf-8") as f:
                 rev_scores = f.read()
 
         finally:
             # Clean up temporary files
-            import os
-            if os.path.exists(fwd_scores_path):
-                os.unlink(fwd_scores_path)
-            if os.path.exists(rev_scores_path):
-                os.unlink(rev_scores_path)
+
+            if fwd_scores_path.exists():
+                fwd_scores_path.unlink()
+            if rev_scores_path.exists():
+                rev_scores_path.unlink()
 
         fwd_scores_list = [float(score) for score in fwd_scores.splitlines()]
         rev_scores_list = [float(score) for score in rev_scores.splitlines()]
