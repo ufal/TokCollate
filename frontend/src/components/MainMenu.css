@@ -64,14 +64,26 @@
   white-space: nowrap;
 }
 
-.dataset-display {
-  color: #fbe9dd;
-  font-family: 'Courier New', monospace;
+.dataset-select {
+  max-width: 260px;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(253, 245, 240, 0.8);
+  background-color: #fdf5f0; /* light cream for contrast */
+  color: #3b2314; /* dark text for readability */
   font-size: 14px;
-  max-width: 250px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  font-family: 'Courier New', monospace;
+}
+
+.dataset-select:focus {
+  outline: none;
+  border-color: #f2a65a;
+  box-shadow: 0 0 0 1px rgba(242, 166, 90, 0.6);
+}
+
+.dataset-select option {
+  background-color: #ffffff;
+  color: #3b2314;
 }
 
 .app-title {
