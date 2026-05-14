@@ -11,6 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const { execSync, execFileSync } = require('child_process');
+const zlib = require('zlib');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -269,6 +270,18 @@ else:
     }
 }
 
+function parseTokenizationsGzipBuffer(buffer) {
+  const gzBuffer = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
+  const unzipped = zlib.gunzipSync(gzBuffer);
+  const text = unzipped.toString('utf-8');
+  return JSON.parse(text);
+}
+
+function parseTokenizationsGzipFile(filePath) {
+  const buffer = fs.readFileSync(filePath);
+  return parseTokenizationsGzipBuffer(buffer);
+}
+
 // API endpoint to load files from the filesystem
 app.get('/api/load-file', (req, res) => {
   const filePath = req.query.path;
@@ -331,6 +344,7 @@ app.get('/api/datasets/:id', (req, res) => {
   const metadataPath = path.join(dirPath, 'metadata.json');
   const resultsPath = path.join(dirPath, 'results.npz');
   const languagesInfoPath = path.join(dirPath, 'languages_info.json');
+  const tokenizationsPath = path.join(dirPath, 'tokenizations.json.gz');
 
   if (!fs.existsSync(dirPath)) {
     return res.status(404).json({ error: `Dataset '${id}' not found` });
@@ -353,6 +367,23 @@ app.get('/api/datasets/:id', (req, res) => {
       }
     }
 
+    let tokenizations = undefined;
+    const hasTokenizations = metadata && metadata.has_tokenizations === true;
+    if (hasTokenizations) {
+      if (!fs.existsSync(tokenizationsPath)) {
+        return res.status(400).json({
+          error: `Dataset '${id}' metadata indicates has_tokenizations=true, but tokenizations.json.gz is missing.`,
+        });
+      }
+      try {
+        tokenizations = parseTokenizationsGzipFile(tokenizationsPath);
+      } catch (e) {
+        return res.status(400).json({
+          error: `Failed to parse tokenizations.json.gz for dataset '${id}': ${e.message}`,
+        });
+      }
+    }
+
     console.log(`[Datasets] Parsing results.npz for dataset '${id}'`);
     const npzData = parseNPZWithPython(resultsPath);
 
@@ -365,6 +396,7 @@ app.get('/api/datasets/:id', (req, res) => {
       metadata,
       npzData,
       languagesInfo,
+      tokenizations,
     });
   } catch (e) {
     console.error(`[Datasets] Error loading dataset '${id}':`, e.message);
@@ -423,6 +455,30 @@ app.post('/api/parse-npz', express.raw({ type: 'application/octet-stream', limit
   } catch (error) {
     console.error('[API] Unexpected error parsing NPZ:', error.message);
     res.status(500).json({ error: 'Error parsing file: ' + error.message });
+  }
+});
+
+// Endpoint to parse tokenizations.json.gz uploaded as binary
+app.post('/api/parse-tokenizations', express.raw({ type: 'application/octet-stream', limit: '200mb' }), (req, res) => {
+  try {
+    if (!req.body || req.body.length === 0) {
+      return res.status(400).json({ error: 'No file data provided' });
+    }
+
+    const buffer = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body);
+    let tokenizations;
+    try {
+      tokenizations = parseTokenizationsGzipBuffer(buffer);
+    } catch (parseError) {
+      console.error('[API] tokenizations parsing error:', parseError.message);
+      return res.status(400).json({ error: 'Failed to parse tokenizations.json.gz: ' + parseError.message });
+    }
+
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.json(tokenizations);
+  } catch (error) {
+    console.error('[API] Unexpected error parsing tokenizations.gz:', error.message);
+    res.status(500).json({ error: 'Error parsing tokenizations file: ' + error.message });
   }
 });
 

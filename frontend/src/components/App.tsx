@@ -85,6 +85,7 @@ const App: React.FC = () => {
       const metadata = data.metadata;
       const npzData = data.npzData;
       const languagesInfo = data.languagesInfo;
+      const tokenizations = data.tokenizations;
       
       datasetName = metadata.dataset_name || 'Unknown';
       availableTokenizers = metadata.tokenizers || [];
@@ -231,6 +232,8 @@ const App: React.FC = () => {
           languages: availableLanguages,
           metrics: availableMetrics,
           languagesInfo: languagesInfo,
+          hasTokenizations: metadata?.has_tokenizations === true,
+          tokenizations: tokenizations,
         },
       };
     } else if (data?.metadata) {
@@ -345,9 +348,10 @@ const App: React.FC = () => {
         setDatasetLoadProgress({ step: 2, total: totalSteps, label: `Downloading dataset "${option.label}"…` });
         const payload = await resp.json();
         setDatasetLoadProgress({ step: 3, total: totalSteps, label: `Finalizing dataset "${option.label}"…` });
-        const { metadata, npzData, languagesInfo } = payload;
+        const { metadata, npzData, languagesInfo, tokenizations } = payload;
         const visualizationData: any = { metadata, npzData };
         if (languagesInfo) visualizationData.languagesInfo = languagesInfo;
+        if (tokenizations !== undefined) visualizationData.tokenizations = tokenizations;
         handleLoadVisualization(visualizationData);
         setDatasetLoadProgress(null);
       } catch (e) {
