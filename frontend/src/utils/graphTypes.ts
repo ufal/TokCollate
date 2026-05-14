@@ -510,6 +510,29 @@ export class MetricTableGraphType extends GraphType {
 }
 
 /**
+ * Tokenized text visualization scaffold.
+ *
+ * For now this type only configures tokenizers/languages (plus shared
+ * language filters in the configurator). Rendering implementation on the
+ * left panel will be added separately.
+ */
+export class TokenizedTextGraphType extends GraphType {
+  typeId = 'tokenized-text';
+  displayName = 'Tokenized Text';
+  description = 'Inspect tokenized text for selected tokenizers and languages.';
+
+  constraints: VisualizationConstraints = {
+    metrics: { min: 0, max: 0, dimension: 'both' },
+    tokenizers: { min: 1, max: Infinity },
+    languages: { min: 1, max: Infinity },
+  };
+
+  transform(_data: VisualizationData, _config: VisualizationConfig): any[] {
+    return [];
+  }
+}
+
+/**
  * Registry of all available visualization types
  */
 const GRAPH_TYPE_REGISTRY: Map<string, GraphType> = new Map();
@@ -542,6 +565,7 @@ export const getAvailableGraphTypes = (): GraphType[] => {
 const initializeRegistry = () => {
   registerGraphType(new MetricPairCorrelationGraphType());
   registerGraphType(new MetricTableGraphType());
+  registerGraphType(new TokenizedTextGraphType());
   // Future visualization types can be added here:
   // registerGraphType(new HeatmapGraphType());
 };
