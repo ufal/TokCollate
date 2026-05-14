@@ -64,6 +64,13 @@
   border-bottom: none;
 }
 
+.tokenized-text-idx {
+  color: #aaa;
+  font-size: 0.75rem;
+  user-select: none;
+  margin-right: 0.25rem;
+}
+
 .no-data {
   color: #95a5a6;
   font-style: italic;

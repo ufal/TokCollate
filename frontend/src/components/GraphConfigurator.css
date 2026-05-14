@@ -4,6 +4,25 @@
   overflow-y: auto;
 }
 
+.sentence-range-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.sentence-range-input {
+  width: 70px !important;
+  padding: 0.25rem 0.4rem !important;
+  font-size: 0.9rem;
+}
+
+.sentence-range-hint {
+  color: #888;
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
 .graph-configurator h2 {
   margin-bottom: 1.5rem;
   color: #3b2314;
