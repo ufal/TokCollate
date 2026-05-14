@@ -31,6 +31,10 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
   });
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
+  // Sentence range state (for tokenized-text type)
+  const [sentenceRangeFrom, setSentenceRangeFrom] = useState<string>('1');
+  const [sentenceRangeTo, setSentenceRangeTo] = useState<string>('10');
+
   // Language filter state
   const [continentFilter, setContinentFilter] = useState<string>('');
   const [familyFilter, setFamilyFilter] = useState<string[]>([]);
@@ -397,6 +401,9 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       tokenizers: defaultTokenizers,
       languages: defaultLanguages,
       metrics: defaultMetrics,
+      sentenceRange: newTypeId === 'tokenized-text'
+        ? ([Number(sentenceRangeFrom) || 1, Number(sentenceRangeTo) || 10] as [number, number])
+        : undefined,
     };
 
     setConfig(newConfig);
@@ -553,6 +560,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       trendlineMode,
       // Keep boolean flag in sync for any legacy consumers
       showTrendline: trendlineMode !== 'none',
+      sentenceRange: cfg.sentenceRange,
     };
 
     // Always propagate the current configuration to the active figure.
@@ -861,6 +869,46 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
               {config.languages?.length || 0} selected / {availableLanguages.length} total · {availableLanguages.filter(languageMatchesFilters).length} match
             </div>
           </div>
+
+          {/* Sentence Range section — only for tokenized-text */}
+          {config.typeId === 'tokenized-text' && (
+            <div className="config-section">
+              <label>Sentence Range:</label>
+              <div className="sentence-range-row">
+                <span>From</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={sentenceRangeFrom}
+                  className="sentence-range-input"
+                  onChange={(e) => {
+                    setSentenceRangeFrom(e.target.value);
+                    const from = Number(e.target.value) || 1;
+                    const to = Number(sentenceRangeTo) || 10;
+                    const newConfig = { ...config, sentenceRange: [from, to] as [number, number] };
+                    setConfig(newConfig);
+                    validateConfig(newConfig);
+                  }}
+                />
+                <span>to</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={sentenceRangeTo}
+                  className="sentence-range-input"
+                  onChange={(e) => {
+                    setSentenceRangeTo(e.target.value);
+                    const from = Number(sentenceRangeFrom) || 1;
+                    const to = Number(e.target.value) || 10;
+                    const newConfig = { ...config, sentenceRange: [from, to] as [number, number] };
+                    setConfig(newConfig);
+                    validateConfig(newConfig);
+                  }}
+                />
+                <span className="sentence-range-hint">(1-based, inclusive)</span>
+              </div>
+            </div>
+          )}
 
           {/* Language Filters section (moved after Languages selector) */}
           <div className="config-section">

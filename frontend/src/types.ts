@@ -40,6 +40,8 @@ export interface FigureConfig {
   showTrendline?: boolean;
   // New, more expressive trendline mode
   trendlineMode?: 'none' | 'global' | 'groups';
+  // For tokenized-text type: 1-based inclusive range [start, end]
+  sentenceRange?: [number, number];
 }
 
 export interface MetricDimensionality {

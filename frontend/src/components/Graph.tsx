@@ -302,6 +302,9 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
       for (const lang of selectedLanguages) {
         const sentences: string[][] | undefined = tokData[lang];
         if (!sentences) continue;
+        const from = config.sentenceRange ? config.sentenceRange[0] - 1 : 0;
+        const to = config.sentenceRange ? config.sentenceRange[1] : sentences.length;
+        const slice = sentences.slice(Math.max(0, from), to);
         panels.push(
           <div key={`${tokenizer}__${lang}`} className="tokenized-text-panel">
             <div className="tokenized-text-header">
@@ -309,9 +312,9 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
               <span className="tokenized-text-lang">{lang}</span>
             </div>
             <div className="tokenized-text-body">
-              {sentences.map((tokens, i) => (
-                <div key={i} className="tokenized-text-sentence">
-                  {tokens.join(' ')}
+              {slice.map((tokens, i) => (
+                <div key={from + i} className="tokenized-text-sentence">
+                  <span className="tokenized-text-idx">{from + i + 1}.</span>{' '}{tokens.join(' ')}
                 </div>
               ))}
             </div>
