@@ -32,8 +32,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
     label: string;
   } | null>(null);
 
-  const totalSteps = 4;
-
   const handleImportDataClick = () => {
     // Trigger the directory picker
     dirInputRef.current?.click();
@@ -45,10 +43,11 @@ const MainMenu: React.FC<MainMenuProps> = ({
       return;
     }
 
-    // Find metadata.json and results.npz in the selected files
+    // Find metadata.json, results.npz and optional files in the selected directory
     let metadataFile: File | null = null;
     let resultsFile: File | null = null;
     let languagesInfoFile: File | null = null;
+    let tokenizationsFile: File | null = null;
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -60,6 +59,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
         resultsFile = file;
       } else if (name === 'languages_info.json' || name === 'language_info.json') {
         languagesInfoFile = file;
+      } else if (name === 'tokenizations.json.gz') {
+        tokenizationsFile = file;
       }
     }
 
@@ -73,14 +74,35 @@ const MainMenu: React.FC<MainMenuProps> = ({
     }
 
     try {
+      const getApiUrl = (apiPath: string): string => {
+        if (process.env.NODE_ENV === 'production') {
+          try {
+            const path = window.location.pathname || '/';
+            const m = path.match(/^\/[^/]+\//); // e.g., "/tokcollate/"
+            const base = m ? m[0].replace(/\/$/, '') : '';
+            return `${base}${apiPath}` || apiPath;
+          } catch {
+            return apiPath;
+          }
+        }
+        return `http://localhost:5000${apiPath}`;
+      };
+
       setIsImporting(true);
-      setImportProgress({ step: 1, total: totalSteps, label: 'Reading metadata and language info…' });
+      setImportProgress({ step: 1, total: 5, label: 'Reading metadata and language info…' });
 
       // Load metadata.json
       console.log('[MainMenu] Reading metadata.json');
       const metadataText = await metadataFile.text();
       const metadata = JSON.parse(metadataText);
       console.log('[MainMenu] ✓ Loaded metadata.json');
+
+      const hasTokenizations = metadata?.has_tokenizations === true;
+      if (hasTokenizations && !tokenizationsFile) {
+        throw new Error(
+          'metadata.json indicates has_tokenizations=true, but tokenizations.json.gz was not found in the selected directory.'
+        );
+      }
 
       // Optionally load languages_info.json
       let languagesInfo: any = undefined;
@@ -95,7 +117,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
         }
       }
 
-      setImportProgress({ step: 2, total: totalSteps, label: 'Reading results.npz file…' });
+      setImportProgress({ step: 2, total: 5, label: 'Reading results.npz file…' });
 
       // Load results.npz - send to backend for deserialization
       console.log('[MainMenu] Reading results.npz');
@@ -105,25 +127,9 @@ const MainMenu: React.FC<MainMenuProps> = ({
       // Send NPZ to backend for parsing (handles pickled objects)
       console.log('[MainMenu] Sending NPZ to backend for parsing...');
 
-      const getBackendURL = () => {
-        if (process.env.NODE_ENV === 'production') {
-          // When served from a subpath like /tokcollate/, keep API calls
-          // under the same prefix so reverse-proxy rules apply correctly.
-          try {
-            const path = window.location.pathname || '/';
-            const m = path.match(/^\/[^/]+\//); // e.g., "/tokcollate/"
-            const base = m ? m[0].replace(/\/$/, '') : '';
-            return `${base}/api/parse-npz` || '/api/parse-npz';
-          } catch {
-            return '/api/parse-npz';
-          }
-        }
-        return 'http://localhost:5000/api/parse-npz';
-      };
+      const backendURL = getApiUrl('/api/parse-npz');
 
-      const backendURL = getBackendURL();
-
-      setImportProgress({ step: 3, total: totalSteps, label: 'Parsing results.npz on backend…' });
+      setImportProgress({ step: 3, total: 5, label: 'Parsing results.npz on backend…' });
 
       const parseResponse = await fetch(backendURL, {
         method: 'POST',
@@ -148,6 +154,31 @@ const MainMenu: React.FC<MainMenuProps> = ({
       console.log('[MainMenu] ✓ Parsed results.npz');
       console.log('[MainMenu] NPZ metrics:', Object.keys(npzData || {}).filter(k => k !== 'correlation'));
 
+      let tokenizations: any = undefined;
+      if (hasTokenizations && tokenizationsFile) {
+        setImportProgress({ step: 4, total: 5, label: 'Loading tokenizations.json.gz…' });
+        const tokenizationsBuffer = await tokenizationsFile.arrayBuffer();
+        const tokenizationsResp = await fetch(getApiUrl('/api/parse-tokenizations'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/octet-stream',
+          },
+          body: tokenizationsBuffer,
+        });
+
+        if (!tokenizationsResp.ok) {
+          const errorText = await tokenizationsResp.text();
+          throw new Error(
+            `Failed to parse tokenizations.json.gz\n\n` +
+            `Server response: ${tokenizationsResp.status} ${tokenizationsResp.statusText}\n\n` +
+            errorText
+          );
+        }
+
+        tokenizations = await tokenizationsResp.json();
+        console.log('[MainMenu] ✓ Parsed tokenizations.json.gz');
+      }
+
       // Create visualization data with metadata and NPZ data
       const visualizationData: any = {
         metadata,
@@ -156,9 +187,12 @@ const MainMenu: React.FC<MainMenuProps> = ({
       if (languagesInfo) {
         visualizationData.languagesInfo = languagesInfo;
       }
+      if (tokenizations !== undefined) {
+        visualizationData.tokenizations = tokenizations;
+      }
 
       console.log('[MainMenu] ✓ All files loaded successfully');
-      setImportProgress({ step: 4, total: totalSteps, label: 'Finalizing visualization…' });
+      setImportProgress({ step: 5, total: 5, label: 'Finalizing visualization…' });
       onLoadVisualization(visualizationData);
 
       const datasetTitle = metadata.dataset_name || metadata.datasetName || 'Unknown';
@@ -167,7 +201,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
         '✓ Successfully loaded:\n' +
         '  • metadata.json\n' +
         '  • results.npz' +
-        (languagesInfoFile ? '\n  • languages_info.json' : '')
+        (languagesInfoFile ? '\n  • languages_info.json' : '') +
+        (hasTokenizations ? '\n  • tokenizations.json.gz' : '')
       );
 
       // Register this dataset as local-only for the current session

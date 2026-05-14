@@ -246,6 +246,11 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
       console.log('[renderChart] ChartData is object:', Object.keys(chartData));
     }
 
+    // Tokenized-text type doesn't use chartData at all — render directly
+    if (config.typeId === 'tokenized-text') {
+      return renderTokenizedText();
+    }
+
     // Check if we have valid data
     const hasData = (Array.isArray(chartData) && chartData.length > 0) || 
                     (chartData && typeof chartData === 'object' && (chartData.data || chartData.error));
@@ -271,6 +276,55 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
     } else {
       return renderBarChart(metrics);
     }
+  };
+
+  const renderTokenizedText = () => {
+    const tokenizations: Record<string, any> | undefined = data.metadata?.tokenizations;
+    if (!tokenizations) {
+      return <div className="no-data">No tokenizations available for this dataset</div>;
+    }
+
+    const selectedTokenizers = config.tokenizers && config.tokenizers.length > 0
+      ? config.tokenizers
+      : Object.keys(tokenizations);
+    const selectedLanguages = config.languages && config.languages.length > 0
+      ? config.languages
+      : [];
+
+    if (selectedLanguages.length === 0) {
+      return <div className="no-data">Select at least one language to display tokenized text</div>;
+    }
+
+    const panels: React.ReactNode[] = [];
+    for (const tokenizer of selectedTokenizers) {
+      const tokData = tokenizations[tokenizer];
+      if (!tokData) continue;
+      for (const lang of selectedLanguages) {
+        const sentences: string[][] | undefined = tokData[lang];
+        if (!sentences) continue;
+        panels.push(
+          <div key={`${tokenizer}__${lang}`} className="tokenized-text-panel">
+            <div className="tokenized-text-header">
+              <span className="tokenized-text-tokenizer">{tokenizer}</span>
+              <span className="tokenized-text-lang">{lang}</span>
+            </div>
+            <div className="tokenized-text-body">
+              {sentences.map((tokens, i) => (
+                <div key={i} className="tokenized-text-sentence">
+                  {tokens.join(' ')}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+    }
+
+    if (panels.length === 0) {
+      return <div className="no-data">No data for the selected tokenizer/language combination</div>;
+    }
+
+    return <div className="tokenized-text-container">{panels}</div>;
   };
 
   const renderBarChart = (metrics: string[]) => {
@@ -750,7 +804,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
 
   return (
     <div className="graph" id={`graph-${config.id}`}>
-      {(Array.isArray(chartData) ? chartData.length > 0 : !!chartData) ? (
+      {config.typeId === 'tokenized-text' || (Array.isArray(chartData) ? chartData.length > 0 : !!chartData) ? (
         renderChart()
       ) : (
         <div className="no-data">No data available for this configuration</div>

@@ -8,6 +8,62 @@
   border-radius: 4px;
 }
 
+.tokenized-text-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+  align-self: flex-start;
+}
+
+.tokenized-text-panel {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.tokenized-text-header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.4rem 0.75rem;
+  background: #f0ebe5;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.85rem;
+}
+
+.tokenized-text-tokenizer {
+  font-weight: 600;
+  color: #333;
+}
+
+.tokenized-text-lang {
+  color: #666;
+  font-style: italic;
+}
+
+.tokenized-text-body {
+  padding: 0.5rem 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.tokenized-text-sentence {
+  padding: 0.1rem 0;
+  border-bottom: 1px solid #f5f0eb;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.tokenized-text-sentence:last-child {
+  border-bottom: none;
+}
+
 .no-data {
   color: #95a5a6;
   font-style: italic;
