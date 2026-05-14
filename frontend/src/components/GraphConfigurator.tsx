@@ -371,6 +371,9 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       } else {
         defaultMetrics = [];
       }
+    } else if (newTypeId === 'tokenized-text') {
+      // Tokenized Text uses tokenizer/language selections only.
+      defaultMetrics = [];
     } else if (newTypeId === 'metric-table') {
       // Single metric: first compatible
       defaultMetrics = filteredMetrics.length > 0 ? [filteredMetrics[0]] : [];
@@ -779,7 +782,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                 </select>
               </div>
             </div>
-          ) : config.typeId !== 'metric-table' && (
+          ) : config.typeId !== 'metric-table' && config.typeId !== 'tokenized-text' && (
             <div className="config-section">
               <label>
                 {getConstraintLabel(
