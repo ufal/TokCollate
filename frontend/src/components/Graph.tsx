@@ -161,6 +161,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
   type ColumnSortState = { rowIndex: number | null; direction: 'asc' | 'desc' };
   const [rowSort, setRowSort] = React.useState<RowSortState>({ columnIndex: null, direction: 'asc' });
   const [columnSort, setColumnSort] = React.useState<ColumnSortState>({ rowIndex: null, direction: 'asc' });
+  const [hoveredToken, setHoveredToken] = React.useState<string | null>(null);
 
   const getChartData = (): any[] | any => {
     console.log('[Graph.getChartData] Called');
@@ -314,7 +315,17 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
             <div className="tokenized-text-body">
               {slice.map((tokens, i) => (
                 <div key={from + i} className="tokenized-text-sentence">
-                  <span className="tokenized-text-idx">{from + i + 1}.</span>{' '}{tokens.join(' ')}
+                  <span className="tokenized-text-idx">{from + i + 1}.</span>{' '}
+                  {tokens.map((token, j) => (
+                    <React.Fragment key={j}>
+                      <span
+                        className={`tokenized-text-token${hoveredToken === token ? ' tokenized-text-token--active' : ''}`}
+                        onMouseEnter={() => setHoveredToken(token)}
+                        onMouseLeave={() => setHoveredToken(null)}
+                      >{token}</span>
+                      {j < tokens.length - 1 && ' '}
+                    </React.Fragment>
+                  ))}
                 </div>
               ))}
             </div>

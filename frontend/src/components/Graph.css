@@ -71,6 +71,19 @@
   margin-right: 0.25rem;
 }
 
+.tokenized-text-token {
+  border-radius: 3px;
+  padding: 1px 2px;
+  cursor: default;
+  transition: background-color 0.1s ease;
+}
+
+.tokenized-text-token:hover,
+.tokenized-text-token--active {
+  background-color: #ffe08a;
+  outline: 1px solid #f0c040;
+}
+
 .no-data {
   color: #95a5a6;
   font-style: italic;
