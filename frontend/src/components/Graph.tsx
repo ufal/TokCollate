@@ -2,6 +2,7 @@ import React from 'react';
 import { FigureConfig, VisualizationData } from '../types';
 import { getGraphType } from '../utils/graphTypes';
 import { buildLanguageLabelMap, getDisplayLanguageLabel, getDisplayLanguagePairLabel } from '../utils/languageLabels';
+import { decodeSentence } from '../utils/tokenDecoder';
 import {
   BarChart,
   Bar,
@@ -162,6 +163,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
   const [rowSort, setRowSort] = React.useState<RowSortState>({ columnIndex: null, direction: 'asc' });
   const [columnSort, setColumnSort] = React.useState<ColumnSortState>({ rowIndex: null, direction: 'asc' });
   const [hoveredToken, setHoveredToken] = React.useState<string | null>(null);
+  const [hoveredSentenceIdx, setHoveredSentenceIdx] = React.useState<number | null>(null);
 
   const getChartData = (): any[] | any => {
     console.log('[Graph.getChartData] Called');
@@ -314,16 +316,27 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
             </div>
             <div className="tokenized-text-body">
               {slice.map((tokens, i) => (
-                <div key={from + i} className="tokenized-text-sentence">
+                <div
+                  key={from + i}
+                  className={['tokenized-text-sentence', hoveredSentenceIdx === from + i ? 'tokenized-text-sentence--active' : ''].filter(Boolean).join(' ')}
+                  onMouseEnter={() => setHoveredSentenceIdx(from + i)}
+                  onMouseLeave={() => setHoveredSentenceIdx(null)}
+                >
                   <span className="tokenized-text-idx">{from + i + 1}.</span>{' '}
-                  {tokens.map((token, j) => (
+                  {decodeSentence(tokens).map((dt, j, arr) => (
                     <React.Fragment key={j}>
                       <span
-                        className={`tokenized-text-token${hoveredToken === token ? ' tokenized-text-token--active' : ''}`}
-                        onMouseEnter={() => setHoveredToken(token)}
+                        className={[
+                          'tokenized-text-token',
+                          dt.isByteLevel ? 'tokenized-text-token--byte' : '',
+                          dt.decoded === '' ? 'tokenized-text-token--fragment' : '',
+                          hoveredToken === dt.raw ? 'tokenized-text-token--active' : '',
+                        ].filter(Boolean).join(' ')}
+                        title={dt.isByteLevel && dt.decoded !== dt.raw ? `raw: ${dt.raw}` : undefined}
+                        onMouseEnter={() => setHoveredToken(dt.raw)}
                         onMouseLeave={() => setHoveredToken(null)}
-                      >{token}</span>
-                      {j < tokens.length - 1 && ' '}
+                      >{dt.decoded !== '' ? dt.decoded : <span className="tokenized-text-fragment-placeholder">·</span>}</span>
+                      {j < arr.length - 1 && arr[j + 1].decoded !== '' && ' '}
                     </React.Fragment>
                   ))}
                 </div>
