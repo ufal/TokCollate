@@ -47,19 +47,18 @@ class EflomalScore(TokCollateMultilingualMetric):
             aligner.align(src_data, trg_data, scores_filename_fwd=fwd_scores_path, scores_filename_rev=rev_scores_path)
 
             # Read the alignment scores
-            with open(fwd_scores_path, encoding="utf-8") as f:
+            with fwd_scores_path.open("r", encoding="utf-8") as f:
                 fwd_scores = f.read()
-            with open(rev_scores_path, encoding="utf-8") as f:
+            with rev_scores_path.open("r", encoding="utf-8") as f:
                 rev_scores = f.read()
 
         finally:
             # Clean up temporary files
-            import os
 
-            if os.path.exists(fwd_scores_path):
-                os.unlink(fwd_scores_path)
-            if os.path.exists(rev_scores_path):
-                os.unlink(rev_scores_path)
+            if fwd_scores_path.exists():
+                fwd_scores_path.unlink()
+            if rev_scores_path.exists():
+                rev_scores_path.unlink()
 
         fwd_scores_list = [float(score) for score in fwd_scores.splitlines()]
         rev_scores_list = [float(score) for score in rev_scores.splitlines()]
