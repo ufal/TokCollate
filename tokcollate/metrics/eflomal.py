@@ -37,28 +37,16 @@ class EflomalScore(TokCollateMultilingualMetric):
 
         # Create temporary files for alignment scores
         with (
-            tempfile.NamedTemporaryFile(mode="w", suffix=".fwd.scores", delete=False) as fwd_scores_file,
-            tempfile.NamedTemporaryFile(mode="w", suffix=".rev.scores", delete=False) as rev_scores_file,
+            tempfile.NamedTemporaryFile(mode="r", suffix=".fwd.scores", delete=True) as fwd_scores_file,
+            tempfile.NamedTemporaryFile(mode="r", suffix=".rev.scores", delete=True) as rev_scores_file,
         ):
-            fwd_scores_path = fwd_scores_file.name
-            rev_scores_path = rev_scores_file.name
-
-        try:
-            aligner.align(src_data, trg_data, scores_filename_fwd=fwd_scores_path, scores_filename_rev=rev_scores_path)
+            aligner.align(
+                src_data, trg_data, scores_filename_fwd=fwd_scores_file.name, scores_filename_rev=rev_scores_file.name
+            )
 
             # Read the alignment scores
-            with fwd_scores_path.open("r", encoding="utf-8") as f:
-                fwd_scores = f.read()
-            with rev_scores_path.open("r", encoding="utf-8") as f:
-                rev_scores = f.read()
-
-        finally:
-            # Clean up temporary files
-
-            if fwd_scores_path.exists():
-                fwd_scores_path.unlink()
-            if rev_scores_path.exists():
-                rev_scores_path.unlink()
+            fwd_scores = fwd_scores_file.read()
+            rev_scores = rev_scores_file.read()
 
         fwd_scores_list = [float(score) for score in fwd_scores.splitlines()]
         rev_scores_list = [float(score) for score in rev_scores.splitlines()]
