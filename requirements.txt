@@ -6,3 +6,4 @@ omegaconf
 sentencepiece
 scipy
 typing-extensions
+eflomal

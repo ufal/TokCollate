@@ -64,6 +64,8 @@ scorer:
       metric_label: tok_len_var_bytes
       mode: var
       use_bytes: true
+    - metric: eflomal
+      metric_label: eflomal_score
 
   languages_info: "tokcollate/resources/language/languages.json"
   system_dataset_suffix: "txt"
