@@ -35,11 +35,10 @@ class PointwiseMutualInformationMetric(TokCollateMultilingualMetric):
         text_tgt = data.get_system_text(system_label=system_label, language=tgt_lang)
 
         # Get vocabularies for both languages
-        text_all = data.get_system_text(system_label=system_label)
-        vocab_src = self._extract_vocabulary(
+        vocab_src = get_vocabulary(
             data.get_system_text(system_label=system_label, language=src_lang), self.vocab_most_common
         )
-        vocab_tgt = self._extract_vocabulary(
+        vocab_tgt = get_vocabulary(
             data.get_system_text(system_label=system_label, language=tgt_lang), self.vocab_most_common
         )
 
@@ -59,7 +58,7 @@ class PointwiseMutualInformationMetric(TokCollateMultilingualMetric):
         for lang in languages:
             text = data.get_system_text(system_label=system_label, language=lang)
             texts[lang] = text
-            vocabs[lang] = self._extract_vocabulary(text, self.vocab_most_common)
+            vocabs[lang] = get_vocabulary(text, self.vocab_most_common)
 
         # Compute PMI for each language pair
         for i, src_lang in enumerate(languages):
@@ -72,13 +71,6 @@ class PointwiseMutualInformationMetric(TokCollateMultilingualMetric):
                     res[i, j] = self._aggregate_pmi(pmi_scores)
 
         return res
-
-    def _extract_vocabulary(self, text: TextType, most_common: int | None = None) -> Counter:
-        """Extract vocabulary from text, optionally limiting to most common tokens."""
-        vocab = get_vocabulary(text=text)
-        if most_common is not None:
-            vocab = Counter(dict(vocab.most_common(most_common)))
-        return vocab
 
     def _compute_pmi(
         self, text_src: TextType, text_tgt: TextType, vocab_src: Counter, vocab_tgt: Counter

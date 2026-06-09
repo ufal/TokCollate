@@ -8,6 +8,8 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+TextType = list[list[str]]
+
 
 def open_file(file: Path, mode: str) -> TextIO:
     """Return a correct file handle based on the file suffix."""
@@ -44,7 +46,7 @@ def remove_dir(directory: Path) -> None:
             logger.error("Failed to delete %s. Reason: %s", file_path, err)  # noqa: TRY400
 
 
-def load_tokenized_text_file(file: Path, token_separator: str | None = None) -> list[list[str]]:
+def load_tokenized_text_file(file: Path, token_separator: str | None = None) -> TextType:
     """Load dataset file as a list of lists of sentence tokens.
 
     Args:
@@ -64,12 +66,18 @@ def file_path(path_str: str) -> Path:
     return path.absolute()
 
 
-def get_vocabulary(text: list[list[str]]) -> Counter:
-    """Return a token vocabulary given the tokenized input text."""
-    return Counter(tok for line in text for tok in line)
+def get_vocabulary(text: TextType, most_common: int | None = None) -> Counter:
+    """Return a token vocabulary given the tokenized input text.
+
+    Can be limited only to the top-N most common tokens.
+    """
+    vocab = Counter(tok for line in text for tok in line)
+    if most_common is not None:
+        return Counter(dict(vocab.most_common(most_common)))
+    return vocab
 
 
-def get_unigram_frequencies(text: list[list[str]], vocab: Counter | None = None) -> np.ndarray:
+def get_unigram_frequencies(text: TextType, vocab: Counter | None = None) -> np.ndarray:
     """Return a sorted array of vocabulary token frequencies."""
     if vocab is None:
         return np.array([tok[1] for tok in get_vocabulary(text).most_common()])
@@ -77,7 +85,7 @@ def get_unigram_frequencies(text: list[list[str]], vocab: Counter | None = None)
     return np.array([text_vocab[tok[0]] for tok in vocab.most_common()])
 
 
-def get_unigram_distribution(text: list[list[str]], vocab: Counter | None = None) -> np.ndarray:
+def get_unigram_distribution(text: TextType, vocab: Counter | None = None) -> np.ndarray:
     """Return the token probability distribution of a given text."""
     unigram_counts = get_unigram_frequencies(text, vocab=vocab)
     return unigram_counts / unigram_counts.sum()

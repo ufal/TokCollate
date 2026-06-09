@@ -3,11 +3,9 @@ from pathlib import Path
 
 from attrs import converters, define, field, validators
 
-from tokcollate.utils import load_tokenized_text_file
+from tokcollate.utils import TextType, load_tokenized_text_file
 
 logger = logging.getLogger(__name__)
-
-TextType = list[list[str]]
 
 LANG_SPEC_LEN = 3
 
