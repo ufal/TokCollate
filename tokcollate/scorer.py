@@ -97,6 +97,8 @@ class ScorerResultSaver(dict):
         self._save_languages_info()
         self._save_tokenizations()
 
+        logger.info("Successfully finished saving.")
+
 
 @define(kw_only=True)
 class TokCollateScorer:
