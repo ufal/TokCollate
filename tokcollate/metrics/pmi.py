@@ -92,8 +92,8 @@ class PointwiseMutualInformationMetric(TokCollateMultilingualMetric):
 
         for src_sent, tgt_sent in zip(text_src, text_tgt, strict=False):
             # Get unique tokens in each sentence to avoid counting duplicates within sentence
-            src_tokens = set(tok for tok in src_sent if tok in vocab_src)
-            tgt_tokens = set(tok for tok in tgt_sent if tok in vocab_tgt)
+            src_tokens = {tok for tok in src_sent if tok in vocab_src}
+            tgt_tokens = {tok for tok in tgt_sent if tok in vocab_tgt}
 
             # Count co-occurrences
             for src_tok in src_tokens:
@@ -130,14 +130,12 @@ class PointwiseMutualInformationMetric(TokCollateMultilingualMetric):
 
     def _aggregate_pmi(self, pmi_scores: list[float]) -> float:
         """Aggregate PMI scores according to the specified aggregation method."""
-        if not pmi_scores:
-            return 0.0
-
         if self.aggregation == "mean":
             return float(np.mean(pmi_scores))
-        elif self.aggregation == "sum":
+        if self.aggregation == "sum":
             return float(np.sum(pmi_scores))
-        elif self.aggregation == "median":
+        if self.aggregation == "median":
             return float(np.median(pmi_scores))
-        else:
-            raise ValueError(f"Unknown aggregation method: {self.aggregation}")
+
+        err_msg = f"Unknown aggregation method: {self.aggregation}"
+        raise ValueError(err_msg)
