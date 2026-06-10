@@ -9,7 +9,7 @@ from tokcollate.data import TokCollateData
 logger = logging.getLogger(__name__)
 
 
-class EvalMode(enum.Enum):
+class AggMode(enum.Enum):
     """Indicate the evaluation mode of a metric.
 
     Some metrics can aggregate multiple values (e.g. over lines) in various ways, however,
@@ -22,6 +22,7 @@ class EvalMode(enum.Enum):
 
     NONE = None
     MEAN = "mean"
+    MEDIAN = "median"
     VAR = "var"
     SUM = "sum"
 
@@ -130,6 +131,31 @@ class TokCollateMetric:
                 logger.debug("[%s] Scoring system %s (%s)...", self.metric_label, system_label, lang)
                 res[i, j] = self.score(data=data, system_label=system_label, language=lang)
         return res
+
+    def _aggregate_scores(self, scores: list[float] | np.ndarray, axis: int | None = None) -> float:
+        """Aggregate scores according to the specified aggregation mode.
+
+        Helper method for some of the derived metric classes. Classes using this method are required to implement the
+        .aggregation attribute.
+        """
+        if not hasattr(self, "aggregation"):
+            err_msg = "Class using private ._aggregate_scores() method must implement self.aggregation attribute."
+            raise NotImplementedError(err_msg)
+        if not isinstance(self.aggregation, AggMode):
+            err_msg = "Derived class attribute self.aggregation attribute must be AggMode type."
+            raise TypeError(err_msg)
+
+        if self.aggregation == AggMode.MEAN:
+            return np.mean(scores, axis=axis)
+        if self.aggregation == AggMode.MEDIAN:
+            return np.median(scores, axis=axis)
+        if self.aggregation == AggMode.SUM:
+            return np.sum(scores, axis=axis)
+        if self.aggregation == AggMode.VAR:
+            return np.var(scores, axis=axis)
+
+        err_msg = f"Unknown aggregation mode: {self.aggregation}"
+        raise ValueError(err_msg)
 
 
 class TokCollateMultilingualMetric(TokCollateMetric):

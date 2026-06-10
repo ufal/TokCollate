@@ -33,12 +33,12 @@ def test_scorer_saved_results_exist(foo_scorer):
     """TODO"""
     foo_scorer.run()
 
-    for filename in [ScorerResultSaver._metadata_filename, ScorerResultSaver._results_filename]:  # noqa: SLF001
+    for filename in [ScorerResultSaver._metadata_filename, ScorerResultSaver._results_filename]:
         path = Path(foo_scorer.output_dir, filename)
         assert path.exists()
 
 
-@pytest.mark.parametrize("metric_type", TokCollateScorer._metric_n_dim)  # noqa: SLF001
+@pytest.mark.parametrize("metric_type", TokCollateScorer._metric_n_dim)
 def test_scorer_correlate_no_or_single_metric(foo_scorer, metric_type):
     """TODO"""
     metric = next(iter(foo_scorer.metrics.values()))
@@ -53,7 +53,7 @@ def test_scorer_correlate_no_or_single_metric(foo_scorer, metric_type):
         assert results["correlation"][metric_type].ndim == 0
 
 
-@pytest.mark.parametrize("metric_type", TokCollateScorer._metric_n_dim)  # noqa: SLF001
+@pytest.mark.parametrize("metric_type", TokCollateScorer._metric_n_dim)
 def test_scorer_correlation_matrix_size(foo_scorer, metric_type):
     """TODO"""
     results = foo_scorer.run()
@@ -61,7 +61,7 @@ def test_scorer_correlation_matrix_size(foo_scorer, metric_type):
     assert results["correlation"][metric_type].shape == np.zeros(ref_shape).shape
 
 
-@pytest.mark.parametrize("metric_type", TokCollateScorer._metric_n_dim)  # noqa: SLF001
+@pytest.mark.parametrize("metric_type", TokCollateScorer._metric_n_dim)
 def test_scorer_metric_marix_size(foo_scorer, metric_type):
     """TODO"""
     results = foo_scorer.run()
