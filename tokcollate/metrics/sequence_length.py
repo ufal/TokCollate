@@ -4,7 +4,7 @@ from attrs import define, field
 from tokcollate.data import TokCollateData
 from tokcollate.metrics import TokCollateMetric, register_metric
 
-from .tokcollate_metric import EvalMode
+from .tokcollate_metric import AggMode
 
 
 @register_metric("sequence_length")
@@ -12,7 +12,7 @@ from .tokcollate_metric import EvalMode
 class SequenceLengthMetric(TokCollateMetric):
     """Computes the average sequence length in the terms of tokens per line."""
 
-    mode: EvalMode = field(converter=EvalMode, default=EvalMode.MEAN)
+    aggregation: AggMode = field(converter=AggMode, default=AggMode.MEAN)
     use_bytes: bool = field(default=False)
 
     def score(
@@ -27,13 +27,3 @@ class SequenceLengthMetric(TokCollateMetric):
         else:
             seq_length = np.array([len(line) for line in text])
         return self._aggregate_scores(seq_length)
-
-    def _aggregate_scores(self, scores: np.ndarray) -> float:
-        if self.mode == EvalMode.MEAN:
-            return scores.mean()
-        if self.mode == EvalMode.VAR:
-            return scores.var()
-        if self.mode == EvalMode.SUM:
-            return scores.sum()
-        err_msg = f"Unknown metric mode: {self.mode}"
-        raise ValueError(err_msg)

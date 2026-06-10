@@ -7,6 +7,8 @@ from tokcollate.data import TextType, TokCollateData
 from tokcollate.metrics import TokCollateMultilingualMetric, register_metric
 from tokcollate.utils import get_vocabulary
 
+from .tokcollate_metric import AggMode
+
 
 @register_metric("pointwise_mutual_information")
 @define(kw_only=True)
@@ -23,12 +25,12 @@ class PointwiseMutualInformationMetric(TokCollateMultilingualMetric):
     Args:
         vocab_most_common (int): vocabulary cut-off (only the n most common entries are considered)
         min_cooccurrence (int): minimum co-occurrence count to consider a token pair (default: 1)
-        aggregation (str): how to aggregate PMI values across token pairs ("mean", "sum", "median")
+        aggregation (AggMode): how to aggregate PMI values across token pairs ("mean", "sum", "median")
     """
 
     vocab_most_common: int = field(validator=validators.optional(validators.instance_of(int)), default=None)
     min_cooccurrence: int = field(validator=validators.instance_of(int), default=1)
-    aggregation: str = field(validator=validators.in_(["mean", "sum", "median"]), default="mean")
+    aggregation: AggMode = field(converter=AggMode, default=AggMode.MEAN)
 
     def score(self, data: TokCollateData, system_label: str, src_lang: str, tgt_lang: str) -> float:
         text_src = data.get_system_text(system_label=system_label, language=src_lang)
@@ -46,7 +48,7 @@ class PointwiseMutualInformationMetric(TokCollateMultilingualMetric):
         pmi_scores = self._compute_pmi(text_src, text_tgt, vocab_src, vocab_tgt)
 
         # Aggregate
-        return self._aggregate_pmi(pmi_scores)
+        return self._aggregate_scores(pmi_scores)
 
     def score_batched(self, data: TokCollateData, system_label: str, languages: list[str]) -> np.ndarray:
         """Compute PMI for all language pairs in a batched manner."""
@@ -68,7 +70,7 @@ class PointwiseMutualInformationMetric(TokCollateMultilingualMetric):
                     res[i, j] = 0.0
                 else:
                     pmi_scores = self._compute_pmi(texts[src_lang], texts[tgt_lang], vocabs[src_lang], vocabs[tgt_lang])
-                    res[i, j] = self._aggregate_pmi(pmi_scores)
+                    res[i, j] = self._aggregate_scores(pmi_scores)
 
         return res
 
@@ -127,15 +129,3 @@ class PointwiseMutualInformationMetric(TokCollateMultilingualMetric):
                 pmi_scores.append(pmi)
 
         return pmi_scores if pmi_scores else [0.0]
-
-    def _aggregate_pmi(self, pmi_scores: list[float]) -> float:
-        """Aggregate PMI scores according to the specified aggregation method."""
-        if self.aggregation == "mean":
-            return float(np.mean(pmi_scores))
-        if self.aggregation == "sum":
-            return float(np.sum(pmi_scores))
-        if self.aggregation == "median":
-            return float(np.median(pmi_scores))
-
-        err_msg = f"Unknown aggregation method: {self.aggregation}"
-        raise ValueError(err_msg)

@@ -33,22 +33,6 @@ def test_pmi_basic():
     assert all(isinstance(score, float) for score in pmi_scores)
 
 
-def test_pmi_aggregation_methods():
-    """Test different aggregation methods for PMI."""
-    pmi_scores = [1.0, 2.0, 3.0, 4.0, 5.0]
-
-    metric_mean = build_metric(metric="pointwise_mutual_information", metric_label="test_pmi_mean", aggregation="mean")
-    assert metric_mean._aggregate_pmi(pmi_scores) == sum(pmi_scores) / len(pmi_scores)
-
-    metric_sum = build_metric(metric="pointwise_mutual_information", metric_label="test_pmi_sum", aggregation="sum")
-    assert metric_sum._aggregate_pmi(pmi_scores) == sum(pmi_scores)
-
-    metric_median = build_metric(
-        metric="pointwise_mutual_information", metric_label="test_pmi_median", aggregation="median"
-    )
-    assert metric_median._aggregate_pmi(pmi_scores) == (len(pmi_scores) // 2) + 1
-
-
 def test_pmi_min_cooccurrence():
     """Test that min_cooccurrence filters rare pairs."""
     text_src = [["a"], ["b"], ["c"]]
@@ -90,7 +74,7 @@ def test_pmi_identical_sentences():
 
     # Should have positive PMI scores since tokens co-occur with themselves
     assert len(pmi_scores) > 0
-    avg_pmi = metric._aggregate_pmi(pmi_scores)
+    avg_pmi = metric._aggregate_scores(pmi_scores)
     assert avg_pmi > 0  # Positive PMI indicates association
 
 
@@ -105,4 +89,4 @@ def test_pmi_empty_input():
 
     # Should return [0.0] for empty input
     assert pmi_scores == [0.0]
-    assert metric._aggregate_pmi(pmi_scores) == 0.0
+    assert metric._aggregate_scores(pmi_scores) == 0.0

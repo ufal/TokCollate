@@ -4,7 +4,7 @@ from attrs import define, field
 from tokcollate.data import TokCollateData
 from tokcollate.metrics import TokCollateMetric, register_metric
 
-from .tokcollate_metric import EvalMode
+from .tokcollate_metric import AggMode
 
 
 @register_metric("token_length")
@@ -12,7 +12,7 @@ from .tokcollate_metric import EvalMode
 class TokenLengthMetric(TokCollateMetric):
     """Compute the average number of utf-8 characters per token."""
 
-    mode: EvalMode = field(converter=EvalMode, default=EvalMode.MEAN)
+    aggregation: AggMode = field(converter=AggMode, default=AggMode.MEAN)
     use_bytes: bool = field(default=False)
 
     def score(
@@ -27,13 +27,3 @@ class TokenLengthMetric(TokCollateMetric):
         else:
             token_lengths = np.array([len(tok) for line in text for tok in line])
         return self._aggregate_scores(token_lengths)
-
-    def _aggregate_scores(self, scores: np.ndarray) -> float:
-        if self.mode == EvalMode.MEAN:
-            return scores.mean()
-        if self.mode == EvalMode.VAR:
-            return scores.var()
-        if self.mode == EvalMode.SUM:
-            return scores.sum()
-        err_msg = f"Unknown metric mode: {self.mode}"
-        raise ValueError(err_msg)

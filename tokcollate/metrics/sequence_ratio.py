@@ -4,7 +4,7 @@ from attrs import define, field
 from tokcollate.data import TokCollateData
 from tokcollate.metrics import TokCollateMultilingualMetric, register_metric
 
-from .tokcollate_metric import EvalMode
+from .tokcollate_metric import AggMode
 
 
 @register_metric("sequence_ratio")
@@ -12,7 +12,7 @@ from .tokcollate_metric import EvalMode
 class SequenceRatioMetric(TokCollateMultilingualMetric):
     """Compute the sequence length ratio between two outputs of a single tokenizer."""
 
-    mode: EvalMode = field(converter=EvalMode, default=EvalMode.MEAN)
+    aggregation: AggMode = field(converter=AggMode, default=AggMode.MEAN)
     use_bytes: bool = field(default=False)
 
     def score(self, data: TokCollateData, system_label: str, src_lang: str, tgt_lang: str) -> float:
@@ -38,13 +38,3 @@ class SequenceRatioMetric(TokCollateMultilingualMetric):
             lengths = np.stack([np.array([len(line) for line in text]) for text in texts], axis=1)
         ratios = lengths.reshape(-1, len(languages), 1) / lengths.reshape(-1, 1, len(languages))
         return self._aggregate_scores(ratios, axis=0)
-
-    def _aggregate_scores(self, scores: np.ndarray, axis: int = 0) -> float:
-        if self.mode == EvalMode.MEAN:
-            return scores.mean(axis=axis)
-        if self.mode == EvalMode.VAR:
-            return scores.var(axis=axis)
-        if self.mode == EvalMode.SUM:
-            return scores.sum(axis=axis)
-        err_msg = f"Unknown metric mode: {self.mode}"
-        raise ValueError(err_msg)
