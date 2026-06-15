@@ -21,22 +21,49 @@
  *   bytes_to_unicode()
  */
 
+
 // ---------------------------------------------------------------------------
 // GPT-2 bytes_to_unicode reverse map
 // ---------------------------------------------------------------------------
-
+/**
+ * Build the reverse of GPT-2's bytes_to_unicode() table.
+ *
+ * **Background:** A tokenizer vocabulary must contain only printable,
+ * unambiguous characters so it can be stored as plain text. Raw bytes 0–255
+ * include control characters (NUL, TAB, LF, …) that cannot appear cleanly in
+ * a vocab file. GPT-2 solves this by defining a bijection from every possible
+ * byte value to a unique printable Unicode character:
+ *
+ *   • The 188 bytes that are already printable ASCII or Latin-1
+ *     (33–126 "!"–"~", 161–172 "¡"–"¬", 174–255 "®"–"ÿ") map to themselves.
+ *   • The remaining 68 "unsafe" bytes (0–32, 127, 173) are remapped to the
+ *     first 68 codepoints starting at U+0100 (Ā, ā, Ă, …).
+ *     For example:  0x00 (NUL) → Ā (U+0100)
+ *                   0x20 (SPC) → Ġ (U+0120)
+ *                   0x0A (LF)  → Ċ (U+010A)
+ *
+ * This function reconstructs the **inverse** mapping (Unicode char → byte),
+ * which is what the decoder needs: given a GPT-2 token string, look up each
+ * character to recover the original byte sequence, then decode as UTF-8.
+ *
+ * Example:
+ *   Token "Ġcat"  →  bytes [0x20, 0x63, 0x61, 0x74]  →  " cat"
+ *
+ * The returned Map is built once at module load and stored in
+ * GPT2_UNICODE_TO_BYTE.
+ */
 function buildUnicodeToBytes(): Map<string, number> {
   const bs: number[] = [];
-  for (let b = 33; b <= 126; b++) bs.push(b);   // ! – ~
-  for (let b = 161; b <= 172; b++) bs.push(b);  // ¡ – ¬
-  for (let b = 174; b <= 255; b++) bs.push(b);  // ® – ÿ
+  for (let b = 33; b <= 126; b++) bs.push(b);   // ! – ~   (printable ASCII)
+  for (let b = 161; b <= 172; b++) bs.push(b);  // ¡ – ¬   (Latin-1 supplement, part 1)
+  for (let b = 174; b <= 255; b++) bs.push(b);  // ® – ÿ   (Latin-1 supplement, part 2)
 
   const cs = [...bs];
   let n = 0;
   for (let b = 0; b < 256; b++) {
     if (!bs.includes(b)) {
-      bs.push(b);
-      cs.push(256 + n);
+      bs.push(b);        // record the unsafe byte value
+      cs.push(256 + n);  // assign it to codepoint U+0100, U+0101, …
       n++;
     }
   }
@@ -53,10 +80,10 @@ const GPT2_UNICODE_TO_BYTE: Map<string, number> = buildUnicodeToBytes();
 // SentencePiece word-boundary marker
 const SP_WORD_BOUNDARY = '\u2581'; // ▁
 
+
 // ---------------------------------------------------------------------------
 // Per-token byte extraction
 // ---------------------------------------------------------------------------
-
 const SP_HEX_RE = /^<0x([0-9A-Fa-f]{2})>$/;
 
 /**
@@ -70,7 +97,7 @@ function getTokenBytes(token: string): number[] | null {
     return [parseInt(hexMatch[1], 16)];
   }
 
-  // GPT-2 byte-level: every character must be in the unicode→byte map,
+  // GPT-2 byte-level: every character must be in the unicode-to-byte map,
   // AND the decoded byte sequence must differ from the raw string
   // (plain ASCII tokens like "Hello" pass the map check trivially).
   if (token.length > 0) {
