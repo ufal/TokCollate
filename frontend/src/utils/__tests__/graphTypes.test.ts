@@ -196,7 +196,7 @@ describe('TokenizedTextGraphType.validate()', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Base validate – tokenizer / language count edges
+// Base validate – tokenizer and language count edges
 // ---------------------------------------------------------------------------
 
 describe('GraphType base validate – tokenizer and language count edges', () => {
@@ -216,5 +216,66 @@ describe('GraphType base validate – tokenizer and language count edges', () =>
       dims({ seq_len: 2 }),
     );
     expect(result.valid).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getCompatibleMetrics
+// ---------------------------------------------------------------------------
+
+describe('MetricPairCorrelationGraphType.getCompatibleMetrics()', () => {
+  const gType = new MetricPairCorrelationGraphType();
+  const allMetrics = ['seq_len', 'vocab_size', 'pmi', 'freq'];
+  const dimensionality = { seq_len: 2, vocab_size: 2, pmi: 3, freq: 1 } as Record<string, 1 | 2 | 3>;
+
+  it('returns only 2D and 3D metrics', () => {
+    const result = gType.getCompatibleMetrics(allMetrics, dimensionality);
+    expect(result).toEqual(['seq_len', 'vocab_size', 'pmi']);
+  });
+
+  it('excludes 1D metrics', () => {
+    const result = gType.getCompatibleMetrics(allMetrics, dimensionality);
+    expect(result).not.toContain('freq');
+  });
+
+  it('returns empty array when all metrics are 1D', () => {
+    const result = gType.getCompatibleMetrics(['freq'], { freq: 1 });
+    expect(result).toEqual([]);
+  });
+
+  it('returns all metrics when all are 2D or 3D', () => {
+    const result = gType.getCompatibleMetrics(['a', 'b'], { a: 2, b: 3 });
+    expect(result).toEqual(['a', 'b']);
+  });
+});
+
+describe('MetricTableGraphType.getCompatibleMetrics()', () => {
+  const gType = new MetricTableGraphType();
+  const allMetrics = ['seq_len', 'vocab_size', 'pmi', 'freq'];
+  const dimensionality = { seq_len: 2, vocab_size: 2, pmi: 3, freq: 1 } as Record<string, 1 | 2 | 3>;
+
+  it('returns only 2D and 3D metrics', () => {
+    const result = gType.getCompatibleMetrics(allMetrics, dimensionality);
+    expect(result).toEqual(['seq_len', 'vocab_size', 'pmi']);
+  });
+
+  it('excludes 1D metrics', () => {
+    const result = gType.getCompatibleMetrics(allMetrics, dimensionality);
+    expect(result).not.toContain('freq');
+  });
+});
+
+describe('TokenizedTextGraphType.getCompatibleMetrics()', () => {
+  const gType = new TokenizedTextGraphType();
+  const allMetrics = ['seq_len', 'vocab_size', 'pmi', 'freq'];
+  const dimensionality = { seq_len: 2, vocab_size: 2, pmi: 3, freq: 1 } as Record<string, 1 | 2 | 3>;
+
+  it('returns all metrics (no restriction — type uses no metrics anyway)', () => {
+    const result = gType.getCompatibleMetrics(allMetrics, dimensionality);
+    expect(result).toEqual(allMetrics);
+  });
+
+  it('returns empty array for empty input', () => {
+    expect(gType.getCompatibleMetrics([], {})).toEqual([]);
   });
 });

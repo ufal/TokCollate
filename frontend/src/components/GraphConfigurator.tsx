@@ -2,7 +2,16 @@ import React, { useState } from 'react';
 import { FigureConfig, MetricDimensionality } from '../types';
 import { getAvailableGraphTypes, getGraphType } from '../utils/graphTypes';
 import { buildLanguageLabelMap, getDisplayLanguageLabel } from '../utils/languageLabels';
+import { useLanguageFilters, lookupLanguageInfo } from '../utils/useLanguageFilters';
 import './GraphConfigurator.css';
+
+/** Check whether two string arrays contain the same set of values. */
+function arraysEqualSet(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false;
+  const sb = new Set(b);
+  for (const v of a) if (!sb.has(v)) return false;
+  return true;
+}
 
 interface GraphConfiguratorProps {
   onUpdateFigure: (config: FigureConfig) => void;
@@ -35,89 +44,20 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
   const [sentenceRangeFrom, setSentenceRangeFrom] = useState<string>('1');
   const [sentenceRangeTo, setSentenceRangeTo] = useState<string>('10');
 
-  // Language filter state
-  const [continentFilter, setContinentFilter] = useState<string>('');
-  const [familyFilter, setFamilyFilter] = useState<string[]>([]);
-  const [fineweb2Filter, setFineweb2Filter] = useState<string[]>([]);
-  const [glottocodeFilter, setGlottocodeFilter] = useState<string[]>([]);
-  const [morphologyFilter, setMorphologyFilter] = useState<string[]>([]);
-  const [tierFilter, setTierFilter] = useState<string>('');
-  const [lockFilters, setLockFilters] = useState<boolean>(false);
-  const [speakerOp, setSpeakerOp] = useState<'>=' | '<=' | ''>('>=');
-  const [speakerVal, setSpeakerVal] = useState<string>('');
-
-  // Derive filter option values from languagesInfo
-  const getLanguageInfo = React.useCallback((lang: string) => {
-    const root: any = languagesInfo || {};
-    if (root.languages && root.languages[lang]) return root.languages[lang];
-    return root[lang] || {};
-  }, [languagesInfo]);
-
-  const getCategoryList = React.useCallback((name: string, isArray: boolean): string[] => {
-    const root: any = languagesInfo || {};
-    const cat = root.categories ? root.categories[name] : undefined;
-    if (Array.isArray(cat)) {
-      return Array.from(new Set<string>(cat as string[])).sort();
-    }
-    if (cat && typeof cat === 'object') {
-      return Object.keys(cat as Record<string, any>).sort();
-    }
-    const s = new Set<string>();
-    const langs: string[] = root.languages && typeof root.languages === 'object'
-      ? Object.keys(root.languages)
-      : Object.keys(root);
-    for (const lang of langs) {
-      const info = getLanguageInfo(lang);
-      const val = info?.[name];
-      if (Array.isArray(val)) {
-        for (const v of val) {
-          if (typeof v === 'string' && v.trim()) s.add(v.trim());
-          else if (typeof v === 'number') s.add(String(v));
-          else if (typeof v === 'boolean') s.add(String(v));
-        }
-      } else if (val && typeof val === 'object') {
-        for (const k of Object.keys(val)) s.add(String(k));
-      } else if (typeof val === 'string' && val.trim()) {
-        s.add(val.trim());
-      } else if (typeof val === 'number') {
-        s.add(String(val));
-      } else if (typeof val === 'boolean') {
-        s.add(String(val));
-      }
-    }
-    return Array.from(s).sort();
-  }, [languagesInfo, getLanguageInfo]);
-
-  const allContinents = React.useMemo(() => getCategoryList('continent', false), [getCategoryList]);
-
-  const allFamilies = React.useMemo(() => getCategoryList('families', true), [getCategoryList]);
-
-  const allFineweb2Keys = React.useMemo((): string[] => {
-    const root: any = languagesInfo || {};
-    const fromCategories: string[] | null = root.categories && Array.isArray(root.categories.fineweb2) ? (root.categories.fineweb2 as string[]) : null;
-    if (fromCategories) return Array.from(new Set<string>(fromCategories)).sort();
-    const s = new Set<string>();
-    const langs: string[] = root.languages && typeof root.languages === 'object'
-      ? Object.keys(root.languages)
-      : Object.keys(root);
-    for (const lang of langs) {
-      const fw = getLanguageInfo(lang)?.fineweb2;
-      if (fw && typeof fw === 'object') {
-        for (const k of Object.keys(fw)) s.add(String(k));
-      } else if (Array.isArray(fw)) {
-        for (const k of fw) s.add(String(k));
-      } else if (typeof fw === 'string') {
-        s.add(fw);
-      }
-    }
-    return Array.from(s).sort();
-  }, [languagesInfo, getLanguageInfo]);
-
-  const allGlottocodes = React.useMemo(() => getCategoryList('glottocodes', true), [getCategoryList]);
-
-  const allMorphology = React.useMemo(() => getCategoryList('morphology', true), [getCategoryList]);
-
-  const allTiers = React.useMemo(() => getCategoryList('tier', false), [getCategoryList]);
+  const {
+    filters: langFilters,
+    setFilter: setLangFilter,
+    clearFilters: clearLanguageFilters,
+    allContinents,
+    allFamilies,
+    allFineweb2Keys,
+    allGlottocodes,
+    allMorphology,
+    allTiers,
+    languageMatchesFilters,
+    matchingLanguages,
+    isAnyFilterActive,
+  } = useLanguageFilters(availableLanguages, languagesInfo);
 
   const languageLabelMap = React.useMemo(
     () => buildLanguageLabelMap(availableLanguages),
@@ -128,19 +68,19 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     try {
       const parts = label.split('_');
       const base = parts.length >= 3 ? parts.slice(0, parts.length - 2).join('_') : label;
-      const info = getLanguageInfo(base) || {};
+      const info = lookupLanguageInfo(base, languagesInfo) || {};
       const name = info.Name || info.name;
       return name ? String(name) : null;
     } catch {
       return null;
     }
-  }, [getLanguageInfo]);
+  }, [languagesInfo]);
 
   const buildLanguageTooltip = React.useCallback((label: string): string => {
     try {
       const parts = label.split('_');
       const base = parts.length >= 3 ? parts.slice(0, parts.length - 2).join('_') : label;
-      const info = getLanguageInfo(base) || {};
+      const info = lookupLanguageInfo(base, languagesInfo) || {};
 
       const toList = (val: any): string => {
         if (!val) return '';
@@ -169,134 +109,21 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     } catch (e) {
       return label;
     }
-  }, [getLanguageInfo]);
+  }, [languagesInfo]);
 
-  const languageMatchesFilters = (lang: string): boolean => {
-    const parseLabel = (label: string): { base: string; finewebKey?: string; glottocode?: string } => {
-      const parts = label.split('_');
-      if (parts.length >= 3) {
-        const glottocode = parts[parts.length - 1];
-        const finewebKey = parts[parts.length - 2];
-        const base = parts.slice(0, parts.length - 2).join('_');
-        return { base, finewebKey, glottocode };
-      }
-      return { base: label };
-    };
+  // languageMatchesFilters, matchingLanguages, and isAnyFilterActive
+  // are provided by useLanguageFilters above.
 
-    const { base, finewebKey, glottocode } = parseLabel(lang);
-
-    const resolveInfo = (): any => {
-      const direct = getLanguageInfo(base);
-      if (direct && Object.keys(direct).length > 0) return direct;
-      if (glottocode) {
-        const root: any = languagesInfo || {};
-        const entries: Array<{ key: string; info: any }> = root.languages && typeof root.languages === 'object'
-          ? Object.keys(root.languages).map((k) => ({ key: k, info: root.languages[k] }))
-          : Object.keys(root).map((k) => ({ key: k, info: root[k] }));
-        for (const { info } of entries) {
-          const gc = info?.glottocodes;
-          if (typeof gc === 'string' && gc === glottocode) return info;
-          if (Array.isArray(gc) && gc.includes(glottocode)) return info;
-          if (gc && typeof gc === 'object' && Object.keys(gc).includes(glottocode)) return info;
-        }
-      }
-      return direct || {};
-    };
-
-    const info = resolveInfo();
-    // continent
-    if (continentFilter && info?.continent !== continentFilter) return false;
-    // families
-    if (familyFilter.length > 0) {
-      const fam = info?.families;
-      let arr: string[] = [];
-      if (Array.isArray(fam)) arr = fam;
-      else if (fam && typeof fam === 'object') arr = Object.keys(fam);
-      else if (typeof fam === 'string') arr = [fam];
-      const set = new Set(arr);
-      if (!familyFilter.some((f) => set.has(f))) return false;
-    }
-    // fineweb2
-    if (fineweb2Filter.length > 0) {
-      if (finewebKey) {
-        if (!fineweb2Filter.includes(finewebKey)) return false;
-      } else {
-        const fw = info?.fineweb2;
-        const keys = fw && typeof fw === 'object' ? Object.keys(fw) : (Array.isArray(fw) ? fw : (typeof fw === 'string' ? [fw] : []));
-        const set = new Set(keys);
-        if (!fineweb2Filter.some((k) => set.has(k))) return false;
-      }
-    }
-    // glottocodes
-    if (glottocodeFilter.length > 0) {
-      if (glottocode) {
-        if (!glottocodeFilter.includes(glottocode)) return false;
-      } else {
-        const gc = info?.glottocodes;
-        let arr: string[] = [];
-        if (Array.isArray(gc)) arr = gc;
-        else if (gc && typeof gc === 'object') arr = Object.keys(gc);
-        else if (typeof gc === 'string') arr = [gc];
-        const set = new Set(arr);
-        if (!glottocodeFilter.some((g) => set.has(g))) return false;
-      }
-    }
-    // morphology
-    if (morphologyFilter.length > 0) {
-      const m = info?.morphology;
-      let arr: string[] = [];
-      if (Array.isArray(m)) arr = m;
-      else if (m && typeof m === 'object') arr = Object.keys(m);
-      else if (typeof m === 'string') arr = [m];
-      const set = new Set(arr);
-      if (!morphologyFilter.some((v) => set.has(v))) return false;
-    }
-    // tier
-    if (tierFilter) {
-      const t = info?.tier;
-      const tv = typeof t === 'number' || typeof t === 'boolean' ? String(t) : (typeof t === 'string' ? t : '');
-      if (tv !== tierFilter) return false;
-    }
-    // speaker threshold
-    const hasSpeakerFilter = speakerOp !== '' && speakerVal.trim() !== '';
-    if (hasSpeakerFilter) {
-      const raw = info?.speaker !== undefined ? info.speaker : info?.speakers;
-      let n: number | null = null;
-      if (typeof raw === 'number') n = raw;
-      else if (typeof raw === 'string') {
-        const parsed = parseFloat(raw.replace(/[,\s]/g, ''));
-        if (!Number.isNaN(parsed)) n = parsed; else n = null;
-      }
-      const thr = parseFloat(speakerVal);
-      if (n === null || Number.isNaN(thr)) return false;
-      if (speakerOp === '>=') {
-        if (!(n >= thr)) return false;
-      } else if (speakerOp === '<=') {
-        if (!(n <= thr)) return false;
-      }
-    }
-    return true;
-  };
-
-  // Auto-select matching languages when filters are active (disabled when locked)
+  // Auto-select matching languages when filters change (disabled when locked)
   React.useEffect(() => {
-    const anyFilterActive = Boolean(continentFilter) || familyFilter.length > 0 || fineweb2Filter.length > 0 || glottocodeFilter.length > 0 || morphologyFilter.length > 0 || Boolean(tierFilter) || (speakerOp !== '' && speakerVal.trim() !== '');
-    if (!anyFilterActive || lockFilters) return;
-    const matches = availableLanguages.filter(languageMatchesFilters);
+    if (!isAnyFilterActive || langFilters.locked) return;
     const current = config.languages || [];
-    const arraysEqualSet = (a: string[], b: string[]): boolean => {
-      if (a.length !== b.length) return false;
-      const sb = new Set(b);
-      for (const v of a) if (!sb.has(v)) return false;
-      return true;
-    };
-    const isSameSet = arraysEqualSet(current, matches);
-    if (!isSameSet) {
-      const newConfig = { ...config, languages: matches };
+    if (!arraysEqualSet(current, matchingLanguages)) {
+      const newConfig = { ...config, languages: matchingLanguages };
       setConfig(newConfig);
       validateConfig(newConfig);
     }
-  }, [continentFilter, familyFilter, fineweb2Filter, glottocodeFilter, morphologyFilter, tierFilter, speakerOp, speakerVal, availableLanguages, lockFilters]);
+  }, [matchingLanguages, langFilters.locked]);
 
   const currentGraphType = getGraphType(config.typeId || 'bar-ranking-correlation');
 
@@ -317,13 +144,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
 
     const filterMetricsForType = (typeId: string): string[] => {
       const t = getGraphType(typeId);
-      if (!t) return availableMetrics;
-      if (t.typeId === 'metric-table') {
-        return availableMetrics.filter((m) => metricDimensionality[m] === 2 || metricDimensionality[m] === 3);
-      }
-      const dim = t.constraints.metrics.dimension;
-      if (!dim || dim === 'both') return availableMetrics;
-      return availableMetrics.filter((m) => metricDimensionality[m] === dim);
+      return t?.getCompatibleMetrics(availableMetrics, metricDimensionality) ?? availableMetrics;
     };
 
     const filteredMetrics = filterMetricsForType(newTypeId);
@@ -467,25 +288,9 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     setConfig(newConfig);
 
     // If filters are active and manual selection deviates from matches, clear filters
-    const anyFilterActive = Boolean(continentFilter) || familyFilter.length > 0 || fineweb2Filter.length > 0 || glottocodeFilter.length > 0 || morphologyFilter.length > 0 || Boolean(tierFilter) || (speakerOp !== '' && speakerVal.trim() !== '');
-    if (anyFilterActive && !lockFilters) {
-      const matches = availableLanguages.filter(languageMatchesFilters);
-      const arraysEqualSet = (a: string[], b: string[]): boolean => {
-        if (a.length !== b.length) return false;
-        const sb = new Set(b);
-        for (const v of a) if (!sb.has(v)) return false;
-        return true;
-      };
-      const isSameSet = arraysEqualSet(selectedOptions, matches);
-      if (!isSameSet) {
-        setContinentFilter('');
-        setFamilyFilter([]);
-        setFineweb2Filter([]);
-        setGlottocodeFilter([]);
-        setMorphologyFilter([]);
-        setTierFilter('');
-        setSpeakerOp('>=');
-        setSpeakerVal('');
+    if (isAnyFilterActive && !langFilters.locked) {
+      if (!arraysEqualSet(selectedOptions, matchingLanguages)) {
+        clearLanguageFilters();
       }
     }
 
@@ -514,17 +319,6 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     };
     setConfig(newConfig);
     validateConfig(newConfig);
-  };
-
-  const handleClearLanguageFilters = () => {
-    setContinentFilter('');
-    setFamilyFilter([]);
-    setFineweb2Filter([]);
-    setGlottocodeFilter([]);
-    setMorphologyFilter([]);
-    setTierFilter('');
-    setSpeakerOp('>=');
-    setSpeakerVal('');
   };
 
   const validateConfig = React.useCallback((cfg: Partial<FigureConfig>) => {
@@ -579,31 +373,14 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     return `${label} (${min}-${max})`;
   };
 
-  /**
-   * Filter metrics based on the current graph type's dimension requirements
-   */
-  const getFilteredMetrics = (): string[] => {
-    // Special-case Metric Table: allow only 2D or 3D metrics
-    if (currentGraphType?.typeId === 'metric-table') {
-      return availableMetrics.filter((m) => metricDimensionality[m] === 2 || metricDimensionality[m] === 3);
-    }
-    if (!currentGraphType?.constraints.metrics.dimension || currentGraphType.constraints.metrics.dimension === 'both') {
-      return availableMetrics;
-    }
-    const requiredDimension = currentGraphType.constraints.metrics.dimension;
-    return availableMetrics.filter((m) => metricDimensionality[m] === requiredDimension);
-  };
+  /** Metrics compatible with the current graph type, used to populate metric dropdowns. */
+  const getFilteredMetrics = (): string[] =>
+    currentGraphType?.getCompatibleMetrics(availableMetrics, metricDimensionality) ?? availableMetrics;
 
+  /** Metrics excluded by the current graph type — shown as a count/hint in the UI. */
   const getExcludedMetrics = (): string[] => {
-    // For Metric Table, excluded metrics are 1D
-    if (currentGraphType?.typeId === 'metric-table') {
-      return availableMetrics.filter((m) => metricDimensionality[m] === 1);
-    }
-    if (!currentGraphType?.constraints.metrics.dimension || currentGraphType.constraints.metrics.dimension === 'both') {
-      return [];
-    }
-    const requiredDimension = currentGraphType.constraints.metrics.dimension;
-    return availableMetrics.filter((m) => metricDimensionality[m] !== requiredDimension);
+    const compatibleSet = new Set(getFilteredMetrics());
+    return availableMetrics.filter((m) => !compatibleSet.has(m));
   };
 
   const getMetricDimensionLabel = (metric: string): string => {
@@ -866,7 +643,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
               })}
             </select>
             <div className="selected-count">
-              {config.languages?.length || 0} selected / {availableLanguages.length} total · {availableLanguages.filter(languageMatchesFilters).length} match
+              {config.languages?.length || 0} selected / {availableLanguages.length} total · {matchingLanguages.length} match
             </div>
           </div>
 
@@ -917,7 +694,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
               <button
                 type="button"
                 className="clear-filters-btn"
-                onClick={handleClearLanguageFilters}
+                onClick={clearLanguageFilters}
               >
                 Clear filters
               </button>
@@ -925,7 +702,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
             <div className="filters-grid">
               <div>
                 <span>Continent:</span>
-                <select value={continentFilter} onChange={(e) => setContinentFilter(e.target.value)}>
+                <select value={langFilters.continent} onChange={(e) => setLangFilter('continent', e.target.value)}>
                   <option value="">(any)</option>
                   {allContinents.map((c) => (
                     <option key={c} value={c}>{c}</option>
@@ -934,7 +711,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
               </div>
               <div>
                 <span>Families:</span>
-                <select multiple value={familyFilter} onChange={(e) => setFamilyFilter(Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
+                <select multiple value={langFilters.families} onChange={(e) => setLangFilter('families', Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
                   {allFamilies.map((f) => (
                     <option key={f} value={f}>{f}</option>
                   ))}
@@ -942,7 +719,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
               </div>
               <div>
                 <span>Fineweb2 keys:</span>
-                <select multiple value={fineweb2Filter} onChange={(e) => setFineweb2Filter(Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
+                <select multiple value={langFilters.fineweb2} onChange={(e) => setLangFilter('fineweb2', Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
                   {allFineweb2Keys.map((k) => (
                     <option key={k} value={k}>{k}</option>
                   ))}
@@ -950,7 +727,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
               </div>
               <div>
                 <span>Glottocodes:</span>
-                <select multiple value={glottocodeFilter} onChange={(e) => setGlottocodeFilter(Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
+                <select multiple value={langFilters.glottocodes} onChange={(e) => setLangFilter('glottocodes', Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
                   {allGlottocodes.map((g) => (
                     <option key={g} value={g}>{g}</option>
                   ))}
@@ -958,7 +735,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
               </div>
               <div>
                 <span>Morphology:</span>
-                <select multiple value={morphologyFilter} onChange={(e) => setMorphologyFilter(Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
+                <select multiple value={langFilters.morphology} onChange={(e) => setLangFilter('morphology', Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
                   {allMorphology.map((m) => (
                     <option key={m} value={m}>{m}</option>
                   ))}
@@ -966,7 +743,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
               </div>
               <div>
                 <span>Tier:</span>
-                <select value={tierFilter} onChange={(e) => setTierFilter(e.target.value)}>
+                <select value={langFilters.tier} onChange={(e) => setLangFilter('tier', e.target.value)}>
                   <option value="">(any)</option>
                   {allTiers.map((t) => (
                     <option key={t} value={t}>{t}</option>
@@ -976,22 +753,22 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
               <div>
                 <span>Speakers:</span>
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  <select value={speakerOp} onChange={(e) => setSpeakerOp(e.target.value as any)} style={{ width: '70px' }}>
-                    <option value=">=">≥</option>
-                    <option value="<=">≤</option>
-                  </select>
-                  <input type="number" inputMode="numeric" min="0" step="any" value={speakerVal} onChange={(e) => setSpeakerVal(e.target.value)} placeholder="threshold" />
+                  <select value={langFilters.speakerOp} onChange={(e) => setLangFilter('speakerOp', e.target.value as any)} style={{ width: '70px' }}>
+                      <option value=">=">≥</option>
+                      <option value="<=">≤</option>
+                    </select>
+                    <input type="number" inputMode="numeric" min="0" step="any" value={langFilters.speakerVal} onChange={(e) => setLangFilter('speakerVal', e.target.value)} placeholder="threshold" />
                 </div>
               </div>
             </div>
             <div style={{ marginTop: '6px' }}>
               <label>
-                <input type="checkbox" checked={lockFilters} onChange={(e) => setLockFilters(e.target.checked)} />
+                <input type="checkbox" checked={langFilters.locked} onChange={(e) => setLangFilter('locked', e.target.checked)} />
                 {' '}Lock filters (prevent auto-selection and auto-clearing)
               </label>
             </div>
             <div className="selected-count">
-              {availableLanguages.filter(languageMatchesFilters).length} match / {availableLanguages.length} total
+              {matchingLanguages.length} match / {availableLanguages.length} total
             </div>
           </div>
           {/* Generate Figure button removed; figure updates automatically */}

@@ -108,6 +108,47 @@ export abstract class GraphType {
       errors,
     };
   }
+
+  /**
+   * Extract data and shape from either a raw npyjs object `{data, shape}` or
+   * a plain JS array. Centralises the repeated unpacking pattern in transform().
+   */
+  protected extractNpyArray(array: any): { data: TypedArray | number[]; shape: number[] } {
+    if (array?.data && array?.shape) {
+      return { data: array.data as TypedArray, shape: array.shape as number[] };
+    }
+    if (Array.isArray(array)) {
+      return { data: array, shape: [array.length] };
+    }
+    return { data: [], shape: [] };
+  }
+
+  /**
+   * Return the full tokenizer and language index lists from dataset metadata.
+   * Both transform() implementations use these lists to translate selection
+   * names into flat-array positions.
+   */
+  protected getMetadataLists(data: VisualizationData): {
+    allTokenizers: string[];
+    allLanguages: string[];
+  } {
+    return {
+      allTokenizers: data.metadata?.tokenizers ?? [],
+      allLanguages: data.metadata?.languages ?? [],
+    };
+  }
+
+  /**
+   * Return the subset of `metrics` that are compatible with this graph type.
+   *
+   * The configurator calls this to hide metrics that would always fail
+   * validation, giving users a cleaner selection UI. The default allows all
+   * metrics; subclasses narrow this when they require a specific array
+   * dimensionality.
+   */
+  getCompatibleMetrics(metrics: string[], _dimensionality: MetricDimensionality): string[] {
+    return metrics;
+  }
 }
 
 /**
@@ -119,15 +160,22 @@ export class MetricPairCorrelationGraphType extends GraphType {
   description = 'Scatterplot showing the relationship between two selected metrics. Choose X and Y axes, tokenizers, and languages.';
 
   constraints: VisualizationConstraints = {
-    metrics: { min: 2, max: 2, dimension: 'both' }, // Allow any two metrics (1D or 2D)
+    metrics: { min: 2, max: 2, dimension: 'both' },
     tokenizers: { min: 1, max: Infinity },
     languages: { min: 1, max: Infinity },
   };
 
   /**
-   * Custom validation: both metrics must have the same dimensionality
-   * and must be either 2D or 3D, since the correlation scatter only
-   * supports matrix- or tensor-like metrics.
+   * Only 2D/3D metrics can be correlated (1D metrics have no per-language
+   * breakdown to scatter against each other).
+   */
+  override getCompatibleMetrics(metrics: string[], dimensionality: MetricDimensionality): string[] {
+    return metrics.filter((m) => dimensionality[m] === 2 || dimensionality[m] === 3);
+  }
+
+  /**
+   * Custom validation: both metrics must share the same dimensionality
+   * and must be either 2D or 3D.
    */
   override validate(config: VisualizationConfig, metricDimensionality: MetricDimensionality): ValidationResult {
     const base = super.validate(config, metricDimensionality);
@@ -158,80 +206,49 @@ export class MetricPairCorrelationGraphType extends GraphType {
   }
 
   transform(data: VisualizationData, config: VisualizationConfig): any[] {
-    if (!config.metrics || config.metrics.length !== 2) {
-      console.error('Metric Pair Correlation requires exactly 2 metrics (X and Y axes)');
-      return [];
-    }
+    if (config.metrics.length !== 2) return [];
 
     const [metricX, metricY] = config.metrics;
+    const { data: xData, shape: xShape } = this.extractNpyArray(data.metrics?.[metricX]);
+    const { data: yData, shape: yShape } = this.extractNpyArray(data.metrics?.[metricY]);
+
+    if (!xShape.length || !yShape.length) return [];
+
+    const { allTokenizers, allLanguages } = this.getMetadataLists(data);
     const chartData: any[] = [];
 
-    // Extract numpy arrays for both metrics
-    let xArray = data.metrics?.[metricX];
-    let yArray = data.metrics?.[metricY];
-
-    if (!xArray || !yArray) {
-      console.error('One or both metrics not found in data');
-      return [];
-    }
-
-    // Extract TypedArray and shape from npyjs objects
-    let xData: TypedArray | number[] = [];
-    let xShape: number[] = [];
-    let yData: TypedArray | number[] = [];
-    let yShape: number[] = [];
-
-    if (xArray.data && xArray.shape) {
-      xData = xArray.data;
-      xShape = xArray.shape;
-    } else if (Array.isArray(xArray)) {
-      xData = xArray;
-      xShape = [xArray.length];
-    }
-
-    if (yArray.data && yArray.shape) {
-      yData = yArray.data;
-      yShape = yArray.shape;
-    } else if (Array.isArray(yArray)) {
-      yData = yArray;
-      yShape = [yArray.length];
-    }
-
-    console.log('[MetricPairCorrelation] Metric X shape:', xShape);
-    console.log('[MetricPairCorrelation] Metric Y shape:', yShape);
-
-    // Contract with data/metadata:
-    // - 2D metrics are shaped as [tokenizer_index, language_index]
-    // - 3D metrics are shaped as [tokenizer_index, language_i_index, language_j_index]
-    // Indices refer to positions in metadata.tokenizers and metadata.languages.
-
-    // Get the full tokenizer and language lists from metadata so we can
-    // translate selected labels to positions in the underlying arrays.
-    const allTokenizers = data.metadata?.tokenizers || [];
-    const allLanguages = data.metadata?.languages || [];
-
-    // For 2D metrics: (tokenizers, languages)
-    // Extract values at matching tokenizer/language indices
     if (xShape.length === 2 && yShape.length === 2) {
-      const numLanguagesX = xShape[1];
-      const numLanguagesY = yShape[1];
-
+      // 2D metrics: shape [tokenizer, language]
       for (const tokenizer of config.tokenizers) {
+        const tokIdx = allTokenizers.indexOf(tokenizer);
+        if (tokIdx < 0) continue;
         for (const language of config.languages) {
-          const tokIdx = allTokenizers.indexOf(tokenizer);
           const langIdx = allLanguages.indexOf(language);
-
-          if (tokIdx >= 0 && langIdx >= 0) {
-            const xIndex = tokIdx * numLanguagesX + langIdx;
-            const yIndex = tokIdx * numLanguagesY + langIdx;
-
-            const xVal = xData[xIndex];
-            const yVal = yData[yIndex];
-
+          if (langIdx < 0) continue;
+          const xVal = xData[tokIdx * xShape[1] + langIdx];
+          const yVal = yData[tokIdx * yShape[1] + langIdx];
+          if (xVal !== undefined && yVal !== undefined) {
+            chartData.push({ tokenizer, language, [metricX]: xVal, [metricY]: yVal });
+          }
+        }
+      }
+    } else if (xShape.length === 3 && yShape.length === 3) {
+      // 3D metrics: shape [tokenizer, lang1, lang2]
+      for (const tokenizer of config.tokenizers) {
+        const tokIdx = allTokenizers.indexOf(tokenizer);
+        if (tokIdx < 0) continue;
+        for (const lang1 of config.languages) {
+          const l1Idx = allLanguages.indexOf(lang1);
+          if (l1Idx < 0) continue;
+          for (const lang2 of config.languages) {
+            const l2Idx = allLanguages.indexOf(lang2);
+            if (l2Idx < 0) continue;
+            const xVal = xData[tokIdx * xShape[1] * xShape[2] + l1Idx * xShape[2] + l2Idx];
+            const yVal = yData[tokIdx * yShape[1] * yShape[2] + l1Idx * yShape[2] + l2Idx];
             if (xVal !== undefined && yVal !== undefined) {
               chartData.push({
                 tokenizer,
-                language,
+                languagePair: `${lang1}-${lang2}`,
                 [metricX]: xVal,
                 [metricY]: yVal,
               });
@@ -239,57 +256,15 @@ export class MetricPairCorrelationGraphType extends GraphType {
           }
         }
       }
-    } else if (xShape.length === 3 && yShape.length === 3) {
-      // For 3D metrics: (tokenizers, language1, language2)
-      // Extract values at matching tokenizer/language pair indices
-      const numLang1X = xShape[1];
-      const numLang2X = xShape[2];
-      const numLang1Y = yShape[1];
-      const numLang2Y = yShape[2];
-
-      for (const tokenizer of config.tokenizers) {
-        for (let i = 0; i < config.languages.length; i++) {
-          for (let j = 0; j < config.languages.length; j++) {
-            const lang1 = config.languages[i];
-            const lang2 = config.languages[j];
-            const tokIdx = allTokenizers.indexOf(tokenizer);
-            const lang1Idx = allLanguages.indexOf(lang1);
-            const lang2Idx = allLanguages.indexOf(lang2);
-
-            if (tokIdx >= 0 && lang1Idx >= 0 && lang2Idx >= 0) {
-              const xIndex = tokIdx * (numLang1X * numLang2X) + lang1Idx * numLang2X + lang2Idx;
-              const yIndex = tokIdx * (numLang1Y * numLang2Y) + lang1Idx * numLang2Y + lang2Idx;
-
-              const xVal = xData[xIndex];
-              const yVal = yData[yIndex];
-
-              if (xVal !== undefined && yVal !== undefined) {
-                chartData.push({
-                  tokenizer,
-                  languagePair: `${lang1}-${lang2}`,
-                  [metricX]: xVal,
-                  [metricY]: yVal,
-                });
-              }
-            }
-          }
-        }
-      }
-    } else {
-      console.error(
-        `Unsupported metric dimensionality: X is ${xShape.length}D, Y is ${yShape.length}D`
-      );
-      return [];
     }
 
-    console.log('[MetricPairCorrelation] Generated', chartData.length, 'data points');
     return chartData;
   }
 }
 
 /**
- * Table visualization for displaying metric matrices
- * Supports 2D (tokenizer x language) and 3D (tokenizer x language x language) matrices
+ * Table visualization for displaying metric matrices.
+ * Supports 2D (tokenizer × language) and 3D (tokenizer × language × language) metrics.
  */
 export class MetricTableGraphType extends GraphType {
   typeId = 'metric-table';
@@ -297,215 +272,97 @@ export class MetricTableGraphType extends GraphType {
   description = 'Table displaying a metric matrix with rows as tokenizers and columns as languages (or language-pairs for 3D metrics).';
 
   constraints: VisualizationConstraints = {
-    metrics: { min: 1, max: 1, dimension: 'both' }, // Exactly 1 metric; UI filters to 2D/3D
+    metrics: { min: 1, max: 1, dimension: 'both' },
     tokenizers: { min: 1, max: Infinity },
     languages: { min: 1, max: Infinity },
   };
 
+  /** Only matrix metrics (2D or 3D) can be meaningfully displayed as a table. */
+  override getCompatibleMetrics(metrics: string[], dimensionality: MetricDimensionality): string[] {
+    return metrics.filter((m) => dimensionality[m] === 2 || dimensionality[m] === 3);
+  }
+
   transform(data: VisualizationData, config: VisualizationConfig): any {
-    if (!config.metrics || config.metrics.length !== 1) {
-      console.error('Metric Table requires exactly 1 metric');
+    if (config.metrics.length !== 1) {
       return { rows: [], columns: [], data: [], error: 'Metric Table requires exactly 1 metric' };
     }
 
     const metricName = config.metrics[0];
-    console.log('[MetricTable] Looking for metric:', metricName);
-    console.log('[MetricTable] Available metrics:', Object.keys(data.metrics || {}));
-    console.log('[MetricTable] Selected tokenizers:', config.tokenizers);
-    console.log('[MetricTable] Selected languages:', config.languages);
-    
-    // The metrics object contains the raw numpy arrays from npyjs
-    let metricArray = data.metrics?.[metricName];
-    
+    const metricArray = data.metrics?.[metricName];
     if (!metricArray) {
-      console.error(`Metric ${metricName} not found in data`);
-      console.error('Available keys:', Object.keys(data.metrics || {}));
-      return { rows: [], columns: [], data: [], error: `Metric "${metricName}" not found in loaded data. Available metrics: ${Object.keys(data.metrics || {}).join(', ')}` };
+      const available = Object.keys(data.metrics || {}).join(', ');
+      return { rows: [], columns: [], data: [], error: `Metric "${metricName}" not found. Available: ${available}` };
     }
 
-    console.log('[MetricTable] Found metric:', metricName);
-    console.log('[MetricTable] metricArray type:', typeof metricArray);
-    console.log('[MetricTable] metricArray.shape:', metricArray.shape);
-
-    // Extract the array data from npyjs array object
-    let arrayData: TypedArray | number[] = [];
-    let shape: number[] = [];
-    
-    if (metricArray.data && metricArray.shape) {
-      arrayData = metricArray.data;
-      shape = metricArray.shape;
-    } else if (Array.isArray(metricArray)) {
-      arrayData = metricArray;
-      shape = [metricArray.length, 1];
+    const { data: arrayData, shape } = this.extractNpyArray(metricArray);
+    if (!shape.length) {
+      return { rows: [], columns: [], data: [], error: 'Could not determine array shape' };
     }
 
-    console.log('[MetricTable] Array shape:', shape);
-    console.log('[MetricTable] Array data length:', arrayData.length);
+    const { tokenizers: selectedTokenizers, languages: selectedLanguages } = config;
+    if (!selectedTokenizers.length) return { rows: [], columns: [], data: [], error: 'No tokenizers selected' };
+    if (!selectedLanguages.length) return { rows: [], columns: [], data: [], error: 'No languages selected' };
 
-    if (shape.length === 0) {
-      console.error('[MetricTable] Could not determine array shape');
-      return { rows: [], columns: [], data: [], error: 'Could not determine array shape from metric data' };
-    }
-
-    // Filter tokenizers and languages
-    const selectedTokenizers = config.tokenizers;
-    const selectedLanguages = config.languages;
-
-    if (selectedTokenizers.length === 0) {
-      return { rows: [], columns: [], data: [], error: 'No tokenizers selected' };
-    }
-
-    if (selectedLanguages.length === 0) {
-      return { rows: [], columns: [], data: [], error: 'No languages selected' };
-    }
-
-    // Build the table based on array dimensionality
-    let tableData: any = {
-      rows: selectedTokenizers,
-      columns: selectedLanguages,
-      data: [],
-      rowHeader: metricName,
-    };
+    const { allTokenizers, allLanguages } = this.getMetadataLists(data);
 
     if (shape.length === 2) {
-      // 2D array: (tokenizers, languages)
-      console.log('[MetricTable] Processing 2D metric (tokenizers x languages)');
-      const numTokenizers = shape[0];
-      const numLanguages = shape[1];
-
-      console.log(`[MetricTable] Array has ${numTokenizers} tokenizers, ${numLanguages} languages`);
-      console.log(`[MetricTable] Selected ${selectedTokenizers.length} tokenizers, ${selectedLanguages.length} languages`);
-
-      // Get the full tokenizer and language lists from metadata
-      const allTokenizers = data.metadata?.tokenizers || [];
-      const allLanguages = data.metadata?.languages || [];
-      
-      console.log('[MetricTable] All tokenizers:', allTokenizers);
-      console.log('[MetricTable] All languages:', allLanguages);
-
-      for (let tokIdx = 0; tokIdx < selectedTokenizers.length; tokIdx++) {
-        const tokenizer = selectedTokenizers[tokIdx];
+      // 2D metric: shape [tokenizer, language]
+      const tableRows: any[][] = [];
+      for (const tokenizer of selectedTokenizers) {
+        const tokPos = allTokenizers.indexOf(tokenizer);
+        if (tokPos < 0) continue;
         const row: any[] = [];
-        
-        // Find the actual position of this tokenizer in the full array
-        const tokPosition = allTokenizers.indexOf(tokenizer);
-        if (tokPosition === -1) {
-          console.warn(`[MetricTable] Tokenizer "${tokenizer}" not found in metadata`);
-          continue;
-        }
-        
-        for (let langIdx = 0; langIdx < selectedLanguages.length; langIdx++) {
-          const language = selectedLanguages[langIdx];
-          
-          // Find the actual position of this language in the full array
-          const langPosition = allLanguages.indexOf(language);
-          if (langPosition === -1) {
-            console.warn(`[MetricTable] Language "${language}" not found in metadata`);
-            continue;
-          }
-          
-          // Calculate the index in the flat array (row-major order)
-          // index = tokenizer_position * numLanguages + language_position
-          const arrayIndex = tokPosition * numLanguages + langPosition;
-          const value = arrayData[arrayIndex];
-          
-          console.log(`[MetricTable] Accessing [${tokPosition}, ${langPosition}] -> array index ${arrayIndex}, value: ${value}`);
-          
+        for (const language of selectedLanguages) {
+          const langPos = allLanguages.indexOf(language);
+          if (langPos < 0) continue;
+          const value = arrayData[tokPos * shape[1] + langPos];
           row.push({
             tokenizer,
             column: language,
             value,
-            formatted: value !== undefined && value !== null ? Number(value).toFixed(4) : 'N/A',
+            formatted: value != null ? Number(value).toFixed(4) : 'N/A',
           });
         }
-        tableData.data.push(row);
+        tableRows.push(row);
       }
-    } else if (shape.length === 3) {
-      // 3D array: (tokenizers, language1, language2)
-      // Flatten to (tokenizers, language_pairs)
-      console.log('[MetricTable] Processing 3D metric (tokenizers x language x language)');
-      const numTokenizers = shape[0];
-      const numLanguages1 = shape[1];
-      const numLanguages2 = shape[2];
+      return { rows: selectedTokenizers, columns: selectedLanguages, data: tableRows, rowHeader: metricName };
+    }
 
-      console.log(`[MetricTable] Array has ${numTokenizers} tokenizers, ${numLanguages1}x${numLanguages2} language pairs`);
-      console.log(`[MetricTable] Selected ${selectedTokenizers.length} tokenizers, ${selectedLanguages.length} languages`);
-
-      // Get the full tokenizer and language lists from metadata
-      const allTokenizers = data.metadata?.tokenizers || [];
-      const allLanguages = data.metadata?.languages || [];
-      
-      console.log('[MetricTable] All tokenizers:', allTokenizers);
-      console.log('[MetricTable] All languages:', allLanguages);
-
-      // Create language pair column headers (exclude diagonal pairs)
+    if (shape.length === 3) {
+      // 3D metric: shape [tokenizer, lang1, lang2] — columns become language pairs
       const languagePairs: string[] = [];
-      for (const lang1 of selectedLanguages) {
-        for (const lang2 of selectedLanguages) {
-          if (lang1 === lang2) continue; // skip diagonal
-          languagePairs.push(`${lang1}-${lang2}`);
+      for (const l1 of selectedLanguages) {
+        for (const l2 of selectedLanguages) {
+          if (l1 !== l2) languagePairs.push(`${l1}-${l2}`);
         }
       }
-      tableData.columns = languagePairs;
-
-      for (let tokIdx = 0; tokIdx < selectedTokenizers.length; tokIdx++) {
-        const tokenizer = selectedTokenizers[tokIdx];
+      const tableRows: any[][] = [];
+      for (const tokenizer of selectedTokenizers) {
+        const tokPos = allTokenizers.indexOf(tokenizer);
+        if (tokPos < 0) continue;
         const row: any[] = [];
-        
-        // Find the actual position of this tokenizer in the full array
-        const tokPosition = allTokenizers.indexOf(tokenizer);
-        if (tokPosition === -1) {
-          console.warn(`[MetricTable] Tokenizer "${tokenizer}" not found in metadata`);
-          continue;
-        }
-        
-        for (let lang1Idx = 0; lang1Idx < selectedLanguages.length; lang1Idx++) {
-          for (let lang2Idx = 0; lang2Idx < selectedLanguages.length; lang2Idx++) {
-            const lang1 = selectedLanguages[lang1Idx];
-            const lang2 = selectedLanguages[lang2Idx];
-            const pairLabel = `${lang1}-${lang2}`;
-            if (lang1 === lang2) {
-              // skip diagonal pairs (same language)
-              continue;
-            }
-            
-            // Find the actual positions of these languages in the full array
-            const lang1Position = allLanguages.indexOf(lang1);
-            const lang2Position = allLanguages.indexOf(lang2);
-            
-            if (lang1Position === -1) {
-              console.warn(`[MetricTable] Language "${lang1}" not found in metadata`);
-              continue;
-            }
-            if (lang2Position === -1) {
-              console.warn(`[MetricTable] Language "${lang2}" not found in metadata`);
-              continue;
-            }
-            
-            // Calculate the index in the flat array (row-major order)
-            // index = tokenizer_position * (numLanguages1 * numLanguages2) + lang1_position * numLanguages2 + lang2_position
-            const arrayIndex = tokPosition * (numLanguages1 * numLanguages2) + lang1Position * numLanguages2 + lang2Position;
-            const value = arrayData[arrayIndex];
-            
-            console.log(`[MetricTable] Accessing [${tokPosition}, ${lang1Position}, ${lang2Position}] -> array index ${arrayIndex}, value: ${value}`);
-            
+        for (const l1 of selectedLanguages) {
+          const l1Pos = allLanguages.indexOf(l1);
+          if (l1Pos < 0) continue;
+          for (const l2 of selectedLanguages) {
+            if (l1 === l2) continue;
+            const l2Pos = allLanguages.indexOf(l2);
+            if (l2Pos < 0) continue;
+            const value = arrayData[tokPos * shape[1] * shape[2] + l1Pos * shape[2] + l2Pos];
             row.push({
               tokenizer,
-              column: pairLabel,
+              column: `${l1}-${l2}`,
               value,
-              formatted: value !== undefined && value !== null ? Number(value).toFixed(4) : 'N/A',
+              formatted: value != null ? Number(value).toFixed(4) : 'N/A',
             });
           }
         }
-        tableData.data.push(row);
+        tableRows.push(row);
       }
-    } else {
-      console.error('[MetricTable] Unsupported array dimensionality:', shape.length);
-      return { rows: [], columns: [], data: [], error: `Unsupported array dimensionality: ${shape.length}D. Expected 2D or 3D.` };
+      return { rows: selectedTokenizers, columns: languagePairs, data: tableRows, rowHeader: metricName };
     }
 
-    console.log('[MetricTable] Generated table data with', tableData.data.length, 'rows and', tableData.columns.length, 'columns');
-    return tableData;
+    return { rows: [], columns: [], data: [], error: `Unsupported array shape: ${shape.length}D. Expected 2D or 3D.` };
   }
 }
 
