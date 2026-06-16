@@ -67,8 +67,8 @@ const MainMenu: React.FC<MainMenuProps> = ({
     if (!metadataFile || !resultsFile) {
       window.alert(
         'Error: Selected directory must contain:\n' +
-        '  • metadata.json\n' +
-        '  • results.npz'
+        '  - metadata.json\n' +
+        '  - results.npz'
       );
       return;
     }
@@ -244,7 +244,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
           </button>
         </div>
         <div className="menu-section menu-section-center">
-          <div className="app-title">TokCollate 🍫 Data Visualizer</div>
+          <div className="app-title">{`TokCollate \u{1F36B} Data Visualizer`}</div>
         </div>
         <div className="menu-section menu-section-right dataset-selector">
           <label>Dataset Name:</label>
