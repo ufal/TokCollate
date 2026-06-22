@@ -6,6 +6,99 @@ import GraphConfigurator from './GraphConfigurator';
 import './App.css';
 import { exportGraphAsPNG } from '../utils/fileUtils';
 
+interface ProcessedNpzMetrics {
+  metricsObj: Record<string, any>;
+  availableMetrics: string[];
+  missingMetrics: string[];
+  metricDimensionality: MetricDimensionality;
+  shapeError: string | null;
+}
+
+function processNpzMetrics(
+  npzData: Record<string, any>,
+  metadata: { metrics?: string[]; tokenizers: string[]; languages: string[] },
+): ProcessedNpzMetrics {
+  const metricsObj: Record<string, any> = {};
+
+  for (const [key, value] of Object.entries(npzData)) {
+    if (key === 'correlation') continue;
+
+    if (Array.isArray(value)) {
+      const arrayValue = value as number[][];
+      let shape: number[] = [];
+
+      if (arrayValue.length > 0) {
+        if (Array.isArray(arrayValue[0])) {
+          if (Array.isArray(arrayValue[0][0])) {
+            shape = [arrayValue.length, arrayValue[0].length, arrayValue[0][0].length];
+          } else {
+            shape = [arrayValue.length, arrayValue[0].length];
+          }
+        } else {
+          shape = [arrayValue.length];
+        }
+      }
+
+      const flatArray = new Float64Array(arrayValue.flat(Infinity) as number[]);
+      metricsObj[key] = { data: flatArray, shape, dtype: 'float64' };
+      console.log(`[App] Wrapped metric: ${key}`, { shape, dtype: 'float64', dataLength: flatArray.length });
+    }
+  }
+
+  const npzMetricKeys = Object.keys(metricsObj);
+  let availableMetrics: string[];
+  let missingMetrics: string[] = [];
+
+  if (metadata.metrics && Array.isArray(metadata.metrics) && metadata.metrics.length > 0) {
+    availableMetrics = metadata.metrics.filter((m) => npzMetricKeys.includes(m));
+    missingMetrics = metadata.metrics.filter((m) => !npzMetricKeys.includes(m));
+    if (missingMetrics.length > 0) {
+      console.warn('[App] Metrics listed in metadata but missing in results.npz:', missingMetrics);
+    }
+  } else {
+    availableMetrics = npzMetricKeys;
+  }
+
+  const metricDimensionality: MetricDimensionality = {};
+  availableMetrics.forEach((metric) => {
+    if (metricsObj[metric]) {
+      const { shape } = metricsObj[metric];
+      const dim = shape.length >= 1 && shape.length <= 3 ? (shape.length as 1 | 2 | 3) : 1;
+      metricDimensionality[metric] = dim;
+      console.log(`[App] Metric dimensionality: ${metric} = ${dim}D (shape: ${shape.join('x')})`);
+    }
+  });
+
+  const shapeIssues: string[] = [];
+  const expectedTok = metadata.tokenizers.length;
+  const expectedLang = metadata.languages.length;
+  availableMetrics.forEach((metric) => {
+    const m = metricsObj[metric];
+    if (!m || !Array.isArray(m.shape)) return;
+    const shape = m.shape as number[];
+
+    if (shape.length === 2) {
+      if (shape[0] !== expectedTok || shape[1] !== expectedLang) {
+        shapeIssues.push(`${metric}: expected [${expectedTok}, ${expectedLang}], got [${shape[0]}, ${shape[1]}]`);
+      }
+    } else if (shape.length === 3) {
+      if (shape[0] !== expectedTok || shape[1] !== expectedLang || shape[2] !== expectedLang) {
+        shapeIssues.push(`${metric}: expected [${expectedTok}, ${expectedLang}, ${expectedLang}], got [${shape.join(', ')}]`);
+      }
+    }
+  });
+
+  const shapeError =
+    shapeIssues.length > 0
+      ? `Import failed: metric array shapes do not match tokenizers/languages metadata. See console for details.`
+      : null;
+  if (shapeIssues.length > 0) {
+    console.error('[App] Metric shape/metadata mismatch detected:', shapeIssues);
+  }
+
+  return { metricsObj, availableMetrics, missingMetrics, metricDimensionality, shapeError };
+}
+
 const App: React.FC = () => {
   const [state, setState] = useState<VisualizationState>({
     figures: [],
@@ -91,128 +184,21 @@ const App: React.FC = () => {
       availableTokenizers = metadata.tokenizers || [];
       availableLanguages = metadata.languages || [];
       
-      // Extract metrics from npzData
-      // npzData now contains metric arrays converted from numpy (plain JS arrays)
-      // We need to wrap them to work with the graphTypes that expect numpy-like objects with .shape property
-      const metricsObj: Record<string, any> = {};
-      
       console.log('[App] NPZ data keys:', Object.keys(npzData));
       console.log('[App] Metadata:', { dataset_name: datasetName, tokenizers: availableTokenizers.length, languages: availableLanguages.length, metrics: metadata.metrics });
-      
-      // Iterate through npzData and wrap metrics
-      for (const [key, value] of Object.entries(npzData)) {
-        if (key === 'correlation') {
-          // Skip correlation for now
-          continue;
-        }
-        
-        if (Array.isArray(value)) {
-          // Convert JS array to numpy-like object with shape property
-          const arrayValue = value as number[][];
-          let shape: number[] = [];
-          
-          // Determine shape by inspecting the nested array structure
-          if (arrayValue.length > 0) {
-            if (Array.isArray(arrayValue[0])) {
-              if (Array.isArray(arrayValue[0][0])) {
-                // 3D array: [tokenizers][languages][languages]
-                shape = [arrayValue.length, arrayValue[0].length, arrayValue[0][0].length];
-              } else {
-                // 2D array: [tokenizers][languages]
-                shape = [arrayValue.length, arrayValue[0].length];
-              }
-            } else {
-              // 1D array
-              shape = [arrayValue.length];
-            }
-          }
-          
-          // Flatten the array to TypedArray-like format (row-major order)
-          const flatArray = new Float64Array(arrayValue.flat(Infinity) as number[]);
-          
-          // Wrap in numpy-like object to be compatible with graphTypes
-          metricsObj[key] = {
-            data: flatArray,
-            shape: shape,
-            dtype: 'float64',
-          };
-          
-          console.log(`[App] Wrapped metric: ${key}`, { shape, dtype: 'float64', dataLength: flatArray.length });
-        }
-      }
-      
-      // Determine available metrics, preferring those listed in metadata
-      const npzMetricKeys = Object.keys(metricsObj);
-      if (metadata.metrics && Array.isArray(metadata.metrics) && metadata.metrics.length > 0) {
-        const listed = metadata.metrics;
-        const present = listed.filter((m: string) => npzMetricKeys.includes(m));
-        const missing = listed.filter((m: string) => !npzMetricKeys.includes(m));
-        availableMetrics = present;
-        missingMetrics = missing;
-        if (missing.length > 0) {
-          console.warn('[App] Metrics listed in metadata but missing in results.npz:', missing);
-        }
-      } else {
-        // Fallback: use all metrics parsed from NPZ
-        availableMetrics = npzMetricKeys;
-      }
-      
-      // Detect metric dimensionality only for available metrics
-      availableMetrics.forEach((metric) => {
-        if (metricsObj[metric]) {
-          const shape = metricsObj[metric].shape;
-          if (shape.length === 1) {
-            metricDimensionality[metric] = 1; // 1D metric
-          } else if (shape.length === 2) {
-            metricDimensionality[metric] = 2; // 2D metric
-          } else if (shape.length === 3) {
-            metricDimensionality[metric] = 3; // 3D metric
-          } else {
-            metricDimensionality[metric] = 1; // Default to 1D
-          }
-          console.log(`[App] Metric dimensionality: ${metric} = ${metricDimensionality[metric]}D (shape: ${shape.join('x')})`);
-        }
+
+      const processed = processNpzMetrics(npzData, {
+        metrics: metadata.metrics,
+        tokenizers: availableTokenizers,
+        languages: availableLanguages,
       });
+      const metricsObj = processed.metricsObj;
+      availableMetrics = processed.availableMetrics;
+      missingMetrics = processed.missingMetrics;
+      metricDimensionality = processed.metricDimensionality;
 
-      // Validate that 2D and 3D metric shapes are consistent with
-      // tokenizer and language metadata. This protects the frontend
-      // indexing logic from silent breakage if the server changes
-      // how it lays out metric arrays.
-      const shapeIssues: string[] = [];
-      availableMetrics.forEach((metric) => {
-        const m = metricsObj[metric];
-        if (!m || !Array.isArray(m.shape)) return;
-        const shape = m.shape as number[];
-
-        if (shape.length === 2) {
-          const expectedTok = availableTokenizers.length;
-          const expectedLang = availableLanguages.length;
-          if (shape[0] !== expectedTok || shape[1] !== expectedLang) {
-            shapeIssues.push(
-              `${metric}: expected [${expectedTok}, ${expectedLang}], got [${shape[0]}, ${shape[1]}]`,
-            );
-          }
-        } else if (shape.length === 3) {
-          const expectedTok = availableTokenizers.length;
-          const expectedLang = availableLanguages.length;
-          if (
-            shape[0] !== expectedTok ||
-            shape[1] !== expectedLang ||
-            shape[2] !== expectedLang
-          ) {
-            shapeIssues.push(
-              `${metric}: expected [${expectedTok}, ${expectedLang}, ${expectedLang}], got [${shape.join(', ')}]`,
-            );
-          }
-        }
-      });
-
-      if (shapeIssues.length > 0) {
-        console.error('[App] Metric shape/metadata mismatch detected:', shapeIssues);
-        setImportStatus({
-          success: false,
-          message: 'Import failed: metric array shapes do not match tokenizers/languages metadata. See console for details.',
-        });
+      if (processed.shapeError) {
+        setImportStatus({ success: false, message: processed.shapeError });
         return;
       }
       
