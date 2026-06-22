@@ -166,26 +166,14 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
   const [hoveredSentenceIdx, setHoveredSentenceIdx] = React.useState<number | null>(null);
 
   const getChartData = (): any[] | any => {
-    console.log('[Graph.getChartData] Called');
-    console.log('[Graph.getChartData] graphType:', graphType?.displayName);
-    console.log('[Graph.getChartData] config.metrics:', config.metrics);
-    console.log('[Graph.getChartData] config.tokenizers:', config.tokenizers);
-    console.log('[Graph.getChartData] config.languages:', config.languages);
-    
-    if (!graphType) {
-      console.error(`Unknown graph type: ${config.typeId}`);
-      return [];
-    }
+    if (!graphType) return [];
 
     try {
-      const result = graphType.transform(data, {
+      return graphType.transform(data, {
         metrics: config.metrics,
         tokenizers: config.tokenizers,
         languages: config.languages,
       });
-      console.log('[Graph.getChartData] Result length:', result.length);
-      console.log('[Graph.getChartData] Result:', result);
-      return result;
     } catch (error) {
       console.error('Error transforming chart data:', error);
       return [];
@@ -200,54 +188,12 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
     [allLanguages],
   );
 
-  React.useEffect(() => {
-    console.log('=== Graph Component Mount/Update ===');
-    console.log('Figure config:', config);
-    console.log('Data available:', !!data);
-    console.log('Data metrics count:', data?.metrics ? Object.keys(data.metrics).length : 0);
-    console.log('Chart data type:', typeof chartData);
-    console.log('Chart data:', chartData);
-    
-    if (Array.isArray(chartData)) {
-      console.log('Chart data length (array):', chartData.length);
-      if (chartData.length > 0) {
-        console.log('First row:', chartData[0]);
-        console.log('First row keys:', Object.keys(chartData[0]));
-      }
-    } else if (chartData && typeof chartData === 'object') {
-      console.log('Chart data is object with keys:', Object.keys(chartData));
-      if (chartData.data) {
-        console.log('Table rows:', chartData.rows);
-        console.log('Table columns:', chartData.columns);
-        console.log('Table data rows count:', chartData.data.length);
-        if (chartData.data.length > 0) {
-          console.log('First table row:', chartData.data[0]);
-        }
-      }
-    }
-    console.log('Config metrics:', config.metrics);
-  }, [chartData, config, data]);
-
   const renderChart = () => {
     if (!graphType) {
       return <div className="error">Graph type not found: {config.typeId}</div>;
     }
 
     const metrics = config.metrics;
-
-    console.log('[renderChart] Rendering chart type:', config.typeId);
-    console.log('[renderChart] Rendering with metrics:', metrics);
-    console.log('[renderChart] ChartData type:', typeof chartData);
-    
-    if (Array.isArray(chartData)) {
-      console.log('[renderChart] ChartData items (array):', chartData.length);
-      if (chartData.length > 0) {
-        console.log('[renderChart] First data row:', chartData[0]);
-        console.log('[renderChart] Data row keys:', Object.keys(chartData[0]));
-      }
-    } else if (chartData && typeof chartData === 'object') {
-      console.log('[renderChart] ChartData is object:', Object.keys(chartData));
-    }
 
     // Tokenized-text type doesn't use chartData at all — render directly
     if (config.typeId === 'tokenized-text') {
@@ -259,10 +205,6 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
                     (chartData && typeof chartData === 'object' && (chartData.data || chartData.error));
 
     if (!hasData) {
-      console.error('[Graph] No data available. Chart data:', chartData);
-      console.error('[Graph] Config:', config);
-      console.error('[Graph] Available data metrics:', data?.metrics ? Object.keys(data.metrics) : 'none');
-      
       let errorMsg = 'No data available for this configuration';
       if (chartData?.error) {
         errorMsg = chartData.error;
@@ -271,7 +213,6 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
       return <div className="no-data">{errorMsg}</div>;
     }
 
-    // Render based on graph type
     if (config.typeId === 'metric-pair-correlation') {
       return renderScatterChart(metrics);
     } else if (config.typeId === 'metric-table') {
@@ -374,9 +315,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
           />
           <Tooltip />
           <Legend />
-          {metrics.map((metric, index) => {
-            console.log(`[renderChart] Creating Bar for metric: ${metric}`);
-            return (
+          {metrics.map((metric, index) => (
               <Bar
                 key={metric}
                 dataKey={metric}
@@ -384,8 +323,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
                 name={metric}
                 isAnimationActive={false}
               />
-            );
-          })}
+          ))}
         </BarChart>
       </ResponsiveContainer>
     );

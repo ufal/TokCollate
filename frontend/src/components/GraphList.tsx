@@ -9,14 +9,6 @@ interface GraphListProps {
 }
 
 const GraphList: React.FC<GraphListProps> = ({ figure, data }) => {
-  React.useEffect(() => {
-    console.log('[GraphList] Data:', {
-      dataAvailable: !!data,
-      metricsCount: data?.metrics ? Object.keys(data.metrics).length : 0,
-      hasFigure: !!figure,
-    });
-  }, [data, figure]);
-
   return (
     <div className="graph-list">
       {!figure ? (
