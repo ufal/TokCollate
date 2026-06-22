@@ -13,6 +13,35 @@ function arraysEqualSet(a: string[], b: string[]): boolean {
   return true;
 }
 
+/** Select up to `desiredMax` items while respecting graph-type min/max constraints. */
+function computeDefaultSelection(
+  items: string[],
+  minAllowed: number | undefined,
+  maxAllowed: number | undefined,
+): string[] {
+  if (!items || items.length === 0) return [];
+
+  const desiredMax = 2;
+  const minConstraint = minAllowed ?? 0;
+  const maxConstraint = maxAllowed ?? Infinity;
+
+  let limit = Math.min(desiredMax, items.length);
+  if (limit < minConstraint) {
+    limit = Math.min(minConstraint, items.length);
+  }
+  if (Number.isFinite(maxConstraint)) {
+    limit = Math.min(limit, maxConstraint);
+  }
+
+  return items.slice(0, Math.max(0, limit));
+}
+
+/** Format a constraint range label, e.g. "Tokenizers (1-3)" or "Metrics (2)". */
+function getConstraintLabel(label: string, min: number, max: number): string {
+  if (min === max) return `${label} (${min})`;
+  return `${label} (${min}-${max})`;
+}
+
 interface GraphConfiguratorProps {
   onUpdateFigure: (config: FigureConfig) => void;
   availableTokenizers: string[];
@@ -149,30 +178,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
 
     const filteredMetrics = filterMetricsForType(newTypeId);
 
-    // Unified defaults for tokenizers and languages across all figure types:
-    // select only 1	62 items by default (subject to each graph type's
-    // min/max constraints) instead of all or many.
-    const computeDefaultSelection = (
-      items: string[],
-      minAllowed: number | undefined,
-      maxAllowed: number | undefined,
-    ): string[] => {
-      if (!items || items.length === 0) return [];
-
-      const desiredMax = 2;
-      const minConstraint = minAllowed ?? 0;
-      const maxConstraint = maxAllowed ?? Infinity;
-
-      let limit = Math.min(desiredMax, items.length);
-      if (limit < minConstraint) {
-        limit = Math.min(minConstraint, items.length);
-      }
-      if (Number.isFinite(maxConstraint)) {
-        limit = Math.min(limit, maxConstraint);
-      }
-
-      return items.slice(0, Math.max(0, limit));
-    };
+    // Unified defaults for tokenizers and languages across all figure types.
 
     let defaultTokenizers: string[] = computeDefaultSelection(
       availableTokenizers,
@@ -365,13 +371,6 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
   }, [metricDimensionality, onUpdateFigure]);
 
   // Live-update: no generate button; updates are emitted from validateConfig
-
-  const getConstraintLabel = (label: string, min: number, max: number): string => {
-    if (min === max) {
-      return `${label} (${min})`;
-    }
-    return `${label} (${min}-${max})`;
-  };
 
   /** Metrics compatible with the current graph type, used to populate metric dropdowns. */
   const getFilteredMetrics = (): string[] =>

@@ -20,6 +20,19 @@ import {
 } from 'recharts';
 import './Graph.css';
 
+const GRAPH_COLORS = [
+  '#8884d8',
+  '#82ca9d',
+  '#ffc658',
+  '#ff7c7c',
+  '#8dd1e1',
+  '#d084d0',
+  '#ffa500',
+  '#00ff00',
+];
+
+const getColorForMetric = (index: number): string => GRAPH_COLORS[index % GRAPH_COLORS.length];
+
 interface GraphProps {
   config: FigureConfig;
   data: VisualizationData;
@@ -751,20 +764,6 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
         )}
       </div>
     );
-  };
-
-  const getColorForMetric = (index: number): string => {
-    const colors = [
-      '#8884d8',
-      '#82ca9d',
-      '#ffc658',
-      '#ff7c7c',
-      '#8dd1e1',
-      '#d084d0',
-      '#ffa500',
-      '#00ff00',
-    ];
-    return colors[index % colors.length];
   };
 
   return (
