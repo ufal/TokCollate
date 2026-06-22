@@ -4,101 +4,8 @@ import MainMenu from './MainMenu';
 import GraphList from './GraphList';
 import GraphConfigurator from './GraphConfigurator';
 import './App.css';
-import { exportGraphAsPNG } from '../utils/fileUtils';
+import { exportGraphAsPNG, parseVisualizationPayload } from '../utils/fileUtils';
 import { getApiUrl } from '../utils/api';
-
-interface ProcessedNpzMetrics {
-  metricsObj: Record<string, any>;
-  availableMetrics: string[];
-  missingMetrics: string[];
-  metricDimensionality: MetricDimensionality;
-  shapeError: string | null;
-}
-
-function processNpzMetrics(
-  npzData: Record<string, any>,
-  metadata: { metrics?: string[]; tokenizers: string[]; languages: string[] },
-): ProcessedNpzMetrics {
-  const metricsObj: Record<string, any> = {};
-
-  for (const [key, value] of Object.entries(npzData)) {
-    if (key === 'correlation') continue;
-
-    if (Array.isArray(value)) {
-      const arrayValue = value as number[][];
-      let shape: number[] = [];
-
-      if (arrayValue.length > 0) {
-        if (Array.isArray(arrayValue[0])) {
-          if (Array.isArray(arrayValue[0][0])) {
-            shape = [arrayValue.length, arrayValue[0].length, arrayValue[0][0].length];
-          } else {
-            shape = [arrayValue.length, arrayValue[0].length];
-          }
-        } else {
-          shape = [arrayValue.length];
-        }
-      }
-
-      const flatArray = new Float64Array(arrayValue.flat(Infinity) as number[]);
-      metricsObj[key] = { data: flatArray, shape, dtype: 'float64' };
-      console.log(`[App] Wrapped metric: ${key}`, { shape, dtype: 'float64', dataLength: flatArray.length });
-    }
-  }
-
-  const npzMetricKeys = Object.keys(metricsObj);
-  let availableMetrics: string[];
-  let missingMetrics: string[] = [];
-
-  if (metadata.metrics && Array.isArray(metadata.metrics) && metadata.metrics.length > 0) {
-    availableMetrics = metadata.metrics.filter((m) => npzMetricKeys.includes(m));
-    missingMetrics = metadata.metrics.filter((m) => !npzMetricKeys.includes(m));
-    if (missingMetrics.length > 0) {
-      console.warn('[App] Metrics listed in metadata but missing in results.npz:', missingMetrics);
-    }
-  } else {
-    availableMetrics = npzMetricKeys;
-  }
-
-  const metricDimensionality: MetricDimensionality = {};
-  availableMetrics.forEach((metric) => {
-    if (metricsObj[metric]) {
-      const { shape } = metricsObj[metric];
-      const dim = shape.length >= 1 && shape.length <= 3 ? (shape.length as 1 | 2 | 3) : 1;
-      metricDimensionality[metric] = dim;
-      console.log(`[App] Metric dimensionality: ${metric} = ${dim}D (shape: ${shape.join('x')})`);
-    }
-  });
-
-  const shapeIssues: string[] = [];
-  const expectedTok = metadata.tokenizers.length;
-  const expectedLang = metadata.languages.length;
-  availableMetrics.forEach((metric) => {
-    const m = metricsObj[metric];
-    if (!m || !Array.isArray(m.shape)) return;
-    const shape = m.shape as number[];
-
-    if (shape.length === 2) {
-      if (shape[0] !== expectedTok || shape[1] !== expectedLang) {
-        shapeIssues.push(`${metric}: expected [${expectedTok}, ${expectedLang}], got [${shape[0]}, ${shape[1]}]`);
-      }
-    } else if (shape.length === 3) {
-      if (shape[0] !== expectedTok || shape[1] !== expectedLang || shape[2] !== expectedLang) {
-        shapeIssues.push(`${metric}: expected [${expectedTok}, ${expectedLang}, ${expectedLang}], got [${shape.join(', ')}]`);
-      }
-    }
-  });
-
-  const shapeError =
-    shapeIssues.length > 0
-      ? `Import failed: metric array shapes do not match tokenizers/languages metadata. See console for details.`
-      : null;
-  if (shapeIssues.length > 0) {
-    console.error('[App] Metric shape/metadata mismatch detected:', shapeIssues);
-  }
-
-  return { metricsObj, availableMetrics, missingMetrics, metricDimensionality, shapeError };
-}
 
 const App: React.FC = () => {
   const [state, setState] = useState<VisualizationState>({
@@ -139,113 +46,14 @@ const App: React.FC = () => {
   }, []);
 
   const handleLoadVisualization = (data: any) => {
-    // Data structure from MainMenu:
-    // { metadata: {...}, npzData: {...} }
-    // OR legacy format: { metrics: {...}, correlation: {...}, metadata: {...} }
-    
-    let datasetName = 'Unknown';
-    let availableTokenizers: string[] = [];
-    let availableMetrics: string[] = [];
-    let availableLanguages: string[] = [];
-    let metricDimensionality: MetricDimensionality = {};
-    let processedData: VisualizationData;
-    let missingMetrics: string[] = [];
+    const result = parseVisualizationPayload(data);
 
-    if (data?.metadata && data?.npzData) {
-      // New format from MainMenu: { metadata, npzData }
-      // npzData contains metrics (from parsed NPZ) and correlation arrays
-      // Metrics are now plain JS arrays (not npyjs objects), so we need to wrap them
-      const metadata = data.metadata;
-      const npzData = data.npzData;
-      const languagesInfo = data.languagesInfo;
-      const tokenizations = data.tokenizations;
-      
-      datasetName = metadata.dataset_name || 'Unknown';
-      availableTokenizers = metadata.tokenizers || [];
-      availableLanguages = metadata.languages || [];
-      
-      console.log('[App] NPZ data keys:', Object.keys(npzData));
-      console.log('[App] Metadata:', { dataset_name: datasetName, tokenizers: availableTokenizers.length, languages: availableLanguages.length, metrics: metadata.metrics });
-
-      const processed = processNpzMetrics(npzData, {
-        metrics: metadata.metrics,
-        tokenizers: availableTokenizers,
-        languages: availableLanguages,
-      });
-      const metricsObj = processed.metricsObj;
-      availableMetrics = processed.availableMetrics;
-      missingMetrics = processed.missingMetrics;
-      metricDimensionality = processed.metricDimensionality;
-
-      if (processed.shapeError) {
-        setImportStatus({ success: false, message: processed.shapeError });
-        return;
-      }
-      
-      const correlationObj = npzData?.correlation?.() || npzData?.correlation || {};
-      
-      console.log('[App] Loaded metadata:', { datasetName, tokenizers: availableTokenizers.length, metrics: availableMetrics.length, languages: availableLanguages.length });
-      console.log('[App] Processed metrics:', Object.keys(metricsObj));
-      
-      processedData = {
-        metrics: metricsObj,
-        correlation: correlationObj,
-        metadata: {
-          datasetName,
-          timestamp: metadata.timestamp,
-          version: metadata.version,
-          tokenizers: availableTokenizers,
-          languages: availableLanguages,
-          metrics: availableMetrics,
-          languagesInfo: languagesInfo,
-          hasTokenizations: metadata?.has_tokenizations === true,
-          tokenizations: tokenizations,
-        },
-      };
-    } else if (data?.metadata) {
-      // Legacy format or metadata-only
-      datasetName = data.metadata.datasetName || data.metadata.dataset_name || 'Unknown';
-      availableTokenizers = data.metadata.tokenizers || [];
-      availableMetrics = data.metadata.metrics || [];
-      availableLanguages = data.metadata.languages || [];
-      
-      processedData = {
-        metrics: data.metrics || {},
-        correlation: data.correlation || {},
-        metadata: {
-          datasetName,
-          timestamp: data.metadata.timestamp,
-          version: data.metadata.version,
-          tokenizers: availableTokenizers,
-          languages: availableLanguages,
-          metrics: availableMetrics,
-        },
-      };
-    } else {
-      // Fallback to raw data
-      datasetName = data.dataset_name || 'Unknown';
-      availableTokenizers = data.tokenizers || [];
-      availableMetrics = data.metrics || [];
-      availableLanguages = data.languages || [];
-      
-      processedData = {
-        metrics: data.metrics || {},
-        correlation: data.correlation || {},
-        metadata: {
-          datasetName,
-          tokenizers: availableTokenizers,
-          languages: availableLanguages,
-          metrics: availableMetrics,
-        },
-      };
-    }
-
-    // Check for import validity
-    if (!datasetName || (availableTokenizers.length === 0 && availableMetrics.length === 0 && availableLanguages.length === 0)) {
-      setImportStatus({ success: false, message: 'Import failed: Invalid or missing metadata/data.' });
-      console.error('[App] Import validation failed:', { datasetName, tokenizers: availableTokenizers.length, metrics: availableMetrics.length, languages: availableLanguages.length });
+    if (result.error) {
+      setImportStatus({ success: false, message: result.error });
       return;
     }
+
+    const { processedData, datasetName, availableTokenizers, availableMetrics, availableLanguages, metricDimensionality, missingMetrics } = result;
 
     setState((prev) => ({
       ...prev,
@@ -256,9 +64,9 @@ const App: React.FC = () => {
       availableLanguages,
       metricDimensionality,
     }));
-    // Build an informative import status message
+
     const metaListedCount = (processedData.metadata?.metrics || []).length;
-    const missingSummary = missingMetrics && missingMetrics.length > 0
+    const missingSummary = missingMetrics.length > 0
       ? `; Missing (listed but not in NPZ): ${missingMetrics.join(', ')}`
       : '';
     const importMsg = `Imported "${datasetName}" — Tokenizers: ${availableTokenizers.length}, Languages: ${availableLanguages.length}, Metrics available: ${availableMetrics.length}${metaListedCount ? ` (listed: ${metaListedCount})` : ''}${missingSummary}`;
