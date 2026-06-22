@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import './MainMenu.css';
+import { getApiUrl } from '../utils/api';
 
 interface MainMenuProps {
   onLoadVisualization: (data: any) => void;
@@ -74,20 +75,6 @@ const MainMenu: React.FC<MainMenuProps> = ({
     }
 
     try {
-      const getApiUrl = (apiPath: string): string => {
-        if (process.env.NODE_ENV === 'production') {
-          try {
-            const path = window.location.pathname || '/';
-            const m = path.match(/^\/[^/]+\//); // e.g., "/tokcollate/"
-            const base = m ? m[0].replace(/\/$/, '') : '';
-            return `${base}${apiPath}` || apiPath;
-          } catch {
-            return apiPath;
-          }
-        }
-        return `http://localhost:5000${apiPath}`;
-      };
-
       setIsImporting(true);
       setImportProgress({ step: 1, total: 5, label: 'Reading metadata and language info…' });
 

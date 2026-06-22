@@ -5,6 +5,7 @@ import GraphList from './GraphList';
 import GraphConfigurator from './GraphConfigurator';
 import './App.css';
 import { exportGraphAsPNG } from '../utils/fileUtils';
+import { getApiUrl } from '../utils/api';
 
 interface ProcessedNpzMetrics {
   metricsObj: Record<string, any>;
@@ -114,20 +115,6 @@ const App: React.FC = () => {
   const [datasetOptions, setDatasetOptions] = useState<DatasetOption[]>([]);
   const [selectedDatasetKey, setSelectedDatasetKey] = useState<string>('none');
   const [datasetLoadProgress, setDatasetLoadProgress] = useState<{ step: number; total: number; label: string } | null>(null);
-
-  const getApiUrl = (path: string): string => {
-    if (process.env.NODE_ENV === 'production') {
-      try {
-        const locPath = window.location.pathname || '/';
-        const m = locPath.match(/^\/[^/]+\//); // e.g., "/tokcollate/"
-        const base = m ? m[0].replace(/\/$/, '') : '';
-        return `${base}${path}` || path;
-      } catch {
-        return path;
-      }
-    }
-    return `http://localhost:5000${path}`;
-  };
 
   // Load server-side datasets on startup
   useEffect(() => {
