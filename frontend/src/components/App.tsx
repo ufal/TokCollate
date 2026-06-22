@@ -439,7 +439,6 @@ const App: React.FC = () => {
   );
 };
 
-// Helper functions imported from utils
-import { extractTokenizers, extractMetrics, extractLanguages, detectMetricDimensionality, saveVisualization } from '../utils/fileUtils';
+import { saveVisualization } from '../utils/fileUtils';
 
 export default App;
