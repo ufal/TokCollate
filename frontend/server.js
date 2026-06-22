@@ -105,7 +105,7 @@ app.get('/api/datasets/:id', (req, res) => {
     }
 
     console.log(`[Datasets] Parsing results.npz for dataset '${id}'`);
-    const npzData = parseNPZWithPython(resultsPath);
+    const npzData = parseNPZ(resultsPath);
 
     if (!npzData) {
       return res.status(500).json({ error: `Failed to parse results.npz for dataset '${id}'` });
@@ -147,7 +147,7 @@ app.post('/api/parse-npz', express.raw({ type: 'application/octet-stream', limit
     
     let npzData;
     try {
-      npzData = parseNPZWithPython(tempFile);
+      npzData = parseNPZ(tempFile);
     } catch (parseError) {
       // Clean up temp file
       try { fs.unlinkSync(tempFile); } catch (e) {}
