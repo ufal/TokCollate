@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { VisualizationState, FigureConfig, MetricDimensionality, VisualizationData } from '../types';
+import { VisualizationState, FigureConfig, MetricDimensionality, VisualizationData, DatasetOption } from '../types';
 import MainMenu from './MainMenu';
 import GraphList from './GraphList';
 import GraphConfigurator from './GraphConfigurator';
@@ -110,13 +110,6 @@ const App: React.FC = () => {
     data: null,
   });
   const [importStatus, setImportStatus] = useState<{success: boolean, message: string} | null>(null);
-
-  type DatasetOption = {
-    key: string;
-    label: string;
-    source: 'server' | 'local';
-    serverId?: string;
-  };
 
   const [datasetOptions, setDatasetOptions] = useState<DatasetOption[]>([]);
   const [selectedDatasetKey, setSelectedDatasetKey] = useState<string>('none');

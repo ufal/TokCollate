@@ -48,6 +48,13 @@ export interface MetricDimensionality {
   [metricName: string]: 1 | 2 | 3; // 1: 1D, 2: 2D, 3: 3D
 }
 
+export type DatasetOption = {
+  key: string;
+  label: string;
+  source: 'server' | 'local';
+  serverId?: string;
+};
+
 export interface VisualizationState {
   figures: FigureConfig[];
   datasetName: string;
