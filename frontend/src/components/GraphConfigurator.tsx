@@ -373,14 +373,16 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
   // Live-update: no generate button; updates are emitted from validateConfig
 
   /** Metrics compatible with the current graph type, used to populate metric dropdowns. */
-  const getFilteredMetrics = (): string[] =>
-    currentGraphType?.getCompatibleMetrics(availableMetrics, metricDimensionality) ?? availableMetrics;
+  const filteredMetrics = React.useMemo(
+    () => currentGraphType?.getCompatibleMetrics(availableMetrics, metricDimensionality) ?? availableMetrics,
+    [currentGraphType, availableMetrics, metricDimensionality],
+  );
 
   /** Metrics excluded by the current graph type — shown as a count/hint in the UI. */
-  const getExcludedMetrics = (): string[] => {
-    const compatibleSet = new Set(getFilteredMetrics());
+  const excludedMetrics = React.useMemo(() => {
+    const compatibleSet = new Set(filteredMetrics);
     return availableMetrics.filter((m) => !compatibleSet.has(m));
-  };
+  }, [filteredMetrics, availableMetrics]);
 
   const getMetricDimensionLabel = (metric: string): string => {
     const dim = metricDimensionality[metric];
@@ -451,23 +453,23 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                   validateConfig(newConfig);
                 }}
                 className="single-select"
-                disabled={getFilteredMetrics().length === 0}
+                disabled={filteredMetrics.length === 0}
               >
                 <option value="">Select metric</option>
-                {getFilteredMetrics().map((m) => (
+                {filteredMetrics.map((m) => (
                   <option key={m} value={m}>
                     {m}{getMetricDimensionLabel(m)}
                   </option>
                 ))}
               </select>
               <div className="selected-count">
-                {getFilteredMetrics().length} compatible / {availableMetrics.length} total
+                {filteredMetrics.length} compatible / {availableMetrics.length} total
               </div>
-              {availableMetrics.length > getFilteredMetrics().length && (
+              {availableMetrics.length > filteredMetrics.length && (
                 <div className="info-message">
                   ⓘ Some metrics are hidden because Metric Table requires matrix metrics (2D or 3D).
-                  {getExcludedMetrics().length > 0 && (
-                    <span> Excluded: {getExcludedMetrics().slice(0, 6).join(', ')}{getExcludedMetrics().length > 6 ? '…' : ''}</span>
+                  {excludedMetrics.length > 0 && (
+                    <span> Excluded: {excludedMetrics.slice(0, 6).join(', ')}{excludedMetrics.length > 6 ? '…' : ''}</span>
                   )}
                 </div>
               )}
@@ -517,10 +519,10 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                 value={config.metrics?.[0] || ''}
                 onChange={handleMetricXChange}
                 className="single-select"
-                disabled={getFilteredMetrics().length === 0}
+                disabled={filteredMetrics.length === 0}
               >
                 <option value="">Select metric</option>
-                {getFilteredMetrics().map((m) => (
+                {filteredMetrics.map((m) => (
                   <option key={m} value={m}>
                     {m}{getMetricDimensionLabel(m)}
                   </option>
@@ -531,10 +533,10 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                 value={config.metrics?.[1] || ''}
                 onChange={handleMetricYChange}
                 className="single-select"
-                disabled={getFilteredMetrics().length === 0}
+                disabled={filteredMetrics.length === 0}
               >
                 <option value="">Select metric</option>
-                {getFilteredMetrics().map((m) => (
+                {filteredMetrics.map((m) => (
                   <option key={m} value={m}>
                     {m}{getMetricDimensionLabel(m)}
                   </option>
@@ -585,18 +587,18 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                 value={config.metrics || []}
                 onChange={handleMetricChange}
                 className="multi-select"
-                disabled={getFilteredMetrics().length === 0}
+                disabled={filteredMetrics.length === 0}
               >
-                {getFilteredMetrics().map((m) => (
+                {filteredMetrics.map((m) => (
                   <option key={m} value={m}>
                     {m}{getMetricDimensionLabel(m)}
                   </option>
                 ))}
               </select>
               <div className="selected-count">
-                {config.metrics?.length || 0} / {getFilteredMetrics().length} available selected
+                {config.metrics?.length || 0} / {filteredMetrics.length} available selected
               </div>
-              {availableMetrics.length > getFilteredMetrics().length && (
+              {availableMetrics.length > filteredMetrics.length && (
                 <div className="info-message">
                   ⓘ Some metrics are hidden because this graph type requires {currentGraphType.constraints.metrics.dimension}D metrics.
                 </div>
