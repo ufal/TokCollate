@@ -6,7 +6,6 @@ import { decodeSentence } from '../utils/tokenDecoder';
 import {
   BarChart,
   Bar,
-  ScatterChart,
   Scatter,
   XAxis,
   YAxis,
@@ -14,7 +13,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  ReferenceLine,
   ComposedChart,
   Line,
 } from 'recharts';
