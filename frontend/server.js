@@ -96,7 +96,7 @@ app.get('/api/datasets/:id', (req, res) => {
         });
       }
       try {
-        tokenizations = parseTokenizationsGzipFile(tokenizationsPath);
+        tokenizations = parseGzipFile(tokenizationsPath);
       } catch (e) {
         return res.status(400).json({
           error: `Failed to parse tokenizations.json.gz for dataset '${id}': ${e.message}`,
