@@ -24,48 +24,56 @@ scorer:
       vocab_most_common: 32000
     - metric: sequence_length
       metric_label: seq_len_mean
-      mode: mean
+      aggregation: mean
     - metric: sequence_length
       metric_label: seq_len_var
-      mode: var
+      aggregation: var
     - metric: sequence_length
       metric_label: seq_len_mean_bytes
-      mode: mean
+      aggregation: mean
       use_bytes: true
     - metric: sequence_length
       metric_label: seq_len_var_bytes
-      mode: var
+      aggregation: var
       use_bytes: true
     - metric: sequence_ratio
       metric_label: seq_ratio_mean
-      mode: mean
+      aggregation: mean
     - metric: sequence_ratio
       metric_label: seq_ratio_var
-      mode: var
+      aggregation: var
     - metric: sequence_ratio
       metric_label: seq_ratio_mean_bytes
-      mode: mean
+      aggregation: mean
       use_bytes: true
     - metric: sequence_ratio
       metric_label: seq_ratio_var_bytes
-      mode: var
+      aggregation: var
       use_bytes: true
     - metric: token_length
       metric_label: tok_len_mean
-      mode: mean
+      aggregation: mean
     - metric: token_length
       metric_label: tok_len_var
-      mode: var
+      aggregation: var
     - metric: token_length
       metric_label: tok_len_mean_bytes
-      mode: mean
+      aggregation: mean
       use_bytes: true
     - metric: token_length
       metric_label: tok_len_var_bytes
-      mode: var
+      aggregation: var
       use_bytes: true
     - metric: eflomal
       metric_label: eflomal_score
+    - metric: pointwise_mutual_information
+      metric_label: pmi_1
+      vocab_most_common: 32000
+      min_cooccurrence: 1
+    - metric: pointwise_mutual_information
+      metric_label: pmi_5
+      vocab_most_common: 32000
+      min_cooccurrence: 5
 
   languages_info: "tokcollate/resources/language/languages.json"
   system_dataset_suffix: "txt"
