@@ -72,6 +72,7 @@ const serveFilesPlugin = () => {
 
 export default defineConfig({
   plugins: [react(), serveFilesPlugin()],
+  base: '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

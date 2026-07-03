@@ -23,6 +23,8 @@ export interface VisualizationData {
     languages?: string[];
     metrics?: string[];
     languagesInfo?: Record<string, any>;
+    hasTokenizations?: boolean;
+    tokenizations?: Record<string, any>;
   };
 }
 
@@ -38,11 +40,20 @@ export interface FigureConfig {
   showTrendline?: boolean;
   // New, more expressive trendline mode
   trendlineMode?: 'none' | 'global' | 'groups';
+  // For tokenized-text type: 1-based inclusive range [start, end]
+  sentenceRange?: [number, number];
 }
 
 export interface MetricDimensionality {
   [metricName: string]: 1 | 2 | 3; // 1: 1D, 2: 2D, 3: 3D
 }
+
+export type DatasetOption = {
+  key: string;
+  label: string;
+  source: 'server' | 'local';
+  serverId?: string;
+};
 
 export interface VisualizationState {
   figures: FigureConfig[];

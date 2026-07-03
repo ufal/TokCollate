@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { VisualizationState, FigureConfig, MetricDimensionality, VisualizationData } from '../types';
+import { VisualizationState, FigureConfig, MetricDimensionality, VisualizationData, DatasetOption } from '../types';
 import MainMenu from './MainMenu';
 import GraphList from './GraphList';
 import GraphConfigurator from './GraphConfigurator';
 import './App.css';
-import { exportGraphAsPNG } from '../utils/fileUtils';
+import { exportGraphAsPNG, parseVisualizationPayload } from '../utils/fileUtils';
+import { getApiUrl } from '../utils/api';
 
 const App: React.FC = () => {
   const [state, setState] = useState<VisualizationState>({
@@ -18,30 +19,9 @@ const App: React.FC = () => {
   });
   const [importStatus, setImportStatus] = useState<{success: boolean, message: string} | null>(null);
 
-  type DatasetOption = {
-    key: string;
-    label: string;
-    source: 'server' | 'local';
-    serverId?: string;
-  };
-
   const [datasetOptions, setDatasetOptions] = useState<DatasetOption[]>([]);
   const [selectedDatasetKey, setSelectedDatasetKey] = useState<string>('none');
   const [datasetLoadProgress, setDatasetLoadProgress] = useState<{ step: number; total: number; label: string } | null>(null);
-
-  const getApiUrl = (path: string): string => {
-    if (process.env.NODE_ENV === 'production') {
-      try {
-        const locPath = window.location.pathname || '/';
-        const m = locPath.match(/^\/[^/]+\//); // e.g., "/tokcollate/"
-        const base = m ? m[0].replace(/\/$/, '') : '';
-        return `${base}${path}` || path;
-      } catch {
-        return path;
-      }
-    }
-    return `http://localhost:5000${path}`;
-  };
 
   // Load server-side datasets on startup
   useEffect(() => {
@@ -66,217 +46,14 @@ const App: React.FC = () => {
   }, []);
 
   const handleLoadVisualization = (data: any) => {
-    // Data structure from MainMenu:
-    // { metadata: {...}, npzData: {...} }
-    // OR legacy format: { metrics: {...}, correlation: {...}, metadata: {...} }
-    
-    let datasetName = 'Unknown';
-    let availableTokenizers: string[] = [];
-    let availableMetrics: string[] = [];
-    let availableLanguages: string[] = [];
-    let metricDimensionality: MetricDimensionality = {};
-    let processedData: VisualizationData;
-    let missingMetrics: string[] = [];
+    const result = parseVisualizationPayload(data);
 
-    if (data?.metadata && data?.npzData) {
-      // New format from MainMenu: { metadata, npzData }
-      // npzData contains metrics (from parsed NPZ) and correlation arrays
-      // Metrics are now plain JS arrays (not npyjs objects), so we need to wrap them
-      const metadata = data.metadata;
-      const npzData = data.npzData;
-      const languagesInfo = data.languagesInfo;
-      
-      datasetName = metadata.dataset_name || 'Unknown';
-      availableTokenizers = metadata.tokenizers || [];
-      availableLanguages = metadata.languages || [];
-      
-      // Extract metrics from npzData
-      // npzData now contains metric arrays converted from numpy (plain JS arrays)
-      // We need to wrap them to work with the graphTypes that expect numpy-like objects with .shape property
-      const metricsObj: Record<string, any> = {};
-      
-      console.log('[App] NPZ data keys:', Object.keys(npzData));
-      console.log('[App] Metadata:', { dataset_name: datasetName, tokenizers: availableTokenizers.length, languages: availableLanguages.length, metrics: metadata.metrics });
-      
-      // Iterate through npzData and wrap metrics
-      for (const [key, value] of Object.entries(npzData)) {
-        if (key === 'correlation') {
-          // Skip correlation for now
-          continue;
-        }
-        
-        if (Array.isArray(value)) {
-          // Convert JS array to numpy-like object with shape property
-          const arrayValue = value as number[][];
-          let shape: number[] = [];
-          
-          // Determine shape by inspecting the nested array structure
-          if (arrayValue.length > 0) {
-            if (Array.isArray(arrayValue[0])) {
-              if (Array.isArray(arrayValue[0][0])) {
-                // 3D array: [tokenizers][languages][languages]
-                shape = [arrayValue.length, arrayValue[0].length, arrayValue[0][0].length];
-              } else {
-                // 2D array: [tokenizers][languages]
-                shape = [arrayValue.length, arrayValue[0].length];
-              }
-            } else {
-              // 1D array
-              shape = [arrayValue.length];
-            }
-          }
-          
-          // Flatten the array to TypedArray-like format (row-major order)
-          const flatArray = new Float64Array(arrayValue.flat(Infinity) as number[]);
-          
-          // Wrap in numpy-like object to be compatible with graphTypes
-          metricsObj[key] = {
-            data: flatArray,
-            shape: shape,
-            dtype: 'float64',
-          };
-          
-          console.log(`[App] Wrapped metric: ${key}`, { shape, dtype: 'float64', dataLength: flatArray.length });
-        }
-      }
-      
-      // Determine available metrics, preferring those listed in metadata
-      const npzMetricKeys = Object.keys(metricsObj);
-      if (metadata.metrics && Array.isArray(metadata.metrics) && metadata.metrics.length > 0) {
-        const listed = metadata.metrics;
-        const present = listed.filter((m: string) => npzMetricKeys.includes(m));
-        const missing = listed.filter((m: string) => !npzMetricKeys.includes(m));
-        availableMetrics = present;
-        missingMetrics = missing;
-        if (missing.length > 0) {
-          console.warn('[App] Metrics listed in metadata but missing in results.npz:', missing);
-        }
-      } else {
-        // Fallback: use all metrics parsed from NPZ
-        availableMetrics = npzMetricKeys;
-      }
-      
-      // Detect metric dimensionality only for available metrics
-      availableMetrics.forEach((metric) => {
-        if (metricsObj[metric]) {
-          const shape = metricsObj[metric].shape;
-          if (shape.length === 1) {
-            metricDimensionality[metric] = 1; // 1D metric
-          } else if (shape.length === 2) {
-            metricDimensionality[metric] = 2; // 2D metric
-          } else if (shape.length === 3) {
-            metricDimensionality[metric] = 3; // 3D metric
-          } else {
-            metricDimensionality[metric] = 1; // Default to 1D
-          }
-          console.log(`[App] Metric dimensionality: ${metric} = ${metricDimensionality[metric]}D (shape: ${shape.join('x')})`);
-        }
-      });
-
-      // Validate that 2D and 3D metric shapes are consistent with
-      // tokenizer and language metadata. This protects the frontend
-      // indexing logic from silent breakage if the server changes
-      // how it lays out metric arrays.
-      const shapeIssues: string[] = [];
-      availableMetrics.forEach((metric) => {
-        const m = metricsObj[metric];
-        if (!m || !Array.isArray(m.shape)) return;
-        const shape = m.shape as number[];
-
-        if (shape.length === 2) {
-          const expectedTok = availableTokenizers.length;
-          const expectedLang = availableLanguages.length;
-          if (shape[0] !== expectedTok || shape[1] !== expectedLang) {
-            shapeIssues.push(
-              `${metric}: expected [${expectedTok}, ${expectedLang}], got [${shape[0]}, ${shape[1]}]`,
-            );
-          }
-        } else if (shape.length === 3) {
-          const expectedTok = availableTokenizers.length;
-          const expectedLang = availableLanguages.length;
-          if (
-            shape[0] !== expectedTok ||
-            shape[1] !== expectedLang ||
-            shape[2] !== expectedLang
-          ) {
-            shapeIssues.push(
-              `${metric}: expected [${expectedTok}, ${expectedLang}, ${expectedLang}], got [${shape.join(', ')}]`,
-            );
-          }
-        }
-      });
-
-      if (shapeIssues.length > 0) {
-        console.error('[App] Metric shape/metadata mismatch detected:', shapeIssues);
-        setImportStatus({
-          success: false,
-          message: 'Import failed: metric array shapes do not match tokenizers/languages metadata. See console for details.',
-        });
-        return;
-      }
-      
-      const correlationObj = npzData?.correlation?.() || npzData?.correlation || {};
-      
-      console.log('[App] Loaded metadata:', { datasetName, tokenizers: availableTokenizers.length, metrics: availableMetrics.length, languages: availableLanguages.length });
-      console.log('[App] Processed metrics:', Object.keys(metricsObj));
-      
-      processedData = {
-        metrics: metricsObj,
-        correlation: correlationObj,
-        metadata: {
-          datasetName,
-          timestamp: metadata.timestamp,
-          version: metadata.version,
-          tokenizers: availableTokenizers,
-          languages: availableLanguages,
-          metrics: availableMetrics,
-          languagesInfo: languagesInfo,
-        },
-      };
-    } else if (data?.metadata) {
-      // Legacy format or metadata-only
-      datasetName = data.metadata.datasetName || data.metadata.dataset_name || 'Unknown';
-      availableTokenizers = data.metadata.tokenizers || [];
-      availableMetrics = data.metadata.metrics || [];
-      availableLanguages = data.metadata.languages || [];
-      
-      processedData = {
-        metrics: data.metrics || {},
-        correlation: data.correlation || {},
-        metadata: {
-          datasetName,
-          timestamp: data.metadata.timestamp,
-          version: data.metadata.version,
-          tokenizers: availableTokenizers,
-          languages: availableLanguages,
-          metrics: availableMetrics,
-        },
-      };
-    } else {
-      // Fallback to raw data
-      datasetName = data.dataset_name || 'Unknown';
-      availableTokenizers = data.tokenizers || [];
-      availableMetrics = data.metrics || [];
-      availableLanguages = data.languages || [];
-      
-      processedData = {
-        metrics: data.metrics || {},
-        correlation: data.correlation || {},
-        metadata: {
-          datasetName,
-          tokenizers: availableTokenizers,
-          languages: availableLanguages,
-          metrics: availableMetrics,
-        },
-      };
-    }
-
-    // Check for import validity
-    if (!datasetName || (availableTokenizers.length === 0 && availableMetrics.length === 0 && availableLanguages.length === 0)) {
-      setImportStatus({ success: false, message: 'Import failed: Invalid or missing metadata/data.' });
-      console.error('[App] Import validation failed:', { datasetName, tokenizers: availableTokenizers.length, metrics: availableMetrics.length, languages: availableLanguages.length });
+    if (result.error) {
+      setImportStatus({ success: false, message: result.error });
       return;
     }
+
+    const { processedData, datasetName, availableTokenizers, availableMetrics, availableLanguages, metricDimensionality, missingMetrics } = result;
 
     setState((prev) => ({
       ...prev,
@@ -287,9 +64,9 @@ const App: React.FC = () => {
       availableLanguages,
       metricDimensionality,
     }));
-    // Build an informative import status message
+
     const metaListedCount = (processedData.metadata?.metrics || []).length;
-    const missingSummary = missingMetrics && missingMetrics.length > 0
+    const missingSummary = missingMetrics.length > 0
       ? `; Missing (listed but not in NPZ): ${missingMetrics.join(', ')}`
       : '';
     const importMsg = `Imported "${datasetName}" — Tokenizers: ${availableTokenizers.length}, Languages: ${availableLanguages.length}, Metrics available: ${availableMetrics.length}${metaListedCount ? ` (listed: ${metaListedCount})` : ''}${missingSummary}`;
@@ -345,9 +122,10 @@ const App: React.FC = () => {
         setDatasetLoadProgress({ step: 2, total: totalSteps, label: `Downloading dataset "${option.label}"…` });
         const payload = await resp.json();
         setDatasetLoadProgress({ step: 3, total: totalSteps, label: `Finalizing dataset "${option.label}"…` });
-        const { metadata, npzData, languagesInfo } = payload;
+        const { metadata, npzData, languagesInfo, tokenizations } = payload;
         const visualizationData: any = { metadata, npzData };
         if (languagesInfo) visualizationData.languagesInfo = languagesInfo;
+        if (tokenizations !== undefined) visualizationData.tokenizations = tokenizations;
         handleLoadVisualization(visualizationData);
         setDatasetLoadProgress(null);
       } catch (e) {
@@ -456,7 +234,6 @@ const App: React.FC = () => {
   );
 };
 
-// Helper functions imported from utils
-import { extractTokenizers, extractMetrics, extractLanguages, detectMetricDimensionality, saveVisualization } from '../utils/fileUtils';
+import { saveVisualization } from '../utils/fileUtils';
 
 export default App;
