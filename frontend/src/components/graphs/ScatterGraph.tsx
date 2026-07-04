@@ -7,6 +7,7 @@ import {
   PointElement,
   LineElement,
   LineController,
+  Filler,
   Tooltip,
   Legend,
 } from 'chart.js';
@@ -15,7 +16,7 @@ import zoomPlugin from 'chartjs-plugin-zoom';
 import { buildLanguageLabelMap, getDisplayLanguageLabel, getDisplayLanguagePairLabel } from '../../utils/languageLabels';
 import { getColorForMetric, GRAPH_COLORS } from './graphColors';
 
-ChartJS.register(LinearScale, LogarithmicScale, PointElement, LineElement, LineController, Tooltip, Legend, zoomPlugin);
+ChartJS.register(LinearScale, LogarithmicScale, PointElement, LineElement, LineController, Filler, Tooltip, Legend, zoomPlugin);
 
 // ---------------------------------------------------------------------------
 // Symlog transform: sign(x) * log10(1 + |x|) — handles negative values
@@ -98,11 +99,22 @@ function downsampleGroupPoints(
 // Trend computation
 // ---------------------------------------------------------------------------
 
+interface TrendResult {
+  m: number;
+  b: number;
+  minX: number;
+  maxX: number;
+  n: number;
+  meanX: number;
+  sxx: number;    // sum of squared deviations of x
+  se: number;     // residual standard error
+}
+
 function computeTrend(
   pts: any[],
   metricX: string,
   metricY: string,
-): { m: number; b: number; minX: number; maxX: number } | null {
+): TrendResult | null {
   if (!pts || pts.length < 2) return null;
   let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0, minX = Infinity, maxX = -Infinity;
   for (const p of pts) {
@@ -116,7 +128,49 @@ function computeTrend(
   if (denom === 0) return null;
   const m = (n * sumXY - sumX * sumY) / denom;
   const b = (sumY - m * sumX) / n;
-  return { m, b, minX, maxX };
+  const meanX = sumX / n;
+  const sxx = sumXX - n * meanX * meanX;
+  // Residual sum of squares
+  let rss = 0;
+  for (const p of pts) {
+    const x = p[metricX], y = p[metricY];
+    const residual = y - (m * x + b);
+    rss += residual * residual;
+  }
+  const se = n > 2 ? Math.sqrt(rss / (n - 2)) : 0;
+  return { m, b, minX, maxX, n, meanX, sxx, se };
+}
+
+// Approximate t critical value for 95% CI (two-tailed).
+// Lookup table of [max_df, t_value] pairs, checked in ascending order.
+const T_CRITICAL_95: [number, number][] = [
+  [1, 12.706], [2, 4.303], [3, 3.182], [4, 2.776], [5, 2.571],
+  [6, 2.447],  [7, 2.365], [8, 2.306], [9, 2.262], [10, 2.228],
+  [15, 2.131], [20, 2.086], [30, 2.042], [60, 2.000], [120, 1.980],
+];
+
+function tCritical95(df: number): number {
+  if (df <= 0) return Infinity;
+  return T_CRITICAL_95.find(([maxDf]) => df <= maxDf)?.[1] ?? 1.960;
+}
+
+/** Compute upper and lower 95% CI band lines for a trendline. */
+function buildConfidenceBand(
+  trend: TrendResult,
+  steps = 60,
+): { upper: { x: number; y: number }[]; lower: { x: number; y: number }[] } {
+  const { m, b, minX, maxX, n, meanX, sxx, se } = trend;
+  if (se === 0 || n <= 2) return { upper: [], lower: [] };
+  const t = tCritical95(n - 2);
+  const upper: { x: number; y: number }[] = [];
+  const lower: { x: number; y: number }[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const x = minX + (maxX - minX) * (i / steps);
+    const margin = t * se * Math.sqrt(1 / n + Math.pow(x - meanX, 2) / sxx);
+    upper.push({ x, y: m * x + b + margin });
+    lower.push({ x, y: m * x + b - margin });
+  }
+  return { upper, lower };
 }
 
 // ---------------------------------------------------------------------------
@@ -276,6 +330,33 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
   if (trendlineMode === 'global') {
     const trend = computeTrend(allTransformedPoints, metricX, metricY);
     if (trend) {
+      const { upper, lower } = buildConfidenceBand(trend);
+      if (upper.length > 0) {
+        // Upper bound — fills down to the next dataset (lower bound)
+        datasets.push({
+          type: 'line' as const,
+          label: 'Trend (global) 95% CI upper',
+          data: upper,
+          borderColor: 'transparent',
+          backgroundColor: 'rgba(68,68,68,0.15)',
+          borderWidth: 0,
+          pointRadius: 0,
+          fill: '+1',
+          tension: 0,
+        });
+        // Lower bound
+        datasets.push({
+          type: 'line' as const,
+          label: 'Trend (global) 95% CI lower',
+          data: lower,
+          borderColor: 'transparent',
+          backgroundColor: 'transparent',
+          borderWidth: 0,
+          pointRadius: 0,
+          fill: false,
+          tension: 0,
+        });
+      }
       datasets.push({
         type: 'line' as const,
         label: 'Trend (global)',
@@ -296,6 +377,31 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
       const trend = computeTrend(trendPointsForGroup(name), metricX, metricY);
       if (trend) {
         const color = getColorForMetric(idx);
+        const { upper, lower } = buildConfidenceBand(trend);
+        if (upper.length > 0) {
+          datasets.push({
+            type: 'line' as const,
+            label: `${name} trend 95% CI upper`,
+            data: upper,
+            borderColor: 'transparent',
+            backgroundColor: hexToRgba(color, 0.15),
+            borderWidth: 0,
+            pointRadius: 0,
+            fill: '+1',
+            tension: 0,
+          });
+          datasets.push({
+            type: 'line' as const,
+            label: `${name} trend 95% CI lower`,
+            data: lower,
+            borderColor: 'transparent',
+            backgroundColor: 'transparent',
+            borderWidth: 0,
+            pointRadius: 0,
+            fill: false,
+            tension: 0,
+          });
+        }
         datasets.push({
           type: 'line' as const,
           label: `${name} trend`,
@@ -334,6 +440,9 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
     plugins: {
       legend: {
         position: 'bottom' as const,
+        labels: {
+          filter: (item: any) => !item.text?.includes('95% CI'),
+        },
       },
       tooltip: {
         callbacks: {
