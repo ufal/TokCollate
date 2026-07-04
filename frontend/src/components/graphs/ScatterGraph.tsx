@@ -206,11 +206,26 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
     return 'unknown';
   };
 
+  const getFamilyGroupKey = (pt: any): string => {
+    if (pt.languagePair) {
+      const dashIdx = pt.languagePair.indexOf('-');
+      if (dashIdx > 0) {
+        const lang1 = pt.languagePair.slice(0, dashIdx);
+        const lang2 = pt.languagePair.slice(dashIdx + 1);
+        const fam1 = getFamilyForLanguage(lang1);
+        const fam2 = getFamilyForLanguage(lang2);
+        const sorted = [fam1, fam2].sort();
+        return `${sorted[0]} × ${sorted[1]}`;
+      }
+    }
+    return getFamilyForLanguage(pt.language || '');
+  };
+
   const groupKeyForPoint = (pt: any): string => {
     if (groupBy === 'tokenizer') return pt.tokenizer || 'unknown';
     if (groupBy === 'language') return pt.language || 'unknown';
     if (groupBy === 'languagePair') return pt.languagePair || 'unknown';
-    if (groupBy === 'family') return getFamilyForLanguage(pt.language || '');
+    if (groupBy === 'family') return getFamilyGroupKey(pt);
     return 'unknown';
   };
 
