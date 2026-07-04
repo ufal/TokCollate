@@ -152,52 +152,32 @@ export abstract class GraphType {
 }
 
 /**
- * Scatter plot visualization for correlating two metrics
+ * Scatter plot visualization for correlating two 2D (monolingual) metrics
  */
-export class MetricPairCorrelationGraphType extends GraphType {
-  typeId = 'metric-pair-correlation';
-  displayName = 'Metric Pair Correlation';
-  description = 'Scatterplot showing the relationship between two selected metrics. Choose X and Y axes, tokenizers, and languages.';
+export class MonolingualMetricPairCorrelationGraphType extends GraphType {
+  typeId = 'metric-pair-correlation-mono';
+  displayName = 'Metric Pair Correlation (Monolingual)';
+  description = 'Scatterplot showing the relationship between two 2D (per-language) metrics. Choose X and Y axes, tokenizers, and languages.';
 
   constraints: VisualizationConstraints = {
-    metrics: { min: 2, max: 2, dimension: 'both' },
+    metrics: { min: 2, max: 2, dimension: 2 },
     tokenizers: { min: 1, max: Infinity },
     languages: { min: 1, max: Infinity },
   };
 
-  /**
-   * Only 2D/3D metrics can be correlated (1D metrics have no per-language
-   * breakdown to scatter against each other).
-   */
   override getCompatibleMetrics(metrics: string[], dimensionality: MetricDimensionality): string[] {
-    return metrics.filter((m) => dimensionality[m] === 2 || dimensionality[m] === 3);
+    return metrics.filter((m) => dimensionality[m] === 2);
   }
 
-  /**
-   * Custom validation: both metrics must share the same dimensionality
-   * and must be either 2D or 3D.
-   */
   override validate(config: VisualizationConfig, metricDimensionality: MetricDimensionality): ValidationResult {
     const base = super.validate(config, metricDimensionality);
     const errors = [...base.errors];
 
     if (config.metrics.length === 2) {
-      const [mX, mY] = config.metrics;
-      const dimX = metricDimensionality[mX];
-      const dimY = metricDimensionality[mY];
-
-      const allowedDims: Array<1 | 2 | 3> = [2, 3];
-      const invalid: string[] = [];
-      if (!allowedDims.includes(dimX as any)) invalid.push(`${mX} (${dimX ?? 'unknown'}D)`);
-      if (!allowedDims.includes(dimY as any)) invalid.push(`${mY} (${dimY ?? 'unknown'}D)`);
-
+      const invalid = config.metrics.filter((m) => metricDimensionality[m] !== 2);
       if (invalid.length > 0) {
         errors.push(
-          `Metric Pair Correlation supports only 2D or 3D metrics, but got: ${invalid.join(', ')}`,
-        );
-      } else if (dimX !== dimY) {
-        errors.push(
-          `Cannot compare metrics of different dimensionality: ${mX} is ${dimX}D, ${mY} is ${dimY}D.`,
+          `Monolingual Metric Pair Correlation requires 2D metrics, but got: ${invalid.map((m) => `${m} (${metricDimensionality[m] ?? 'unknown'}D)`).join(', ')}`,
         );
       }
     }
@@ -212,47 +192,93 @@ export class MetricPairCorrelationGraphType extends GraphType {
     const { data: xData, shape: xShape } = this.extractNpyArray(data.metrics?.[metricX]);
     const { data: yData, shape: yShape } = this.extractNpyArray(data.metrics?.[metricY]);
 
-    if (!xShape.length || !yShape.length) return [];
+    if (xShape.length !== 2 || yShape.length !== 2) return [];
 
     const { allTokenizers, allLanguages } = this.getMetadataLists(data);
     const chartData: any[] = [];
 
-    if (xShape.length === 2 && yShape.length === 2) {
-      // 2D metrics: shape [tokenizer, language]
-      for (const tokenizer of config.tokenizers) {
-        const tokIdx = allTokenizers.indexOf(tokenizer);
-        if (tokIdx < 0) continue;
-        for (const language of config.languages) {
-          const langIdx = allLanguages.indexOf(language);
-          if (langIdx < 0) continue;
-          const xVal = xData[tokIdx * xShape[1] + langIdx];
-          const yVal = yData[tokIdx * yShape[1] + langIdx];
-          if (xVal !== undefined && yVal !== undefined) {
-            chartData.push({ tokenizer, language, [metricX]: xVal, [metricY]: yVal });
-          }
+    for (const tokenizer of config.tokenizers) {
+      const tokIdx = allTokenizers.indexOf(tokenizer);
+      if (tokIdx < 0) continue;
+      for (const language of config.languages) {
+        const langIdx = allLanguages.indexOf(language);
+        if (langIdx < 0) continue;
+        const xVal = xData[tokIdx * xShape[1] + langIdx];
+        const yVal = yData[tokIdx * yShape[1] + langIdx];
+        if (xVal !== undefined && yVal !== undefined) {
+          chartData.push({ tokenizer, language, [metricX]: xVal, [metricY]: yVal });
         }
       }
-    } else if (xShape.length === 3 && yShape.length === 3) {
-      // 3D metrics: shape [tokenizer, lang1, lang2]
-      for (const tokenizer of config.tokenizers) {
-        const tokIdx = allTokenizers.indexOf(tokenizer);
-        if (tokIdx < 0) continue;
-        for (const lang1 of config.languages) {
-          const l1Idx = allLanguages.indexOf(lang1);
-          if (l1Idx < 0) continue;
-          for (const lang2 of config.languages) {
-            const l2Idx = allLanguages.indexOf(lang2);
-            if (l2Idx < 0) continue;
-            const xVal = xData[tokIdx * xShape[1] * xShape[2] + l1Idx * xShape[2] + l2Idx];
-            const yVal = yData[tokIdx * yShape[1] * yShape[2] + l1Idx * yShape[2] + l2Idx];
-            if (xVal !== undefined && yVal !== undefined) {
-              chartData.push({
-                tokenizer,
-                languagePair: `${lang1}-${lang2}`,
-                [metricX]: xVal,
-                [metricY]: yVal,
-              });
-            }
+    }
+
+    return chartData;
+  }
+}
+
+/**
+ * Scatter plot visualization for correlating two 3D (bilingual) metrics
+ */
+export class BilingualMetricPairCorrelationGraphType extends GraphType {
+  typeId = 'metric-pair-correlation-bili';
+  displayName = 'Metric Pair Correlation (Bilingual)';
+  description = 'Scatterplot showing the relationship between two 3D (per-language-pair) metrics. Choose X and Y axes, tokenizers, and languages.';
+
+  constraints: VisualizationConstraints = {
+    metrics: { min: 2, max: 2, dimension: 3 },
+    tokenizers: { min: 1, max: Infinity },
+    languages: { min: 2, max: Infinity },
+  };
+
+  override getCompatibleMetrics(metrics: string[], dimensionality: MetricDimensionality): string[] {
+    return metrics.filter((m) => dimensionality[m] === 3);
+  }
+
+  override validate(config: VisualizationConfig, metricDimensionality: MetricDimensionality): ValidationResult {
+    const base = super.validate(config, metricDimensionality);
+    const errors = [...base.errors];
+
+    if (config.metrics.length === 2) {
+      const invalid = config.metrics.filter((m) => metricDimensionality[m] !== 3);
+      if (invalid.length > 0) {
+        errors.push(
+          `Bilingual Metric Pair Correlation requires 3D metrics, but got: ${invalid.map((m) => `${m} (${metricDimensionality[m] ?? 'unknown'}D)`).join(', ')}`,
+        );
+      }
+    }
+
+    return { valid: errors.length === 0, errors };
+  }
+
+  transform(data: VisualizationData, config: VisualizationConfig): any[] {
+    if (config.metrics.length !== 2) return [];
+
+    const [metricX, metricY] = config.metrics;
+    const { data: xData, shape: xShape } = this.extractNpyArray(data.metrics?.[metricX]);
+    const { data: yData, shape: yShape } = this.extractNpyArray(data.metrics?.[metricY]);
+
+    if (xShape.length !== 3 || yShape.length !== 3) return [];
+
+    const { allTokenizers, allLanguages } = this.getMetadataLists(data);
+    const chartData: any[] = [];
+
+    for (const tokenizer of config.tokenizers) {
+      const tokIdx = allTokenizers.indexOf(tokenizer);
+      if (tokIdx < 0) continue;
+      for (const lang1 of config.languages) {
+        const l1Idx = allLanguages.indexOf(lang1);
+        if (l1Idx < 0) continue;
+        for (const lang2 of config.languages) {
+          const l2Idx = allLanguages.indexOf(lang2);
+          if (l2Idx < 0) continue;
+          const xVal = xData[tokIdx * xShape[1] * xShape[2] + l1Idx * xShape[2] + l2Idx];
+          const yVal = yData[tokIdx * yShape[1] * yShape[2] + l1Idx * yShape[2] + l2Idx];
+          if (xVal !== undefined && yVal !== undefined) {
+            chartData.push({
+              tokenizer,
+              languagePair: `${lang1}-${lang2}`,
+              [metricX]: xVal,
+              [metricY]: yVal,
+            });
           }
         }
       }
@@ -420,7 +446,8 @@ export const getAvailableGraphTypes = (): GraphType[] => {
  * Initialize the registry with built-in visualization types
  */
 const initializeRegistry = () => {
-  registerGraphType(new MetricPairCorrelationGraphType());
+  registerGraphType(new MonolingualMetricPairCorrelationGraphType());
+  registerGraphType(new BilingualMetricPairCorrelationGraphType());
   registerGraphType(new MetricTableGraphType());
   registerGraphType(new TokenizedTextGraphType());
   // Future visualization types can be added here:

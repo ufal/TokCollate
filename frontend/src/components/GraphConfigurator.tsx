@@ -193,7 +193,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
 
     // Defaults for metrics depend on graph type and constraints
     let defaultMetrics: string[] = [];
-    if (newTypeId === 'metric-pair-correlation') {
+    if (newTypeId === 'metric-pair-correlation-mono' || newTypeId === 'metric-pair-correlation-bili') {
       // Choose first for X, second for Y
       if (filteredMetrics.length >= 2) {
         defaultMetrics = [filteredMetrics[0], filteredMetrics[1]];
@@ -513,7 +513,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
             </div>
           </div>
 
-          {config.typeId === 'metric-pair-correlation' ? (
+          {(config.typeId === 'metric-pair-correlation-mono' || config.typeId === 'metric-pair-correlation-bili') ? (
             <div className="config-section">
               <label>Metric X (X-axis):</label>
               <select
