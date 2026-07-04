@@ -1,53 +1,21 @@
 import React from 'react';
 import { FigureConfig, VisualizationData } from '../../types';
 import {
-  Scatter,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  LinearScale,
+  LogarithmicScale,
+  PointElement,
+  LineElement,
+  LineController,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  ComposedChart,
-  Line,
-} from 'recharts';
+} from 'chart.js';
+import { Scatter } from 'react-chartjs-2';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { buildLanguageLabelMap, getDisplayLanguageLabel, getDisplayLanguagePairLabel } from '../../utils/languageLabels';
-import { getColorForMetric } from './graphColors';
+import { getColorForMetric, GRAPH_COLORS } from './graphColors';
 
-// ---------------------------------------------------------------------------
-// Tooltip
-// ---------------------------------------------------------------------------
-
-const ScatterTooltip: React.FC<{
-  active?: boolean;
-  payload?: any[];
-  metricX: string;
-  metricY: string;
-  formatLanguage?: (label: string, isPair: boolean) => string;
-}> = ({ active, payload, metricX, metricY, formatLanguage }) => {
-  if (!active || !payload || payload.length === 0) return null;
-
-  const pt = payload[0]?.payload || {};
-  const hasLanguagePair = pt.languagePair !== undefined && pt.languagePair !== null;
-  const rawLanguageLabel = hasLanguagePair ? pt.languagePair : pt.language;
-  const languageLabel =
-    rawLanguageLabel !== undefined && formatLanguage
-      ? formatLanguage(String(rawLanguageLabel), hasLanguagePair)
-      : rawLanguageLabel;
-  const languageTitle = hasLanguagePair ? 'Language pair' : 'Language';
-  const clusterSize = typeof pt.clusterSize === 'number' ? pt.clusterSize : undefined;
-  const formatVal = (v: any) => (typeof v === 'number' ? v.toFixed(2) : v);
-
-  return (
-    <div style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '5px' }}>
-      <p><strong>Tokenizer: {pt.tokenizer ?? 'N/A'}</strong></p>
-      {languageLabel !== undefined && <p>{languageTitle}: {languageLabel}</p>}
-      {clusterSize !== undefined && clusterSize > 1 && <p>Points in cluster: {clusterSize}</p>}
-      <p>{metricX}: {formatVal(pt[metricX])}</p>
-      <p>{metricY}: {formatVal(pt[metricY])}</p>
-    </div>
-  );
-};
+ChartJS.register(LinearScale, LogarithmicScale, PointElement, LineElement, LineController, Tooltip, Legend, zoomPlugin);
 
 // ---------------------------------------------------------------------------
 // Downsampling
@@ -134,6 +102,18 @@ function computeTrend(
 }
 
 // ---------------------------------------------------------------------------
+// hex color → rgba helper
+// ---------------------------------------------------------------------------
+
+function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -147,6 +127,27 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
   const metricX = config.metrics[0];
   const metricY = config.metrics[1];
   const groupBy = config.groupBy || 'tokenizer';
+  const chartRef = React.useRef<ChartJS<'scatter'>>(null);
+
+  const txX = config.axisTransforms?.x;
+  const txY = config.axisTransforms?.y;
+  const scaleX = txX?.scale ?? 'linear';
+  const scaleY = txY?.scale ?? 'linear';
+  const flipX = txX?.flip ?? false;
+  const flipY = txY?.flip ?? false;
+
+  // Apply per-axis transforms to a raw data value
+  const applyX = (v: number) => (flipX ? -v : v);
+  const applyY = (v: number) => (flipY ? -v : v);
+
+  // Build axis label with active transform annotations
+  const axisLabel = (metric: string, scale: string, flip: boolean) => {
+    const parts: string[] = [];
+    if (flip) parts.push('−');
+    parts.push(metric);
+    if (scale === 'log') parts.push('[log]');
+    return parts.join('');
+  };
 
   const allLanguages = data.metadata?.languages || [];
   const languageLabelMap = React.useMemo(
@@ -195,7 +196,11 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
 
   const isValidPoint = (pt: any): boolean => {
     const x = pt[metricX], y = pt[metricY];
-    return typeof x === 'number' && typeof y === 'number' && !Number.isNaN(x) && !Number.isNaN(y) && isFinite(x) && isFinite(y);
+    if (typeof x !== 'number' || typeof y !== 'number' || Number.isNaN(x) || Number.isNaN(y) || !isFinite(x) || !isFinite(y)) return false;
+    const tx = applyX(x), ty = applyY(y);
+    if (scaleX === 'log' && tx <= 0) return false;
+    if (scaleY === 'log' && ty <= 0) return false;
+    return true;
   };
 
   const allPoints = (Array.isArray(chartData) ? chartData : []).filter(isValidPoint);
@@ -209,87 +214,161 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
   const groupNames = Array.from(groupsMap.keys());
 
   const trendlineMode: 'none' | 'global' | 'groups' =
-    (config as any).trendlineMode || (config.showTrendline ? 'global' : 'none');
+    config.trendlineMode || (config.showTrendline ? 'global' : 'none');
 
-  const buildTrendData = (trend: { m: number; b: number; minX: number; maxX: number }) => [
-    { [metricX]: trend.minX, [metricY]: trend.m * trend.minX + trend.b },
-    { [metricX]: trend.maxX, [metricY]: trend.m * trend.maxX + trend.b },
-  ];
+  // Build Chart.js datasets
+  const datasets: any[] = [];
 
-  type TrendLineDef = { key: string; name: string; color: string; data: any[] };
-  const trendLines: TrendLineDef[] = [];
+  groupNames.forEach((name, idx) => {
+    const color = getColorForMetric(idx);
+    const pts = downsampleGroupPoints(groupsMap.get(name) || [], metricX, metricY, MAX_SCATTER_POINTS_PER_GROUP);
+    datasets.push({
+      type: 'scatter' as const,
+      label: name,
+      data: pts.map((pt) => ({ x: applyX(pt[metricX]), y: applyY(pt[metricY]), _raw: pt })),
+      backgroundColor: hexToRgba(color, 0.7),
+      borderColor: color,
+      borderWidth: 1,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+    });
+  });
+
+  // Trendlines as line datasets — computed on transformed values
+  const trendPointsForGroup = (name: string) =>
+    (groupsMap.get(name) || [])
+      .filter(isValidPoint)
+      .map((pt) => ({ [metricX]: applyX(pt[metricX]), [metricY]: applyY(pt[metricY]) }));
+  const allTransformedPoints = allPoints.map((pt) => ({ [metricX]: applyX(pt[metricX]), [metricY]: applyY(pt[metricY]) }));
 
   if (trendlineMode === 'global') {
-    const trend = computeTrend(allPoints, metricX, metricY);
-    if (trend) trendLines.push({ key: 'global-trend', name: 'Trend (global)', color: '#444', data: buildTrendData(trend) });
+    const trend = computeTrend(allTransformedPoints, metricX, metricY);
+    if (trend) {
+      datasets.push({
+        type: 'line' as const,
+        label: 'Trend (global)',
+        data: [
+          { x: trend.minX, y: trend.m * trend.minX + trend.b },
+          { x: trend.maxX, y: trend.m * trend.maxX + trend.b },
+        ],
+        borderColor: '#444',
+        borderDash: [4, 2],
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: false,
+        tension: 0,
+      });
+    }
   } else if (trendlineMode === 'groups') {
     groupNames.forEach((name, idx) => {
-      const trend = computeTrend(groupsMap.get(name) || [], metricX, metricY);
-      if (trend) trendLines.push({ key: `trend-${name}`, name: `${name} trend`, color: getColorForMetric(idx), data: buildTrendData(trend) });
+      const trend = computeTrend(trendPointsForGroup(name), metricX, metricY);
+      if (trend) {
+        const color = getColorForMetric(idx);
+        datasets.push({
+          type: 'line' as const,
+          label: `${name} trend`,
+          data: [
+            { x: trend.minX, y: trend.m * trend.minX + trend.b },
+            { x: trend.maxX, y: trend.m * trend.maxX + trend.b },
+          ],
+          borderColor: color,
+          borderDash: [4, 2],
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false,
+          tension: 0,
+        });
+      }
     });
   }
 
-  const displayGroupsMap: Map<string, any[]> = new Map();
-  groupNames.forEach((name) => {
-    displayGroupsMap.set(name, downsampleGroupPoints(groupsMap.get(name) || [], metricX, metricY, MAX_SCATTER_POINTS_PER_GROUP));
-  });
+  const options: any = {
+    animation: false,
+    responsive: true,
+    maintainAspectRatio: false,
+    parsing: false,
+    scales: {
+      x: {
+        type: (scaleX === 'log' ? 'logarithmic' : 'linear') as 'linear' | 'logarithmic',
+        title: { display: true, text: axisLabel(metricX, scaleX, flipX) },
+      },
+      y: {
+        type: (scaleY === 'log' ? 'logarithmic' : 'linear') as 'linear' | 'logarithmic',
+        title: { display: true, text: axisLabel(metricY, scaleY, flipY) },
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            const raw = context.raw as any;
+            const pt = raw?._raw || raw;
+            const hasLanguagePair = pt?.languagePair !== undefined && pt?.languagePair !== null;
+            const rawLabel = hasLanguagePair ? pt.languagePair : pt.language;
+            const displayLabel =
+              rawLabel !== undefined
+                ? hasLanguagePair
+                  ? getDisplayLanguagePairLabel(String(rawLabel), languageLabelMap)
+                  : getDisplayLanguageLabel(String(rawLabel), languageLabelMap)
+                : undefined;
+            const languageTitle = hasLanguagePair ? 'Language pair' : 'Language';
+            const clusterSize = typeof pt?.clusterSize === 'number' ? pt.clusterSize : undefined;
+            const fmt = (v: any) => (typeof v === 'number' ? v.toFixed(4) : String(v));
+            const lines = [
+              `Tokenizer: ${pt?.tokenizer ?? context.dataset.label ?? 'N/A'}`,
+              ...(displayLabel !== undefined ? [`${languageTitle}: ${displayLabel}`] : []),
+              ...(clusterSize !== undefined && clusterSize > 1 ? [`Points in cluster: ${clusterSize}`] : []),
+              `${metricX}: ${fmt(raw.x)}`,
+              `${metricY}: ${fmt(raw.y)}`,
+            ];
+            return lines;
+          },
+        },
+      },
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: 'xy' as const,
+          modifierKey: undefined,
+        },
+        zoom: {
+          wheel: { enabled: true },
+          pinch: { enabled: true },
+          mode: 'xy' as const,
+        },
+      },
+    },
+  };
+
+  const handleResetZoom = () => {
+    chartRef.current?.resetZoom();
+  };
 
   return (
-    <ResponsiveContainer width="100%" height={420}>
-      <ComposedChart margin={{ top: 20, right: 30, left: 60, bottom: 90 }}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis
-          type="number"
-          dataKey={metricX}
-          name={metricX}
-          label={{ value: metricX, position: 'insideBottomRight', offset: -10 }}
-        />
-        <YAxis
-          type="number"
-          dataKey={metricY}
-          name={metricY}
-          label={{ value: metricY, angle: -90, position: 'insideLeft', offset: 10 }}
-        />
-        <Tooltip
-          cursor={{ strokeDasharray: '3 3' }}
-          content={(
-            <ScatterTooltip
-              metricX={metricX}
-              metricY={metricY}
-              formatLanguage={(label, isPair) =>
-                isPair
-                  ? getDisplayLanguagePairLabel(label, languageLabelMap)
-                  : getDisplayLanguageLabel(label, languageLabelMap)
-              }
-            />
-          )}
-        />
-        <Legend verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: 10 }} />
-        {trendLines.map((t) => (
-          <Line
-            key={t.key}
-            type="linear"
-            data={t.data}
-            dataKey={metricY}
-            name={t.name}
-            stroke={t.color}
-            strokeDasharray="4 2"
-            dot={false}
-            isAnimationActive={false}
-          />
-        ))}
-        {groupNames.map((name, idx) => (
-          <Scatter
-            key={name}
-            name={name}
-            data={displayGroupsMap.get(name)!}
-            dataKey={metricY}
-            fill={getColorForMetric(idx)}
-            isAnimationActive={false}
-          />
-        ))}
-      </ComposedChart>
-    </ResponsiveContainer>
+    <div style={{ position: 'relative', width: '100%', height: 420 }}>
+      <Scatter ref={chartRef} data={{ datasets }} options={options} />
+      <button
+        onClick={handleResetZoom}
+        title="Reset zoom"
+        style={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          padding: '3px 8px',
+          fontSize: '0.75rem',
+          cursor: 'pointer',
+          background: '#fff',
+          border: '1px solid #aaa',
+          borderRadius: 3,
+          zIndex: 10,
+        }}
+      >
+        Reset zoom
+      </button>
+    </div>
   );
 };
 

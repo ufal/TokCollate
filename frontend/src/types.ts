@@ -42,6 +42,16 @@ export interface FigureConfig {
   trendlineMode?: 'none' | 'global' | 'groups';
   // For tokenized-text type: 1-based inclusive range [start, end]
   sentenceRange?: [number, number];
+  // Per-axis transforms for metric-pair-correlation
+  axisTransforms?: {
+    x?: AxisTransform;
+    y?: AxisTransform;
+  };
+}
+
+export interface AxisTransform {
+  scale?: 'linear' | 'log';
+  flip?: boolean;
 }
 
 export interface MetricDimensionality {

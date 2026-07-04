@@ -361,6 +361,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       // Keep boolean flag in sync for any legacy consumers
       showTrendline: trendlineMode !== 'none',
       sentenceRange: cfg.sentenceRange,
+      axisTransforms: (cfg as any).axisTransforms,
     };
 
     // Always propagate the current configuration to the active figure.
@@ -567,6 +568,45 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                   <option value="groups">Groups</option>
                 </select>
               </div>
+              {/* Axis transform controls */}
+              {(['x', 'y'] as const).map((axis) => {
+                const metricLabel = axis === 'x' ? 'X-axis' : 'Y-axis';
+                const tx = (config as any).axisTransforms?.[axis] || {};
+                const setTx = (patch: Record<string, any>) => {
+                  const newConfig = {
+                    ...config,
+                    axisTransforms: {
+                      ...((config as any).axisTransforms || {}),
+                      [axis]: { ...tx, ...patch },
+                    },
+                  };
+                  setConfig(newConfig);
+                  validateConfig(newConfig);
+                };
+                return (
+                  <div key={axis} style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <label style={{ minWidth: '56px' }}>{metricLabel}:</label>
+                    <select
+                      value={tx.scale || 'linear'}
+                      onChange={(e) => setTx({ scale: e.target.value })}
+                      className="single-select"
+                      style={{ width: 'auto' }}
+                      title={`Scale for ${metricLabel}`}
+                    >
+                      <option value="linear">Linear</option>
+                      <option value="log">Log</option>
+                    </select>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontWeight: 'normal' }}>
+                      <input
+                        type="checkbox"
+                        checked={tx.flip || false}
+                        onChange={(e) => setTx({ flip: e.target.checked })}
+                      />
+                      Flip Axis
+                    </label>
+                  </div>
+                );
+              })}
             </div>
           ) : config.typeId !== 'metric-table' && config.typeId !== 'tokenized-text' && (
             <div className="config-section">
