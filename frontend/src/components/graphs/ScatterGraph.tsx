@@ -18,6 +18,24 @@ import { getColorForMetric, GRAPH_COLORS } from './graphColors';
 ChartJS.register(LinearScale, LogarithmicScale, PointElement, LineElement, LineController, Tooltip, Legend, zoomPlugin);
 
 // ---------------------------------------------------------------------------
+// Symlog transform: sign(x) * log10(1 + |x|) — handles negative values
+// ---------------------------------------------------------------------------
+
+function symlog(x: number): number {
+  return Math.sign(x) * Math.log10(1 + Math.abs(x));
+}
+
+function isymlog(y: number): number {
+  return Math.sign(y) * (Math.pow(10, Math.abs(y)) - 1);
+}
+
+function fmtSymlogTick(v: number): string {
+  const orig = isymlog(v);
+  if (orig === 0) return '0';
+  return parseFloat(orig.toPrecision(3)).toString();
+}
+
+// ---------------------------------------------------------------------------
 // Downsampling
 // ---------------------------------------------------------------------------
 
@@ -137,15 +155,16 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
   const flipY = txY?.flip ?? false;
 
   // Apply per-axis transforms to a raw data value
-  const applyX = (v: number) => (flipX ? -v : v);
-  const applyY = (v: number) => (flipY ? -v : v);
+  // For log scale we use symlog so negative values are preserved
+  const applyX = (v: number) => { const f = flipX ? -v : v; return scaleX === 'log' ? symlog(f) : f; };
+  const applyY = (v: number) => { const f = flipY ? -v : v; return scaleY === 'log' ? symlog(f) : f; };
 
   // Build axis label with active transform annotations
   const axisLabel = (metric: string, scale: string, flip: boolean) => {
     const parts: string[] = [];
     if (flip) parts.push('−');
     parts.push(metric);
-    if (scale === 'log') parts.push('[log]');
+    if (scale === 'log') parts.push('[symlog]');
     return parts.join('');
   };
 
@@ -197,9 +216,6 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
   const isValidPoint = (pt: any): boolean => {
     const x = pt[metricX], y = pt[metricY];
     if (typeof x !== 'number' || typeof y !== 'number' || Number.isNaN(x) || Number.isNaN(y) || !isFinite(x) || !isFinite(y)) return false;
-    const tx = applyX(x), ty = applyY(y);
-    if (scaleX === 'log' && tx <= 0) return false;
-    if (scaleY === 'log' && ty <= 0) return false;
     return true;
   };
 
@@ -289,12 +305,14 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
     parsing: false,
     scales: {
       x: {
-        type: (scaleX === 'log' ? 'logarithmic' : 'linear') as 'linear' | 'logarithmic',
+        type: 'linear' as const,
         title: { display: true, text: axisLabel(metricX, scaleX, flipX) },
+        ticks: scaleX === 'log' ? { callback: (v: any) => fmtSymlogTick(v) } : {},
       },
       y: {
-        type: (scaleY === 'log' ? 'logarithmic' : 'linear') as 'linear' | 'logarithmic',
+        type: 'linear' as const,
         title: { display: true, text: axisLabel(metricY, scaleY, flipY) },
+        ticks: scaleY === 'log' ? { callback: (v: any) => fmtSymlogTick(v) } : {},
       },
     },
     plugins: {
@@ -317,12 +335,15 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
             const languageTitle = hasLanguagePair ? 'Language pair' : 'Language';
             const clusterSize = typeof pt?.clusterSize === 'number' ? pt.clusterSize : undefined;
             const fmt = (v: any) => (typeof v === 'number' ? v.toFixed(4) : String(v));
+            // Show original (pre-transform) values from _raw when available
+            const dispX = pt?.[metricX] !== undefined ? fmt(pt[metricX]) : fmt(raw.x);
+            const dispY = pt?.[metricY] !== undefined ? fmt(pt[metricY]) : fmt(raw.y);
             const lines = [
               `Tokenizer: ${pt?.tokenizer ?? context.dataset.label ?? 'N/A'}`,
               ...(displayLabel !== undefined ? [`${languageTitle}: ${displayLabel}`] : []),
               ...(clusterSize !== undefined && clusterSize > 1 ? [`Points in cluster: ${clusterSize}`] : []),
-              `${metricX}: ${fmt(raw.x)}`,
-              `${metricY}: ${fmt(raw.y)}`,
+              `${metricX}: ${dispX}`,
+              `${metricY}: ${dispY}`,
             ];
             return lines;
           },
