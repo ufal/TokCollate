@@ -193,7 +193,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
 
     // Defaults for metrics depend on graph type and constraints
     let defaultMetrics: string[] = [];
-    if (newTypeId === 'metric-pair-correlation-mono' || newTypeId === 'metric-pair-correlation-bili') {
+    if (newTypeId === 'metric-pair-correlation-mono' || newTypeId === 'metric-pair-correlation-bi') {
       // Choose first for X, second for Y
       if (filteredMetrics.length >= 2) {
         defaultMetrics = [filteredMetrics[0], filteredMetrics[1]];
@@ -513,7 +513,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
             </div>
           </div>
 
-          {(config.typeId === 'metric-pair-correlation-mono' || config.typeId === 'metric-pair-correlation-bili') ? (
+          {(config.typeId === 'metric-pair-correlation-mono' || config.typeId === 'metric-pair-correlation-bi') ? (
             <div className="config-section">
               <label>Metric X (X-axis):</label>
               <select
@@ -547,7 +547,10 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                 <label>Color by:</label>
                 <select value={config.groupBy || 'tokenizer'} onChange={handleGroupByChange} className="single-select">
                   <option value="tokenizer">Tokenizer</option>
-                  <option value="language">Language</option>
+                  {config.typeId === 'metric-pair-correlation-bi'
+                    ? <option value="languagePair">Language Pair</option>
+                    : <option value="language">Language</option>
+                  }
                   <option value="family">Language family</option>
                 </select>
               </div>

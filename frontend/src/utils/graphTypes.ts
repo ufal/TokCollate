@@ -9,7 +9,7 @@ type TypedArray = Float64Array | Float32Array | Int32Array | Uint32Array | Uint8
 export interface ConstraintRange {
   min: number;
   max: number;
-  dimension?: 1 | 2 | 'both'; // For metrics: 1D, 2D, or both
+  dimension?: 1 | 2 | 3 | 'both'; // For metrics: 1D, 2D, 3D, or both
 }
 
 export interface VisualizationConstraints {
@@ -219,7 +219,7 @@ export class MonolingualMetricPairCorrelationGraphType extends GraphType {
  * Scatter plot visualization for correlating two 3D (bilingual) metrics
  */
 export class BilingualMetricPairCorrelationGraphType extends GraphType {
-  typeId = 'metric-pair-correlation-bili';
+  typeId = 'metric-pair-correlation-bi';
   displayName = 'Metric Pair Correlation (Bilingual)';
   description = 'Scatterplot showing the relationship between two 3D (per-language-pair) metrics. Choose X and Y axes, tokenizers, and languages.';
 
@@ -268,6 +268,7 @@ export class BilingualMetricPairCorrelationGraphType extends GraphType {
         const l1Idx = allLanguages.indexOf(lang1);
         if (l1Idx < 0) continue;
         for (const lang2 of config.languages) {
+          if (lang1 === lang2) continue;
           const l2Idx = allLanguages.indexOf(lang2);
           if (l2Idx < 0) continue;
           const xVal = xData[tokIdx * xShape[1] * xShape[2] + l1Idx * xShape[2] + l2Idx];

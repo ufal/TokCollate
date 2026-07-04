@@ -35,7 +35,7 @@ export interface FigureConfig {
   languages: string[];
   metrics: string[];
   filters?: Record<string, any>;
-  groupBy?: 'tokenizer' | 'language' | 'family';
+  groupBy?: 'tokenizer' | 'language' | 'languagePair' | 'family';
   // Deprecated boolean flag kept for backward compatibility
   showTrendline?: boolean;
   // New, more expressive trendline mode

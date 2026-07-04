@@ -209,6 +209,7 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
   const groupKeyForPoint = (pt: any): string => {
     if (groupBy === 'tokenizer') return pt.tokenizer || 'unknown';
     if (groupBy === 'language') return pt.language || 'unknown';
+    if (groupBy === 'languagePair') return pt.languagePair || 'unknown';
     if (groupBy === 'family') return getFamilyForLanguage(pt.language || '');
     return 'unknown';
   };
