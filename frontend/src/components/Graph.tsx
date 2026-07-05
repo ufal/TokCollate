@@ -54,7 +54,7 @@ const Graph: React.FC<GraphProps> = ({ config, data }) => {
   }
 
   const renderContent = () => {
-    if (config.typeId === 'metric-pair-correlation') {
+    if (config.typeId === 'metric-pair-correlation-mono' || config.typeId === 'metric-pair-correlation-bi') {
       return <ScatterGraph config={config} data={data} chartData={chartData} />;
     }
     if (config.typeId === 'metric-table') {

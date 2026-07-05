@@ -1,53 +1,40 @@
 import React from 'react';
 import { FigureConfig, VisualizationData } from '../../types';
 import {
-  Scatter,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  LinearScale,
+  LogarithmicScale,
+  PointElement,
+  LineElement,
+  LineController,
+  Filler,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  ComposedChart,
-  Line,
-} from 'recharts';
+} from 'chart.js';
+import { Scatter } from 'react-chartjs-2';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { buildLanguageLabelMap, getDisplayLanguageLabel, getDisplayLanguagePairLabel } from '../../utils/languageLabels';
-import { getColorForMetric } from './graphColors';
+import { getColorForMetric, GRAPH_COLORS } from './graphColors';
+
+ChartJS.register(LinearScale, LogarithmicScale, PointElement, LineElement, LineController, Filler, Tooltip, Legend, zoomPlugin);
 
 // ---------------------------------------------------------------------------
-// Tooltip
+// Symlog transform: sign(x) * log10(1 + |x|) — handles negative values
 // ---------------------------------------------------------------------------
 
-const ScatterTooltip: React.FC<{
-  active?: boolean;
-  payload?: any[];
-  metricX: string;
-  metricY: string;
-  formatLanguage?: (label: string, isPair: boolean) => string;
-}> = ({ active, payload, metricX, metricY, formatLanguage }) => {
-  if (!active || !payload || payload.length === 0) return null;
+function symlog(x: number): number {
+  return Math.sign(x) * Math.log10(1 + Math.abs(x));
+}
 
-  const pt = payload[0]?.payload || {};
-  const hasLanguagePair = pt.languagePair !== undefined && pt.languagePair !== null;
-  const rawLanguageLabel = hasLanguagePair ? pt.languagePair : pt.language;
-  const languageLabel =
-    rawLanguageLabel !== undefined && formatLanguage
-      ? formatLanguage(String(rawLanguageLabel), hasLanguagePair)
-      : rawLanguageLabel;
-  const languageTitle = hasLanguagePair ? 'Language pair' : 'Language';
-  const clusterSize = typeof pt.clusterSize === 'number' ? pt.clusterSize : undefined;
-  const formatVal = (v: any) => (typeof v === 'number' ? v.toFixed(2) : v);
+function isymlog(y: number): number {
+  return Math.sign(y) * (Math.pow(10, Math.abs(y)) - 1);
+}
 
-  return (
-    <div style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '5px' }}>
-      <p><strong>Tokenizer: {pt.tokenizer ?? 'N/A'}</strong></p>
-      {languageLabel !== undefined && <p>{languageTitle}: {languageLabel}</p>}
-      {clusterSize !== undefined && clusterSize > 1 && <p>Points in cluster: {clusterSize}</p>}
-      <p>{metricX}: {formatVal(pt[metricX])}</p>
-      <p>{metricY}: {formatVal(pt[metricY])}</p>
-    </div>
-  );
-};
+function fmtSymlogTick(v: number): string {
+  const orig = isymlog(v);
+  if (orig === 0) return '0';
+  return parseFloat(orig.toPrecision(3)).toString();
+}
 
 // ---------------------------------------------------------------------------
 // Downsampling
@@ -112,11 +99,22 @@ function downsampleGroupPoints(
 // Trend computation
 // ---------------------------------------------------------------------------
 
+interface TrendResult {
+  m: number;
+  b: number;
+  minX: number;
+  maxX: number;
+  n: number;
+  meanX: number;
+  sxx: number;    // sum of squared deviations of x
+  se: number;     // residual standard error
+}
+
 function computeTrend(
   pts: any[],
   metricX: string,
   metricY: string,
-): { m: number; b: number; minX: number; maxX: number } | null {
+): TrendResult | null {
   if (!pts || pts.length < 2) return null;
   let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0, minX = Infinity, maxX = -Infinity;
   for (const p of pts) {
@@ -130,7 +128,61 @@ function computeTrend(
   if (denom === 0) return null;
   const m = (n * sumXY - sumX * sumY) / denom;
   const b = (sumY - m * sumX) / n;
-  return { m, b, minX, maxX };
+  const meanX = sumX / n;
+  const sxx = sumXX - n * meanX * meanX;
+  // Residual sum of squares
+  let rss = 0;
+  for (const p of pts) {
+    const x = p[metricX], y = p[metricY];
+    const residual = y - (m * x + b);
+    rss += residual * residual;
+  }
+  const se = n > 2 ? Math.sqrt(rss / (n - 2)) : 0;
+  return { m, b, minX, maxX, n, meanX, sxx, se };
+}
+
+// Approximate t critical value for 95% CI (two-tailed).
+// Lookup table of [max_df, t_value] pairs, checked in ascending order.
+const T_CRITICAL_95: [number, number][] = [
+  [1, 12.706], [2, 4.303], [3, 3.182], [4, 2.776], [5, 2.571],
+  [6, 2.447],  [7, 2.365], [8, 2.306], [9, 2.262], [10, 2.228],
+  [15, 2.131], [20, 2.086], [30, 2.042], [60, 2.000], [120, 1.980],
+];
+
+function tCritical95(df: number): number {
+  if (df <= 0) return Infinity;
+  return T_CRITICAL_95.find(([maxDf]) => df <= maxDf)?.[1] ?? 1.960;
+}
+
+/** Compute upper and lower 95% CI band lines for a trendline. */
+function buildConfidenceBand(
+  trend: TrendResult,
+  steps = 60,
+): { upper: { x: number; y: number }[]; lower: { x: number; y: number }[] } {
+  const { m, b, minX, maxX, n, meanX, sxx, se } = trend;
+  if (se === 0 || n <= 2) return { upper: [], lower: [] };
+  const t = tCritical95(n - 2);
+  const upper: { x: number; y: number }[] = [];
+  const lower: { x: number; y: number }[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const x = minX + (maxX - minX) * (i / steps);
+    const margin = t * se * Math.sqrt(1 / n + Math.pow(x - meanX, 2) / sxx);
+    upper.push({ x, y: m * x + b + margin });
+    lower.push({ x, y: m * x + b - margin });
+  }
+  return { upper, lower };
+}
+
+// ---------------------------------------------------------------------------
+// hex color → rgba helper
+// ---------------------------------------------------------------------------
+
+function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
 }
 
 // ---------------------------------------------------------------------------
@@ -147,6 +199,28 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
   const metricX = config.metrics[0];
   const metricY = config.metrics[1];
   const groupBy = config.groupBy || 'tokenizer';
+  const chartRef = React.useRef<ChartJS<'scatter'>>(null);
+
+  const txX = config.axisTransforms?.x;
+  const txY = config.axisTransforms?.y;
+  const scaleX = txX?.scale ?? 'linear';
+  const scaleY = txY?.scale ?? 'linear';
+  const flipX = txX?.flip ?? false;
+  const flipY = txY?.flip ?? false;
+
+  // Apply per-axis transforms to a raw data value
+  // For log scale we use symlog so negative values are preserved
+  const applyX = (v: number) => { const f = flipX ? -v : v; return scaleX === 'log' ? symlog(f) : f; };
+  const applyY = (v: number) => { const f = flipY ? -v : v; return scaleY === 'log' ? symlog(f) : f; };
+
+  // Build axis label with active transform annotations
+  const axisLabel = (metric: string, scale: string, flip: boolean) => {
+    const parts: string[] = [];
+    if (flip) parts.push('−');
+    parts.push(metric);
+    if (scale === 'log') parts.push('[symlog]');
+    return parts.join('');
+  };
 
   const allLanguages = data.metadata?.languages || [];
   const languageLabelMap = React.useMemo(
@@ -186,16 +260,33 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
     return 'unknown';
   };
 
+  const getFamilyGroupKey = (pt: any): string => {
+    if (pt.languagePair) {
+      const dashIdx = pt.languagePair.indexOf('-');
+      if (dashIdx > 0) {
+        const lang1 = pt.languagePair.slice(0, dashIdx);
+        const lang2 = pt.languagePair.slice(dashIdx + 1);
+        const fam1 = getFamilyForLanguage(lang1);
+        const fam2 = getFamilyForLanguage(lang2);
+        const sorted = [fam1, fam2].sort();
+        return `${sorted[0]} × ${sorted[1]}`;
+      }
+    }
+    return getFamilyForLanguage(pt.language || '');
+  };
+
   const groupKeyForPoint = (pt: any): string => {
     if (groupBy === 'tokenizer') return pt.tokenizer || 'unknown';
     if (groupBy === 'language') return pt.language || 'unknown';
-    if (groupBy === 'family') return getFamilyForLanguage(pt.language || '');
+    if (groupBy === 'languagePair') return pt.languagePair || 'unknown';
+    if (groupBy === 'family') return getFamilyGroupKey(pt);
     return 'unknown';
   };
 
   const isValidPoint = (pt: any): boolean => {
     const x = pt[metricX], y = pt[metricY];
-    return typeof x === 'number' && typeof y === 'number' && !Number.isNaN(x) && !Number.isNaN(y) && isFinite(x) && isFinite(y);
+    if (typeof x !== 'number' || typeof y !== 'number' || Number.isNaN(x) || Number.isNaN(y) || !isFinite(x) || !isFinite(y)) return false;
+    return true;
   };
 
   const allPoints = (Array.isArray(chartData) ? chartData : []).filter(isValidPoint);
@@ -209,87 +300,223 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
   const groupNames = Array.from(groupsMap.keys());
 
   const trendlineMode: 'none' | 'global' | 'groups' =
-    (config as any).trendlineMode || (config.showTrendline ? 'global' : 'none');
+    config.trendlineMode || (config.showTrendline ? 'global' : 'none');
 
-  const buildTrendData = (trend: { m: number; b: number; minX: number; maxX: number }) => [
-    { [metricX]: trend.minX, [metricY]: trend.m * trend.minX + trend.b },
-    { [metricX]: trend.maxX, [metricY]: trend.m * trend.maxX + trend.b },
-  ];
+  // Build Chart.js datasets
+  const datasets: any[] = [];
 
-  type TrendLineDef = { key: string; name: string; color: string; data: any[] };
-  const trendLines: TrendLineDef[] = [];
+  groupNames.forEach((name, idx) => {
+    const color = getColorForMetric(idx);
+    const pts = downsampleGroupPoints(groupsMap.get(name) || [], metricX, metricY, MAX_SCATTER_POINTS_PER_GROUP);
+    datasets.push({
+      type: 'scatter' as const,
+      label: name,
+      data: pts.map((pt) => ({ x: applyX(pt[metricX]), y: applyY(pt[metricY]), _raw: pt })),
+      backgroundColor: hexToRgba(color, 0.7),
+      borderColor: color,
+      borderWidth: 1,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+    });
+  });
+
+  // Trendlines as line datasets — computed on transformed values
+  const trendPointsForGroup = (name: string) =>
+    (groupsMap.get(name) || [])
+      .filter(isValidPoint)
+      .map((pt) => ({ [metricX]: applyX(pt[metricX]), [metricY]: applyY(pt[metricY]) }));
+  const allTransformedPoints = allPoints.map((pt) => ({ [metricX]: applyX(pt[metricX]), [metricY]: applyY(pt[metricY]) }));
+
+  const showConfidenceBand = (config.trendlineUncertainty ?? 'none') === 'confidence-band';
 
   if (trendlineMode === 'global') {
-    const trend = computeTrend(allPoints, metricX, metricY);
-    if (trend) trendLines.push({ key: 'global-trend', name: 'Trend (global)', color: '#444', data: buildTrendData(trend) });
+    const trend = computeTrend(allTransformedPoints, metricX, metricY);
+    if (trend) {
+      const { upper, lower } = buildConfidenceBand(trend);
+      if (showConfidenceBand && upper.length > 0) {
+        // Upper bound — fills down to the next dataset (lower bound)
+        datasets.push({
+          type: 'line' as const,
+          label: 'Trend (global) 95% CI upper',
+          data: upper,
+          borderColor: 'transparent',
+          backgroundColor: 'rgba(68,68,68,0.15)',
+          borderWidth: 0,
+          pointRadius: 0,
+          fill: '+1',
+          tension: 0,
+        });
+        // Lower bound
+        datasets.push({
+          type: 'line' as const,
+          label: 'Trend (global) 95% CI lower',
+          data: lower,
+          borderColor: 'transparent',
+          backgroundColor: 'transparent',
+          borderWidth: 0,
+          pointRadius: 0,
+          fill: false,
+          tension: 0,
+        });
+      }
+      datasets.push({
+        type: 'line' as const,
+        label: 'Trend (global)',
+        data: [
+          { x: trend.minX, y: trend.m * trend.minX + trend.b },
+          { x: trend.maxX, y: trend.m * trend.maxX + trend.b },
+        ],
+        borderColor: '#444',
+        borderDash: [4, 2],
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: false,
+        tension: 0,
+      });
+    }
   } else if (trendlineMode === 'groups') {
     groupNames.forEach((name, idx) => {
-      const trend = computeTrend(groupsMap.get(name) || [], metricX, metricY);
-      if (trend) trendLines.push({ key: `trend-${name}`, name: `${name} trend`, color: getColorForMetric(idx), data: buildTrendData(trend) });
+      const trend = computeTrend(trendPointsForGroup(name), metricX, metricY);
+      if (trend) {
+        const color = getColorForMetric(idx);
+        const { upper, lower } = buildConfidenceBand(trend);
+        if (showConfidenceBand && upper.length > 0) {
+          datasets.push({
+            type: 'line' as const,
+            label: `${name} trend 95% CI upper`,
+            data: upper,
+            borderColor: 'transparent',
+            backgroundColor: hexToRgba(color, 0.15),
+            borderWidth: 0,
+            pointRadius: 0,
+            fill: '+1',
+            tension: 0,
+          });
+          datasets.push({
+            type: 'line' as const,
+            label: `${name} trend 95% CI lower`,
+            data: lower,
+            borderColor: 'transparent',
+            backgroundColor: 'transparent',
+            borderWidth: 0,
+            pointRadius: 0,
+            fill: false,
+            tension: 0,
+          });
+        }
+        datasets.push({
+          type: 'line' as const,
+          label: `${name} trend`,
+          data: [
+            { x: trend.minX, y: trend.m * trend.minX + trend.b },
+            { x: trend.maxX, y: trend.m * trend.maxX + trend.b },
+          ],
+          borderColor: color,
+          borderDash: [4, 2],
+          borderWidth: 2,
+          pointRadius: 0,
+          fill: false,
+          tension: 0,
+        });
+      }
     });
   }
 
-  const displayGroupsMap: Map<string, any[]> = new Map();
-  groupNames.forEach((name) => {
-    displayGroupsMap.set(name, downsampleGroupPoints(groupsMap.get(name) || [], metricX, metricY, MAX_SCATTER_POINTS_PER_GROUP));
-  });
+  const options: any = {
+    animation: false,
+    responsive: true,
+    maintainAspectRatio: false,
+    parsing: false,
+    scales: {
+      x: {
+        type: 'linear' as const,
+        title: { display: true, text: axisLabel(metricX, scaleX, flipX) },
+        ticks: scaleX === 'log' ? { callback: (v: any) => fmtSymlogTick(v) } : {},
+      },
+      y: {
+        type: 'linear' as const,
+        title: { display: true, text: axisLabel(metricY, scaleY, flipY) },
+        ticks: scaleY === 'log' ? { callback: (v: any) => fmtSymlogTick(v) } : {},
+      },
+    },
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: {
+          filter: (item: any) => !item.text?.includes('95% CI'),
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context: any) => {
+            const raw = context.raw as any;
+            const pt = raw?._raw || raw;
+            const hasLanguagePair = pt?.languagePair !== undefined && pt?.languagePair !== null;
+            const rawLabel = hasLanguagePair ? pt.languagePair : pt.language;
+            const displayLabel =
+              rawLabel !== undefined
+                ? hasLanguagePair
+                  ? getDisplayLanguagePairLabel(String(rawLabel), languageLabelMap)
+                  : getDisplayLanguageLabel(String(rawLabel), languageLabelMap)
+                : undefined;
+            const languageTitle = hasLanguagePair ? 'Language pair' : 'Language';
+            const clusterSize = typeof pt?.clusterSize === 'number' ? pt.clusterSize : undefined;
+            const fmt = (v: any) => (typeof v === 'number' ? v.toFixed(4) : String(v));
+            // Show original (pre-transform) values from _raw when available
+            const dispX = pt?.[metricX] !== undefined ? fmt(pt[metricX]) : fmt(raw.x);
+            const dispY = pt?.[metricY] !== undefined ? fmt(pt[metricY]) : fmt(raw.y);
+            const lines = [
+              `Tokenizer: ${pt?.tokenizer ?? context.dataset.label ?? 'N/A'}`,
+              ...(displayLabel !== undefined ? [`${languageTitle}: ${displayLabel}`] : []),
+              ...(clusterSize !== undefined && clusterSize > 1 ? [`Points in cluster: ${clusterSize}`] : []),
+              `${metricX}: ${dispX}`,
+              `${metricY}: ${dispY}`,
+            ];
+            return lines;
+          },
+        },
+      },
+      zoom: {
+        pan: {
+          enabled: true,
+          mode: 'xy' as const,
+          modifierKey: undefined,
+        },
+        zoom: {
+          wheel: { enabled: true },
+          pinch: { enabled: true },
+          mode: 'xy' as const,
+        },
+      },
+    },
+  };
+
+  const handleResetZoom = () => {
+    chartRef.current?.resetZoom();
+  };
 
   return (
-    <ResponsiveContainer width="100%" height={420}>
-      <ComposedChart margin={{ top: 20, right: 30, left: 60, bottom: 90 }}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis
-          type="number"
-          dataKey={metricX}
-          name={metricX}
-          label={{ value: metricX, position: 'insideBottomRight', offset: -10 }}
-        />
-        <YAxis
-          type="number"
-          dataKey={metricY}
-          name={metricY}
-          label={{ value: metricY, angle: -90, position: 'insideLeft', offset: 10 }}
-        />
-        <Tooltip
-          cursor={{ strokeDasharray: '3 3' }}
-          content={(
-            <ScatterTooltip
-              metricX={metricX}
-              metricY={metricY}
-              formatLanguage={(label, isPair) =>
-                isPair
-                  ? getDisplayLanguagePairLabel(label, languageLabelMap)
-                  : getDisplayLanguageLabel(label, languageLabelMap)
-              }
-            />
-          )}
-        />
-        <Legend verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: 10 }} />
-        {trendLines.map((t) => (
-          <Line
-            key={t.key}
-            type="linear"
-            data={t.data}
-            dataKey={metricY}
-            name={t.name}
-            stroke={t.color}
-            strokeDasharray="4 2"
-            dot={false}
-            isAnimationActive={false}
-          />
-        ))}
-        {groupNames.map((name, idx) => (
-          <Scatter
-            key={name}
-            name={name}
-            data={displayGroupsMap.get(name)!}
-            dataKey={metricY}
-            fill={getColorForMetric(idx)}
-            isAnimationActive={false}
-          />
-        ))}
-      </ComposedChart>
-    </ResponsiveContainer>
+    <div style={{ position: 'relative', width: '100%', height: 420 }}>
+      <Scatter ref={chartRef} data={{ datasets }} options={options} />
+      <button
+        onClick={handleResetZoom}
+        title="Reset zoom"
+        style={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          padding: '3px 8px',
+          fontSize: '0.75rem',
+          cursor: 'pointer',
+          background: '#fff',
+          border: '1px solid #aaa',
+          borderRadius: 3,
+          zIndex: 10,
+        }}
+      >
+        Reset zoom
+      </button>
+    </div>
   );
 };
 

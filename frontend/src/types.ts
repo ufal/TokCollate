@@ -35,13 +35,25 @@ export interface FigureConfig {
   languages: string[];
   metrics: string[];
   filters?: Record<string, any>;
-  groupBy?: 'tokenizer' | 'language' | 'family';
+  groupBy?: 'tokenizer' | 'language' | 'languagePair' | 'family';
   // Deprecated boolean flag kept for backward compatibility
   showTrendline?: boolean;
   // New, more expressive trendline mode
   trendlineMode?: 'none' | 'global' | 'groups';
+  // Uncertainty visualization for trendline
+  trendlineUncertainty?: 'none' | 'confidence-band';
   // For tokenized-text type: 1-based inclusive range [start, end]
   sentenceRange?: [number, number];
+  // Per-axis transforms for metric-pair-correlation
+  axisTransforms?: {
+    x?: AxisTransform;
+    y?: AxisTransform;
+  };
+}
+
+export interface AxisTransform {
+  scale?: 'linear' | 'log';
+  flip?: boolean;
 }
 
 export interface MetricDimensionality {
