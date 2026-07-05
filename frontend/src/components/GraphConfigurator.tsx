@@ -3,6 +3,8 @@ import { FigureConfig, MetricDimensionality } from '../types';
 import { getAvailableGraphTypes, getGraphType } from '../utils/graphTypes';
 import { buildLanguageLabelMap, getDisplayLanguageLabel } from '../utils/languageLabels';
 import { useLanguageFilters, lookupLanguageInfo } from '../utils/useLanguageFilters';
+import LanguageFilterPanel from './LanguageFilterPanel';
+import ScatterGraphControls from './scatter/ScatterGraphControls';
 import './GraphConfigurator.css';
 
 /** Check whether two string arrays contain the same set of values. */
@@ -263,29 +265,6 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     validateConfig(newConfig);
   };
 
-  // For metric pair correlation: separate X and Y axis selectors
-  const handleMetricXChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const metricX = e.target.value;
-    const metrics = [metricX, config.metrics?.[1] || ''].filter(Boolean);
-    const newConfig = { ...config, metrics };
-    setConfig(newConfig);
-    validateConfig(newConfig);
-  };
-  const handleMetricYChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const metricY = e.target.value;
-    const metrics = [config.metrics?.[0] || '', metricY].filter(Boolean);
-    const newConfig = { ...config, metrics };
-    setConfig(newConfig);
-    validateConfig(newConfig);
-  };
-
-  const handleGroupByChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const groupBy = e.target.value as 'tokenizer' | 'language' | 'family';
-    const newConfig = { ...config, groupBy };
-    setConfig(newConfig);
-    validateConfig(newConfig);
-  };
-
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
     const newConfig = {
@@ -516,125 +495,16 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
           </div>
 
           {(config.typeId === 'metric-pair-correlation-mono' || config.typeId === 'metric-pair-correlation-bi') ? (
-            <div className="config-section">
-              <label>Metric X (X-axis):</label>
-              <select
-                value={config.metrics?.[0] || ''}
-                onChange={handleMetricXChange}
-                className="single-select"
-                disabled={filteredMetrics.length === 0}
-              >
-                <option value="">Select metric</option>
-                {filteredMetrics.map((m) => (
-                  <option key={m} value={m}>
-                    {m}{getMetricDimensionLabel(m)}
-                  </option>
-                ))}
-              </select>
-              <label>Metric Y (Y-axis):</label>
-              <select
-                value={config.metrics?.[1] || ''}
-                onChange={handleMetricYChange}
-                className="single-select"
-                disabled={filteredMetrics.length === 0}
-              >
-                <option value="">Select metric</option>
-                {filteredMetrics.map((m) => (
-                  <option key={m} value={m}>
-                    {m}{getMetricDimensionLabel(m)}
-                  </option>
-                ))}
-              </select>
-              <div style={{ marginTop: '8px' }}>
-                <label>Color by:</label>
-                <select value={config.groupBy || 'tokenizer'} onChange={handleGroupByChange} className="single-select">
-                  <option value="tokenizer">Tokenizer</option>
-                  {config.typeId === 'metric-pair-correlation-bi'
-                    ? <option value="languagePair">Language Pair</option>
-                    : <option value="language">Language</option>
-                  }
-                  <option value="family">Language family</option>
-                </select>
-              </div>
-              <div style={{ marginTop: '8px' }}>
-                <label>Trendline:</label>
-                <select
-                  value={(config as any).trendlineMode || ((config as any).showTrendline ? 'global' : 'none')}
-                  onChange={(e) => {
-                    const mode = e.target.value as 'none' | 'global' | 'groups';
-                    const newConfig = {
-                      ...config,
-                      trendlineMode: mode,
-                      ...(mode === 'none' ? { trendlineUncertainty: 'none' as const } : {}),
-                    };
-                    setConfig(newConfig);
-                    validateConfig(newConfig);
-                  }}
-                  className="single-select"
-                >
-                  <option value="none">None</option>
-                  <option value="global">Global</option>
-                  <option value="groups">Groups</option>
-                </select>
-              </div>
-              {((config as any).trendlineMode || 'none') !== 'none' && (
-                <div style={{ marginTop: '8px' }}>
-                  <label>Trendline (Uncertainty):</label>
-                  <select
-                    value={(config as any).trendlineUncertainty ?? 'none'}
-                    onChange={(e) => {
-                      const uncertainty = e.target.value as 'none' | 'confidence-band';
-                      const newConfig = { ...config, trendlineUncertainty: uncertainty };
-                      setConfig(newConfig);
-                      validateConfig(newConfig);
-                    }}
-                    className="single-select"
-                  >
-                    <option value="none">None</option>
-                    <option value="confidence-band">Confidence Band</option>
-                  </select>
-                </div>
-              )}
-              {/* Axis transform controls */}
-              {(['x', 'y'] as const).map((axis) => {
-                const metricLabel = axis === 'x' ? 'X-axis' : 'Y-axis';
-                const tx = (config as any).axisTransforms?.[axis] || {};
-                const setTx = (patch: Record<string, any>) => {
-                  const newConfig = {
-                    ...config,
-                    axisTransforms: {
-                      ...((config as any).axisTransforms || {}),
-                      [axis]: { ...tx, ...patch },
-                    },
-                  };
-                  setConfig(newConfig);
-                  validateConfig(newConfig);
-                };
-                return (
-                  <div key={axis} style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <label style={{ minWidth: '56px' }}>{metricLabel}:</label>
-                    <select
-                      value={tx.scale || 'linear'}
-                      onChange={(e) => setTx({ scale: e.target.value })}
-                      className="single-select"
-                      style={{ width: 'auto' }}
-                      title={`Scale for ${metricLabel}`}
-                    >
-                      <option value="linear">Linear</option>
-                      <option value="log">Log</option>
-                    </select>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', fontWeight: 'normal' }}>
-                      <input
-                        type="checkbox"
-                        checked={tx.flip || false}
-                        onChange={(e) => setTx({ flip: e.target.checked })}
-                      />
-                      Flip Axis
-                    </label>
-                  </div>
-                );
-              })}
-            </div>
+            <ScatterGraphControls
+              config={config}
+              filteredMetrics={filteredMetrics}
+              getMetricDimensionLabel={getMetricDimensionLabel}
+              onChange={(patch) => {
+                const newConfig = { ...config, ...patch };
+                setConfig(newConfig);
+                validateConfig(newConfig);
+              }}
+            />
           ) : config.typeId !== 'metric-table' && config.typeId !== 'tokenized-text' && (
             <div className="config-section">
               <label>
@@ -756,89 +626,19 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
           )}
 
           {/* Language Filters section (moved after Languages selector) */}
-          <div className="config-section">
-            <div className="config-header-row">
-              <label>Language Filters:</label>
-              <button
-                type="button"
-                className="clear-filters-btn"
-                onClick={clearLanguageFilters}
-              >
-                Clear filters
-              </button>
-            </div>
-            <div className="filters-grid">
-              <div>
-                <span>Continent:</span>
-                <select value={langFilters.continent} onChange={(e) => setLangFilter('continent', e.target.value)}>
-                  <option value="">(any)</option>
-                  {allContinents.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <span>Families:</span>
-                <select multiple value={langFilters.families} onChange={(e) => setLangFilter('families', Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
-                  {allFamilies.map((f) => (
-                    <option key={f} value={f}>{f}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <span>Fineweb2 keys:</span>
-                <select multiple value={langFilters.fineweb2} onChange={(e) => setLangFilter('fineweb2', Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
-                  {allFineweb2Keys.map((k) => (
-                    <option key={k} value={k}>{k}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <span>Glottocodes:</span>
-                <select multiple value={langFilters.glottocodes} onChange={(e) => setLangFilter('glottocodes', Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
-                  {allGlottocodes.map((g) => (
-                    <option key={g} value={g}>{g}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <span>Morphology:</span>
-                <select multiple value={langFilters.morphology} onChange={(e) => setLangFilter('morphology', Array.from(e.target.selectedOptions).map(o => o.value))} className="multi-select">
-                  {allMorphology.map((m) => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <span>Tier:</span>
-                <select value={langFilters.tier} onChange={(e) => setLangFilter('tier', e.target.value)}>
-                  <option value="">(any)</option>
-                  {allTiers.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <span>Speakers:</span>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <select value={langFilters.speakerOp} onChange={(e) => setLangFilter('speakerOp', e.target.value as any)} style={{ width: '70px' }}>
-                      <option value=">=">≥</option>
-                      <option value="<=">≤</option>
-                    </select>
-                    <input type="number" inputMode="numeric" min="0" step="any" value={langFilters.speakerVal} onChange={(e) => setLangFilter('speakerVal', e.target.value)} placeholder="threshold" />
-                </div>
-              </div>
-            </div>
-            <div style={{ marginTop: '6px' }}>
-              <label>
-                <input type="checkbox" checked={langFilters.locked} onChange={(e) => setLangFilter('locked', e.target.checked)} />
-                {' '}Lock filters (prevent auto-selection and auto-clearing)
-              </label>
-            </div>
-            <div className="selected-count">
-              {matchingLanguages.length} match / {availableLanguages.length} total
-            </div>
-          </div>
+          <LanguageFilterPanel
+            filters={langFilters}
+            setFilter={setLangFilter}
+            clearFilters={clearLanguageFilters}
+            allContinents={allContinents}
+            allFamilies={allFamilies}
+            allFineweb2Keys={allFineweb2Keys}
+            allGlottocodes={allGlottocodes}
+            allMorphology={allMorphology}
+            allTiers={allTiers}
+            matchingLanguages={matchingLanguages}
+            availableLanguages={availableLanguages}
+          />
           {/* Generate Figure button removed; figure updates automatically */}
         </>
       )}
