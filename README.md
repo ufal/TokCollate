@@ -92,3 +92,27 @@ Key configuration options:
 ## License
 
 See [LICENSE](LICENSE) file for details.
+
+## Citation
+
+If you use TokCollate, please cite the following:
+
+```
+@inproceedings{varis-etal-2026-tokcollate,
+    title = "{T}ok{C}ollate: A Comprehensive Tool for Tokenizer Evaluation and Visualization across Languages",
+    author = "Vari{\v{s}}, Du{\v{s}}an  and
+      Stephen, Abishek  and
+      Libovick{\'y}, Jind{\v{r}}ich",
+    editor = "Durrett, Greg  and
+      Jian, Ping",
+    booktitle = "Proceedings of the 64th Annual Meeting of the {A}ssociation for {C}omputational {L}inguistics (Volume 3: System Demonstrations)",
+    month = jul,
+    year = "2026",
+    address = "San Diego, California, United States",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2026.acl-demo.41/",
+    doi = "10.18653/v1/2026.acl-demo.41",
+    pages = "418--427",
+    ISBN = "979-8-89176-392-0",
+}
+```
