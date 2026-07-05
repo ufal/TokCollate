@@ -40,6 +40,8 @@ export interface FigureConfig {
   showTrendline?: boolean;
   // New, more expressive trendline mode
   trendlineMode?: 'none' | 'global' | 'groups';
+  // Uncertainty visualization for trendline
+  trendlineUncertainty?: 'none' | 'confidence-band';
   // For tokenized-text type: 1-based inclusive range [start, end]
   sentenceRange?: [number, number];
   // Per-axis transforms for metric-pair-correlation

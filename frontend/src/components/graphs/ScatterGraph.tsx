@@ -327,11 +327,13 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
       .map((pt) => ({ [metricX]: applyX(pt[metricX]), [metricY]: applyY(pt[metricY]) }));
   const allTransformedPoints = allPoints.map((pt) => ({ [metricX]: applyX(pt[metricX]), [metricY]: applyY(pt[metricY]) }));
 
+  const showConfidenceBand = (config.trendlineUncertainty ?? 'none') === 'confidence-band';
+
   if (trendlineMode === 'global') {
     const trend = computeTrend(allTransformedPoints, metricX, metricY);
     if (trend) {
       const { upper, lower } = buildConfidenceBand(trend);
-      if (upper.length > 0) {
+      if (showConfidenceBand && upper.length > 0) {
         // Upper bound — fills down to the next dataset (lower bound)
         datasets.push({
           type: 'line' as const,
@@ -378,7 +380,7 @@ const ScatterGraph: React.FC<ScatterGraphProps> = ({ config, data, chartData }) 
       if (trend) {
         const color = getColorForMetric(idx);
         const { upper, lower } = buildConfidenceBand(trend);
-        if (upper.length > 0) {
+        if (showConfidenceBand && upper.length > 0) {
           datasets.push({
             type: 'line' as const,
             label: `${name} trend 95% CI upper`,

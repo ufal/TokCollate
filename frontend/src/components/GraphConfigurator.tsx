@@ -66,6 +66,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
     languages: [],
     metrics: [],
     trendlineMode: 'none',
+    trendlineUncertainty: 'none',
   });
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
@@ -358,6 +359,7 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
       filters: {},
       groupBy: (cfg as any).groupBy || 'tokenizer',
       trendlineMode,
+      trendlineUncertainty: (cfg as any).trendlineUncertainty ?? 'none',
       // Keep boolean flag in sync for any legacy consumers
       showTrendline: trendlineMode !== 'none',
       sentenceRange: cfg.sentenceRange,
@@ -560,7 +562,11 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                   value={(config as any).trendlineMode || ((config as any).showTrendline ? 'global' : 'none')}
                   onChange={(e) => {
                     const mode = e.target.value as 'none' | 'global' | 'groups';
-                    const newConfig = { ...config, trendlineMode: mode };
+                    const newConfig = {
+                      ...config,
+                      trendlineMode: mode,
+                      ...(mode === 'none' ? { trendlineUncertainty: 'none' as const } : {}),
+                    };
                     setConfig(newConfig);
                     validateConfig(newConfig);
                   }}
@@ -571,6 +577,24 @@ const GraphConfigurator: React.FC<GraphConfiguratorProps> = ({
                   <option value="groups">Groups</option>
                 </select>
               </div>
+              {((config as any).trendlineMode || 'none') !== 'none' && (
+                <div style={{ marginTop: '8px' }}>
+                  <label>Trendline (Uncertainty):</label>
+                  <select
+                    value={(config as any).trendlineUncertainty ?? 'none'}
+                    onChange={(e) => {
+                      const uncertainty = e.target.value as 'none' | 'confidence-band';
+                      const newConfig = { ...config, trendlineUncertainty: uncertainty };
+                      setConfig(newConfig);
+                      validateConfig(newConfig);
+                    }}
+                    className="single-select"
+                  >
+                    <option value="none">None</option>
+                    <option value="confidence-band">Confidence Band</option>
+                  </select>
+                </div>
+              )}
               {/* Axis transform controls */}
               {(['x', 'y'] as const).map((axis) => {
                 const metricLabel = axis === 'x' ? 'X-axis' : 'Y-axis';
